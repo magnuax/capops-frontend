@@ -16,6 +16,8 @@ private:
     QStackedWidget* _pageStack;
     QWidget* _mainPage;
 
+    void initializePages();
+
 public slots:
     void showMainPage();
 };
