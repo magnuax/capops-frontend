@@ -3,6 +3,7 @@
 #include <QMainWindow>
 
 class QWidget;
+class QStackedWidget;
 
 class AppWindow : public QMainWindow
 {
@@ -10,4 +11,11 @@ class AppWindow : public QMainWindow
 
 public:
     explicit AppWindow(QWidget *parent = nullptr);
+
+private:
+    QStackedWidget* _pageStack;
+    QWidget* _mainPage;
+
+public slots:
+    void showMainPage();
 };
