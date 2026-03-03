@@ -5,18 +5,27 @@ project(app
   LANGUAGES CXX
 )
 
+# -----------------------------
+# Global settings
+# -----------------------------
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Helpful defaults
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+
+# -----------------------------
+# Qt setup
+# -----------------------------
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-
-include(CTest)  # enables testing infrastructure
-
-# ---- Qt6 ----
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
 
 file(GLOB_RECURSE APP_SOURCES 
@@ -25,7 +34,10 @@ file(GLOB_RECURSE APP_SOURCES
     resources/*.qrc
 )
 
-add_executable(app ${APP_SOURCES})
+# -----------------------------
+# Executable & Linking
+# ------------------------------
 
+add_executable(app ${APP_SOURCES})
 target_link_libraries(app PRIVATE Qt6::Core Qt6::Widgets)
 target_include_directories(app PRIVATE include)
