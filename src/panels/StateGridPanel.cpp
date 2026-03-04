@@ -3,9 +3,6 @@
 
 #include "panels/StateGridPanel.hpp"
 #include "widgets/GridSector.hpp"
-// #include "widgets/StateGridView.hpp"
-
-#include <iostream>
 
 StateGridPanel::StateGridPanel(int numRows, int numCols, QWidget *parent) : QFrame(parent), _numRows(numRows), _numCols(numCols)
 {
