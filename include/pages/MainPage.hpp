@@ -12,5 +12,6 @@ public:
 private:
     QWidget* createStateGrid();
     QWidget* createOperatorPanel();
+    QWidget* createSectorDetailsPanel();
 
 };
