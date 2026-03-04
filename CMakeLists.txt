@@ -39,5 +39,5 @@ file(GLOB_RECURSE APP_SOURCES
 # ------------------------------
 
 add_executable(app ${APP_SOURCES})
-target_link_libraries(app PRIVATE Qt6::Core Qt6::Widgets)
+target_link_libraries(app PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
 target_include_directories(app PRIVATE include)

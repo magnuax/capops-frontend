@@ -1,0 +1,71 @@
+#include <QVBoxLayout>
+#include <QGridLayout>
+
+#include "panels/StateGridPanel.hpp"
+#include "widgets/GridSector.hpp"
+
+StateGridPanel::StateGridPanel(int numRows, int numCols, QWidget *parent) : QFrame(parent), _numRows(numRows), _numCols(numCols)
+{
+    auto *outer = new QVBoxLayout(this);
+    outer->setContentsMargins(0, 0, 0, 0);
+    outer->setSpacing(0);
+    outer->addWidget(createGrid(), 0, Qt::AlignCenter);
+}
+
+QWidget *StateGridPanel::createGrid()
+{
+    _gridWidget = new QWidget(this);
+    _gridWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    _gridLayout = new QGridLayout(_gridWidget);
+    _gridLayout->setContentsMargins(0, 0, 0, 0);
+    _gridLayout->setSpacing(0);
+
+    _cells.reserve(_numRows * _numCols);
+
+    for (int row = 0; row < _numRows; ++row)
+    {
+        for (int col = 0; col < _numCols; ++col)
+        {
+            auto *cell = new GridSector(row, col, _gridWidget);
+
+            _gridLayout->addWidget(cell, row, col);
+            _cells.push_back(cell);
+        }
+    }
+
+    for (int col = 0; col < _numCols; ++col)
+        _gridLayout->setColumnStretch(col, 1);
+    for (int row = 0; row < _numRows; ++row)
+        _gridLayout->setRowStretch(row, 1);
+
+    return _gridWidget;
+}
+
+void StateGridPanel::resizeEvent(QResizeEvent *event)
+{
+    QFrame::resizeEvent(event);
+
+    const int availWidth = contentsRect().width();
+    const int availHeight = contentsRect().height();
+
+    const int cellSize = std::min(
+        availWidth / _numCols,
+        availHeight / _numRows);
+
+    int newWidth = cellSize * _numCols;
+    int newHeight = cellSize * _numRows;
+
+    if (newWidth > newHeight)
+    {
+        _gridWidget->resize(newHeight, newHeight);
+    }
+    else
+    {
+        _gridWidget->resize(newWidth, newWidth);
+    }
+
+    _gridWidget->move(
+        (availWidth - _gridWidget->width()) / 2,
+        (availHeight - _gridWidget->height()) / 2);
+}
