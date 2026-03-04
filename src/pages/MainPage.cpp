@@ -24,12 +24,14 @@ QWidget *MainPage::createStateGrid()
 {
     int PLACEHOLDER_rows = 30;
     int PLACEHOLDER_cols = 30;
+    QPixmap PLACEHOLDER_map("resources/placeholder.png");
 
-    QWidget *stateGrid = new StateGridPanel(
+    StateGridPanel *stateGrid = new StateGridPanel(
         PLACEHOLDER_rows,
         PLACEHOLDER_cols,
         this);
 
+    stateGrid->setMapSource(&PLACEHOLDER_map);
     stateGrid->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     return stateGrid;
