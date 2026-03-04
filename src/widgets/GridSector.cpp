@@ -9,7 +9,7 @@ GridSector::GridSector(int row, int col, QWidget *parent)
 {
     setFrameStyle(QFrame::Box);
     setLineWidth(1);
-    setMinimumSize(48, 48);
+    setMinimumSize(24, 24);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
