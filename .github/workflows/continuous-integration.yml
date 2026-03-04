@@ -32,7 +32,11 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: '6.8.3'
-          
+      
+      - name: Set up MSVC
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+        
       - name: Configure CMake
         run: >
           cmake -S . -B build
