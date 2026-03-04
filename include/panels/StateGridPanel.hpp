@@ -13,13 +13,17 @@ class StateGridPanel : public QFrame
 public:
     explicit StateGridPanel(int numRows, int numCols, QWidget *parent = nullptr);
 
+    void setMapSource(const QPixmap *mapSource);
+
 protected:
-    void resizeEvent(QResizeEvent *e) override;
+    void resizeEvent(QResizeEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     QWidget *createGrid();
     QWidget *_gridWidget;
     QGridLayout *_gridLayout;
+    QPixmap _mapSource;
 
     int _numRows;
     int _numCols;
