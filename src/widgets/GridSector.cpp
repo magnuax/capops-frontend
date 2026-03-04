@@ -7,7 +7,7 @@
 GridSector::GridSector(int row, int col, QWidget *parent)
     : QFrame(parent), _row(row), _col(col)
 {
-    setFrameStyle(QFrame::Box);
+    setFrameStyle(QFrame::NoFrame);
     setLineWidth(1);
     setMinimumSize(24, 24);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -40,7 +40,7 @@ void GridSector::paintEvent(QPaintEvent *event)
 
     QRect cell = rect().adjusted(1, 1, -1, -1);
 
-    int alpha = 48;
+    int alpha = 72;
 
     switch (_state)
     {
@@ -61,6 +61,14 @@ void GridSector::paintEvent(QPaintEvent *event)
         painter.fillRect(cell, QColor(0, 255, 0, alpha)); // green
         break;
     }
+
+    QPen pen(QColor(0, 0, 0, alpha));
+    pen.setWidth(1);
+    pen.setCosmetic(true);
+    painter.setPen(pen);
+    painter.setBrush(Qt::NoBrush);
+    QRectF cellBorder = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
+    painter.drawRect(cellBorder);
 }
 
 void GridSector::resizeEvent(QResizeEvent *event)
