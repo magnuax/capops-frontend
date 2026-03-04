@@ -13,8 +13,8 @@ public:
     explicit AppWindow(QWidget *parent = nullptr);
 
 private:
-    QStackedWidget* _pageStack;
-    QWidget* _mainPage;
+    QStackedWidget *_pageStack;
+    QWidget *_mainPage;
 
     void initializePages();
 

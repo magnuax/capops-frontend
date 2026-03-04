@@ -10,8 +10,7 @@ public:
     explicit MainPage(QWidget *parent = nullptr);
 
 private:
-    QWidget* createStateGrid();
-    QWidget* createOperatorPanel();
-    QWidget* createSectorDetailsPanel();
-
+    QWidget *createStateGrid();
+    QWidget *createOperatorPanel();
+    QWidget *createSectorDetailsPanel();
 };

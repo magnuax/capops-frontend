@@ -8,15 +8,15 @@
 MainPage::MainPage(QWidget *parent) : QWidget(parent)
 {
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
-    
+
     mainLayout->addWidget(createSectorDetailsPanel());
     mainLayout->addWidget(createStateGrid());
     mainLayout->addWidget(createOperatorPanel());
-    
+
     mainLayout->setStretch(0, 1);
     mainLayout->setStretch(1, 3);
     mainLayout->setStretch(2, 1);
-    
+
     setLayout(mainLayout);
 }
 

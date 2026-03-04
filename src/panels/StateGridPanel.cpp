@@ -41,11 +41,6 @@ QWidget *StateGridPanel::createGrid()
         }
     }
 
-    for (int col = 0; col < _numCols; ++col)
-        _gridLayout->setColumnStretch(col, 1);
-    for (int row = 0; row < _numRows; ++row)
-        _gridLayout->setRowStretch(row, 1);
-
     return _gridWidget;
 }
 
@@ -98,9 +93,9 @@ void StateGridPanel::paintEvent(QPaintEvent *event)
 
     const int x = (scaled.width() - gridRectangle.width()) / 2;
     const int y = (scaled.height() - gridRectangle.height()) / 2;
-    
+
     painter.drawPixmap(
-        gridRectangle, 
-        scaled, 
+        gridRectangle,
+        scaled,
         QRect(x, y, gridRectangle.width(), gridRectangle.height()));
 }
