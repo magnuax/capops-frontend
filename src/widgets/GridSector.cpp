@@ -55,6 +55,11 @@ void GridSector::paintEvent(QPaintEvent *event)
     case CONGESTED:
         painter.fillRect(cell, QColor(255, 0, 0, alpha)); // red
         break;
+
+    // !! PLACEHOLDER !!
+    default: 
+        painter.fillRect(cell, QColor(0, 255, 0, alpha)); // green
+        break;
     }
 }
 
