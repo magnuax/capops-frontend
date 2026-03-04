@@ -1,5 +1,6 @@
 #include <QVBoxLayout>
 #include <QGridLayout>
+#include <QPainter>
 
 #include "panels/StateGridPanel.hpp"
 #include "widgets/GridSector.hpp"
@@ -10,6 +11,12 @@ StateGridPanel::StateGridPanel(int numRows, int numCols, QWidget *parent) : QFra
     outer->setContentsMargins(0, 0, 0, 0);
     outer->setSpacing(0);
     outer->addWidget(createGrid(), 0, Qt::AlignCenter);
+}
+
+void StateGridPanel::setMapSource(const QPixmap *mapSource)
+{
+    _mapSource = *mapSource;
+    update();
 }
 
 QWidget *StateGridPanel::createGrid()
@@ -68,4 +75,32 @@ void StateGridPanel::resizeEvent(QResizeEvent *event)
     _gridWidget->move(
         (availWidth - _gridWidget->width()) / 2,
         (availHeight - _gridWidget->height()) / 2);
+}
+
+void StateGridPanel::paintEvent(QPaintEvent *event)
+{
+    QFrame::paintEvent(event);
+
+    if (_mapSource.isNull())
+    {
+        return;
+    }
+
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+
+    const QRect gridRectangle = _gridWidget->geometry();
+
+    QPixmap scaled = _mapSource.scaled(
+        gridRectangle.size(),
+        Qt::KeepAspectRatioByExpanding,
+        Qt::SmoothTransformation);
+
+    const int x = (scaled.width() - gridRectangle.width()) / 2;
+    const int y = (scaled.height() - gridRectangle.height()) / 2;
+    
+    painter.drawPixmap(
+        gridRectangle, 
+        scaled, 
+        QRect(x, y, gridRectangle.width(), gridRectangle.height()));
 }
