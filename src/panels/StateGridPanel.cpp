@@ -13,6 +13,11 @@ StateGridPanel::StateGridPanel(int numRows, int numCols, QWidget *parent) : QFra
     outer->addWidget(createGrid(), 0, Qt::AlignCenter);
 }
 
+QSize StateGridPanel::getGridSize() const
+{
+    return _gridWidget->size();
+}
+
 void StateGridPanel::setMapSource(const QPixmap *mapSource)
 {
     _mapSource = *mapSource;

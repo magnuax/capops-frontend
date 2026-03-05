@@ -13,6 +13,8 @@ class StateGridPanel : public QFrame
 public:
     explicit StateGridPanel(int numRows, int numCols, QWidget *parent = nullptr);
 
+    QSize getGridSize() const;
+
     void setMapSource(const QPixmap *mapSource);
 
 protected:
