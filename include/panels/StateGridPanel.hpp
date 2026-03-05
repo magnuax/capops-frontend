@@ -21,11 +21,16 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
 
+signals:
+    void sectorSelected(int row, int col);
+
 private:
     QWidget *createGrid();
     QWidget *_gridWidget;
     QGridLayout *_gridLayout;
     QPixmap _mapSource;
+
+    GridSector *_selectedCell;
 
     int _numRows;
     int _numCols;

@@ -19,10 +19,16 @@ void GridSector::setState(SectorState state)
     update();
 }
 
+void GridSector::setSelected(bool selected)
+{
+    _isSelected = selected;
+    update();
+}
+
 void GridSector::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
-        emit clicked(_row, _col);
+        emit selected(_row, _col);
 }
 
 void GridSector::contextMenuEvent(QContextMenuEvent *event)
@@ -69,8 +75,16 @@ void GridSector::paintEvent(QPaintEvent *event)
     QPen pen(fillColor.darker(160));
     pen.setWidth(1);
     pen.setCosmetic(true);
+ 
+    if (_isSelected)
+    {
+        pen.setColor(Qt::black);
+    }
+    
+
     painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);
+ 
     QRectF cellBorder = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
     painter.drawRect(cellBorder);
 }
