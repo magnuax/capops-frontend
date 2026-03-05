@@ -38,6 +38,11 @@ MainPage::MainPage(QWidget *parent) : QWidget(parent)
 
 void MainPage::wireConnections()
 {
+
+    // --- Sector details <-> Grid panel ---
+    connect(_gridPanel, &StateGridPanel::sectorSelected, _sectorDetailsPanel, [this](int row, int col)
+            { _sectorDetailsPanel->setSector(row, col); });
+
     // --- Map fetcher signals ---
     connect(_mapFetcher, &TileMapFetcherCARTO::finished, this, [this](const QPixmap &pm)
             { _gridPanel->setMapSource(&pm); });
