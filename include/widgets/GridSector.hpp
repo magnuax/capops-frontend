@@ -20,8 +20,10 @@ public:
 
     void setState(SectorState state);
 
+    void setSelected(bool selected);
+
 signals:
-    void clicked(int row, int col);
+    void selected(int row, int col);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
@@ -38,6 +40,8 @@ private:
     int _col;
     SectorState _state;
 
+    bool _isSelected = false;
+    
     QMenu *_contextMenu;
     QAction *_renameAction;
     QAction *_deleteAction;
