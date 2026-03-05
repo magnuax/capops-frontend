@@ -22,7 +22,7 @@ void GridSector::setState(SectorState state)
 void GridSector::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
-        emit clicked(_row, _col);
+        emit selected(_row, _col);
 }
 
 void GridSector::contextMenuEvent(QContextMenuEvent *event)
