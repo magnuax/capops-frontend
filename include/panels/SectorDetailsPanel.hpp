@@ -8,5 +8,4 @@ class SectorDetailsPanel : public QWidget
 
 public:
     explicit SectorDetailsPanel(QWidget *parent = nullptr);
-
 };

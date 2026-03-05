@@ -2,10 +2,11 @@
 
 #include <QFrame>
 
-enum SectorState {
+enum SectorState
+{
     NORMAL,
-    CONGESTED,
-    AT_RISK
+    AT_RISK,
+    CONGESTED
 };
 
 class QMenu;

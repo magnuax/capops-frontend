@@ -7,7 +7,7 @@
 GridSector::GridSector(int row, int col, QWidget *parent)
     : QFrame(parent), _row(row), _col(col)
 {
-    setFrameStyle(QFrame::Box);
+    setFrameStyle(QFrame::NoFrame);
     setLineWidth(1);
     setMinimumSize(24, 24);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -28,34 +28,51 @@ void GridSector::mousePressEvent(QMouseEvent *event)
 void GridSector::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu(this);
-    menu.addAction("Rename");
-    menu.addAction("Delete");
+    menu.addAction("Lorem ipsum");
+    menu.addAction("Dolor sit amet");
     menu.exec(event->globalPos());
 }
 
-void GridSector::paintEvent(QPaintEvent *e)
+void GridSector::paintEvent(QPaintEvent *event)
 {
-    QFrame::paintEvent(e); // draws the frame
+    QFrame::paintEvent(event);
+    QPainter painter(this);
 
-    QPainter p(this);
-    // fill interior (don’t paint over the border too aggressively)
-    QRect inner = rect().adjusted(1, 1, -1, -1);
+    QRect cell = rect().adjusted(1, 1, -1, -1);
 
-    // pick fill based on state
-    // (choose your own colors)
-
+    int alpha = 64;
+    QColor fillColor;
     switch (_state)
     {
     case NORMAL:
-        p.fillRect(inner, QColor(200, 255, 200)); // light green
+        painter.fillRect(cell, QColor(0, 255, 0, alpha)); // green
+        fillColor = QColor(0, 255, 0, alpha);
         break;
-    case CONGESTED:
-        p.fillRect(inner, QColor(255, 200, 200)); // light red
-        break;
+
     case AT_RISK:
-        p.fillRect(inner, QColor(255, 165, 0)); // orange
+        painter.fillRect(cell, QColor(255, 160, 0, alpha)); // orange
+        fillColor = QColor(255, 160, 0, alpha);
+        break;
+
+    case CONGESTED:
+        painter.fillRect(cell, QColor(255, 0, 0, alpha)); // red
+        fillColor = QColor(255, 0, 0, alpha);
+        break;
+
+    // !! PLACEHOLDER !!
+    default:
+        painter.fillRect(cell, QColor(0, 255, 0, alpha)); // green
+        fillColor = QColor(0, 255, 0, alpha);
         break;
     }
+    
+    QPen pen(fillColor.darker(160));
+    pen.setWidth(1);
+    pen.setCosmetic(true);
+    painter.setPen(pen);
+    painter.setBrush(Qt::NoBrush);
+    QRectF cellBorder = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
+    painter.drawRect(cellBorder);
 }
 
 void GridSector::resizeEvent(QResizeEvent *event)
