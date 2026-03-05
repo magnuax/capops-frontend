@@ -40,29 +40,33 @@ void GridSector::paintEvent(QPaintEvent *event)
 
     QRect cell = rect().adjusted(1, 1, -1, -1);
 
-    int alpha = 72;
-
+    int alpha = 64;
+    QColor fillColor;
     switch (_state)
     {
     case NORMAL:
         painter.fillRect(cell, QColor(0, 255, 0, alpha)); // green
+        fillColor = QColor(0, 255, 0, alpha);
         break;
 
     case AT_RISK:
         painter.fillRect(cell, QColor(255, 160, 0, alpha)); // orange
+        fillColor = QColor(255, 160, 0, alpha);
         break;
 
     case CONGESTED:
         painter.fillRect(cell, QColor(255, 0, 0, alpha)); // red
+        fillColor = QColor(255, 0, 0, alpha);
         break;
 
     // !! PLACEHOLDER !!
-    default: 
+    default:
         painter.fillRect(cell, QColor(0, 255, 0, alpha)); // green
+        fillColor = QColor(0, 255, 0, alpha);
         break;
     }
-
-    QPen pen(QColor(0, 0, 0, alpha));
+    
+    QPen pen(fillColor.darker(160));
     pen.setWidth(1);
     pen.setCosmetic(true);
     painter.setPen(pen);

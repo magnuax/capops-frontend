@@ -20,11 +20,14 @@ private:
     QWidget *createOperatorPanel();
     QWidget *createSectorDetailsPanel();
 
+    void wireConnections();
+
     StateGridPanel *_gridPanel = nullptr;
     OperatorPanel *_operatorPanel = nullptr;
     SectorDetailsPanel *_sectorDetailsPanel = nullptr;
 
     TileMapFetcherCARTO *_mapFetcher = nullptr;
 
-    void requestMap(double longitude, double latitude, int zoomLevel);
+public slots:
+    void requestMap(double latitude, double longitude, int zoomLevel);
 };
