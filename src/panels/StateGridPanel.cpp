@@ -41,6 +41,18 @@ QWidget *StateGridPanel::createGrid()
         {
             auto *cell = new GridSector(row, col, _gridWidget);
 
+            connect(cell, &GridSector::selected, this, [this, cell](int row, int col)
+                    { 
+                        if (_selectedCell && _selectedCell != cell)
+                        {
+                            _selectedCell->setSelected(false);
+                        }
+
+                        _selectedCell = cell;
+                        _selectedCell->setSelected(true);
+
+                        emit sectorSelected(row, col); });
+
             _gridLayout->addWidget(cell, row, col);
             _cells.push_back(cell);
         }
