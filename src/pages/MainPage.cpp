@@ -1,9 +1,17 @@
 #include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QTimer>
+#include <QStandardPaths>
+
+#include <QSslSocket>
+#include <QDebug>
 
 #include "pages/MainPage.hpp"
 #include "panels/StateGridPanel.hpp"
 #include "panels/OperatorPanel.hpp"
 #include "panels/SectorDetailsPanel.hpp"
+
+#include "helpers/TileMapFetcherCARTO.hpp"
 
 MainPage::MainPage(QWidget *parent) : QWidget(parent)
 {
@@ -18,33 +26,65 @@ MainPage::MainPage(QWidget *parent) : QWidget(parent)
     mainLayout->setStretch(2, 1);
 
     setLayout(mainLayout);
+
+    _mapFetcher = new TileMapFetcherCARTO(this);
+    _mapFetcher->enableDiskCache(
+        QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/osmtiles");
+
+    connect(_mapFetcher, &TileMapFetcherCARTO::finished, this, [this](const QPixmap &pm)
+            { _gridPanel->setMapSource(&pm); });
+
+    connect(_mapFetcher, &TileMapFetcherCARTO::failed, this, [](const QString &err)
+            { qWarning() << err; });
+
+    QTimer::singleShot(0, this, [this]
+                       { requestMap(60.1986, 11.1130, 13); });
+
+    qDebug() << "SSL supported:" << QSslSocket::supportsSsl()
+             << "SSL build:" << QSslSocket::sslLibraryBuildVersionString()
+             << "SSL runtime:" << QSslSocket::sslLibraryVersionString();
 }
 
 QWidget *MainPage::createStateGrid()
 {
     int PLACEHOLDER_rows = 30;
     int PLACEHOLDER_cols = 30;
-    QPixmap PLACEHOLDER_map("resources/placeholder.png");
 
-    StateGridPanel *stateGrid = new StateGridPanel(
+    _gridPanel = new StateGridPanel(
         PLACEHOLDER_rows,
         PLACEHOLDER_cols,
         this);
 
-    stateGrid->setMapSource(&PLACEHOLDER_map);
-    stateGrid->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    _gridPanel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    return stateGrid;
+    return _gridPanel;
 };
 
 QWidget *MainPage::createOperatorPanel()
 {
-    QWidget *operatorPanel = new OperatorPanel(this);
-    return operatorPanel;
+    _operatorPanel = new OperatorPanel(this);
+    return _operatorPanel;
 }
 
 QWidget *MainPage::createSectorDetailsPanel()
 {
-    QWidget *sectorDetailsPanel = new SectorDetailsPanel(this);
-    return sectorDetailsPanel;
+    _sectorDetailsPanel = new SectorDetailsPanel(this);
+    return _sectorDetailsPanel;
+}
+
+void MainPage::requestMap(double lat, double lon, int zoom)
+{
+    QSize size = _gridPanel->getGridSize();
+    
+    if (size.isEmpty())
+    {
+        size = QSize(600, 600);
+    }
+
+    TileMapFetcherCARTO::Request request;
+    request.coords = {lon, lat};
+    request.zoom = zoom;
+    request.imageSize = size;
+
+    _mapFetcher->fetch(request);
 }
