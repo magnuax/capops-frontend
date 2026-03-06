@@ -2,7 +2,7 @@
 #include <QNetworkAccessManager>
 
 #include "helpers/IMapFetcher.hpp"
-#include "helpers/MapUtils.hpp"
+#include "domain/Coordinates.hpp"
 
 class QNetworkReply;
 class QImage;

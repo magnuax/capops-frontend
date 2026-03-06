@@ -5,7 +5,7 @@
 #include <cmath>
 
 #include "helpers/MapFetcherCARTO.hpp"
-#include "helpers/MapUtils.hpp"
+#include "domain/Coordinates.hpp"
 
 MapFetcherCARTO::MapFetcherCARTO(QObject *parent) : IMapFetcher(parent) {}
 
