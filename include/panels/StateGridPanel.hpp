@@ -1,6 +1,8 @@
 #pragma once
-
 #include <QFrame>
+
+#include "domain/DisplayMode.hpp"
+#include "domain/SectorStates.hpp"
 
 class QWidget;
 class GridSector;
@@ -13,9 +15,10 @@ class StateGridPanel : public QFrame
 public:
     explicit StateGridPanel(int numRows, int numCols, QWidget *parent = nullptr);
 
-    QSize getGridSize() const;
-
+    void setDisplayMode(DisplayMode mode);
     void setMapSource(const QPixmap *mapSource);
+
+    QSize getGridSize() const;
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -26,6 +29,7 @@ signals:
 
 private:
     QWidget *createGrid();
+
     QWidget *_gridWidget;
     QGridLayout *_gridLayout;
     QPixmap _mapSource;
