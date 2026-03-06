@@ -5,6 +5,7 @@
 class StateGridPanel;
 class OperatorPanel;
 class SectorDetailsPanel;
+class SegmentedControl;
 
 class TileMapFetcherCARTO;
 
@@ -19,12 +20,15 @@ private:
     QWidget *createStateGrid();
     QWidget *createOperatorPanel();
     QWidget *createSectorDetailsPanel();
+    QWidget *createDisplayControls();
 
     void wireConnections();
 
     StateGridPanel *_gridPanel = nullptr;
+    SegmentedControl *_displayControls = nullptr;
     OperatorPanel *_operatorPanel = nullptr;
     SectorDetailsPanel *_sectorDetailsPanel = nullptr;
+
 
     TileMapFetcherCARTO *_mapFetcher = nullptr;
 

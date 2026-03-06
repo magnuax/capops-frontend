@@ -4,6 +4,8 @@
 #include <QStandardPaths>
 
 #include <QSslSocket>
+#include <QToolButton>
+#include <QButtonGroup>
 #include <QDebug>
 
 #include "pages/MainPage.hpp"
@@ -12,23 +14,31 @@
 #include "panels/SectorDetailsPanel.hpp"
 
 #include "helpers/TileMapFetcherCARTO.hpp"
+#include "widgets/SegmentedControl.hpp"
 
 MainPage::MainPage(QWidget *parent) : QWidget(parent)
 {
+    QVBoxLayout *displayLayout = new QVBoxLayout();
+    displayLayout->setContentsMargins(0, 0, 0, 0);
+    displayLayout->setSpacing(0);
+    displayLayout->addWidget(createStateGrid());
+    displayLayout->addWidget(createDisplayControls(), 0, Qt::AlignCenter);
+
+    QWidget *sectorDetailsPanel = createSectorDetailsPanel();
+    QWidget *operatorPanel = createOperatorPanel();
+
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
-
-    mainLayout->addWidget(createSectorDetailsPanel());
-    mainLayout->addWidget(createStateGrid());
-    mainLayout->addWidget(createOperatorPanel());
-
+    mainLayout->addWidget(sectorDetailsPanel);
+    mainLayout->addLayout(displayLayout);
+    mainLayout->addWidget(operatorPanel);
     mainLayout->setStretch(0, 1);
     mainLayout->setStretch(1, 3);
     mainLayout->setStretch(2, 1);
 
-    setLayout(mainLayout);
-
     _mapFetcher = new TileMapFetcherCARTO(this);
-    _mapFetcher->enableDiskCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/osmtiles");
+    _mapFetcher->enableDiskCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/maptiles");
+
+    setLayout(mainLayout);
 
     wireConnections();
 
@@ -38,6 +48,15 @@ MainPage::MainPage(QWidget *parent) : QWidget(parent)
 
 void MainPage::wireConnections()
 {
+
+    // --- Display controls <-> Grid panel ---
+    connect(_displayControls, &SegmentedControl::segmentSelected, this, [this](int idx)
+            {
+        QVariant displayMode = _displayControls->getSegmentData(idx);
+        if (displayMode.isValid())
+        {
+            _gridPanel->setDisplayMode(static_cast<DisplayMode>(displayMode.toInt()));
+        } });
 
     // --- Sector details <-> Grid panel ---
     connect(_gridPanel, &StateGridPanel::sectorSelected, _sectorDetailsPanel, [this](int row, int col)
@@ -76,6 +95,18 @@ QWidget *MainPage::createSectorDetailsPanel()
 {
     _sectorDetailsPanel = new SectorDetailsPanel(this);
     return _sectorDetailsPanel;
+}
+
+QWidget *MainPage::createDisplayControls()
+{
+
+    _displayControls = new SegmentedControl({"Risk", "Weather", "Traffic"}, this);
+
+    _displayControls->setSegmentData(0, static_cast<int>(DisplayMode::RISK));
+    _displayControls->setSegmentData(1, static_cast<int>(DisplayMode::WEATHER));
+    _displayControls->setSegmentData(2, static_cast<int>(DisplayMode::TRAFFIC));
+
+    return _displayControls;
 }
 
 void MainPage::requestMap(double lat, double lon, int zoom)
