@@ -1,16 +1,28 @@
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QPainter>
+#include <QButtonGroup>
+#include <QToolButton>
 
 #include "panels/StateGridPanel.hpp"
 #include "widgets/GridSector.hpp"
+
 
 StateGridPanel::StateGridPanel(int numRows, int numCols, QWidget *parent) : QFrame(parent), _numRows(numRows), _numCols(numCols)
 {
     auto *outer = new QVBoxLayout(this);
     outer->setContentsMargins(0, 0, 0, 0);
     outer->setSpacing(0);
+
     outer->addWidget(createGrid(), 0, Qt::AlignCenter);
+}
+
+void StateGridPanel::setDisplayMode(DisplayMode mode)
+{
+    for (GridSector *cell : _cells)
+    {
+        cell->setDisplayMode(mode);
+    }
 }
 
 QSize StateGridPanel::getGridSize() const
@@ -18,9 +30,9 @@ QSize StateGridPanel::getGridSize() const
     return _gridWidget->size();
 }
 
-void StateGridPanel::setMapSource(const QPixmap *mapSource)
+void StateGridPanel::setMapSource(const QPixmap &mapSource)
 {
-    _mapSource = *mapSource;
+    _mapSource = mapSource;
     update();
 }
 

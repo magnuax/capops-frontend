@@ -1,8 +1,10 @@
 #include <QWidget>
 #include <QStackedWidget>
+#include <QStandardPaths>
 
 #include "AppWindow.hpp"
 #include "pages/MainPage.hpp"
+#include "helpers/MapFetcherCARTO.hpp"
 
 AppWindow::AppWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -10,9 +12,13 @@ AppWindow::AppWindow(QWidget *parent) : QMainWindow(parent)
     showMainPage();
 }
 
+
 void AppWindow::initializePages()
 {
-    _mainPage = new MainPage(this);
+    _mapFetcher = new MapFetcherCARTO(this);
+    _mapFetcher->enableDiskCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/maptiles");
+
+    _mainPage = new MainPage(_mapFetcher, this);
     _pageStack = new QStackedWidget(this);
     _pageStack->addWidget(_mainPage);
 

@@ -1,34 +1,23 @@
 #pragma once
-
-#include <QObject>
-#include <QPixmap>
-#include <QSize>
 #include <QNetworkAccessManager>
 
+#include "helpers/IMapFetcher.hpp"
 #include "helpers/MapUtils.hpp"
 
-class TileMapFetcherCARTO : public QObject
+class QNetworkReply;
+class QImage;
+
+class MapFetcherCARTO : public IMapFetcher
 {
     Q_OBJECT
 
 public:
-    explicit TileMapFetcherCARTO(QObject *parent = nullptr);
+    explicit MapFetcherCARTO(QObject *parent = nullptr);
+    ~MapFetcherCARTO() override = default;
 
-    struct Request
-    {
-        int zoom = 13;
-        Coordinates coords = {0.0, 0.0};
-        QSize imageSize = {512, 512};
-        QSize tileSize = {256, 256};
-    };
+    void fetch(const Request &request) override;
 
-    void fetch(const Request &request);
-
-    void enableDiskCache(const QString &cacheDir, qint64 maxBytes = 256LL * 1024 * 1024);
-
-signals:
-    void finished(const QPixmap &map);
-    void failed(const QString &error);
+    void enableDiskCache(const QString &cacheDir, qint64 maxBytes = 256LL * 1024 * 1024) override;
 
 private slots:
     void onTileFetched(QNetworkReply *reply, int tileX, int tileY);
