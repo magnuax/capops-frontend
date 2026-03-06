@@ -4,7 +4,7 @@
 #include <QPixmap>
 #include <QSize>
 
-#include "helpers/MapUtils.hpp"
+#include "domain/Coordinates.hpp"
 
 class IMapFetcher : public QObject
 {
