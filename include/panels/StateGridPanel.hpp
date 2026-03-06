@@ -16,7 +16,7 @@ public:
     explicit StateGridPanel(int numRows, int numCols, QWidget *parent = nullptr);
 
     void setDisplayMode(DisplayMode mode);
-    void setMapSource(const QPixmap *mapSource);
+    void setMapSource(const QPixmap &mapSource);
 
     QSize getGridSize() const;
 
@@ -30,14 +30,14 @@ signals:
 private:
     QWidget *createGrid();
 
-    QWidget *_gridWidget;
-    QGridLayout *_gridLayout;
     QPixmap _mapSource;
 
-    GridSector *_selectedCell;
-
+    QWidget *_gridWidget = nullptr;
+    QGridLayout *_gridLayout = nullptr;
+    
     int _numRows;
     int _numCols;
 
+    GridSector *_selectedCell = nullptr;
     std::vector<GridSector *> _cells;
 };

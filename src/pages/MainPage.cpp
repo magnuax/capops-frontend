@@ -13,10 +13,10 @@
 #include "panels/OperatorPanel.hpp"
 #include "panels/SectorDetailsPanel.hpp"
 
-#include "helpers/TileMapFetcherCARTO.hpp"
+#include "helpers/IMapFetcher.hpp"
 #include "widgets/SegmentedControl.hpp"
 
-MainPage::MainPage(QWidget *parent) : QWidget(parent)
+MainPage::MainPage(IMapFetcher *mapFetcher, QWidget *parent) :  QWidget(parent), _mapFetcher(mapFetcher)
 {
     QVBoxLayout *displayLayout = new QVBoxLayout();
     displayLayout->setContentsMargins(0, 0, 0, 0);
@@ -34,9 +34,6 @@ MainPage::MainPage(QWidget *parent) : QWidget(parent)
     mainLayout->setStretch(0, 1);
     mainLayout->setStretch(1, 3);
     mainLayout->setStretch(2, 1);
-
-    _mapFetcher = new TileMapFetcherCARTO(this);
-    _mapFetcher->enableDiskCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/maptiles");
 
     setLayout(mainLayout);
 
@@ -63,10 +60,10 @@ void MainPage::wireConnections()
             { _sectorDetailsPanel->setSector(row, col); });
 
     // --- Map fetcher signals ---
-    connect(_mapFetcher, &TileMapFetcherCARTO::finished, this, [this](const QPixmap &pm)
-            { _gridPanel->setMapSource(&pm); });
+    connect(_mapFetcher, &IMapFetcher::finished, this, [this](const QPixmap &pm)
+            { _gridPanel->setMapSource(pm); });
 
-    connect(_mapFetcher, &TileMapFetcherCARTO::failed, this, [](const QString &err)
+    connect(_mapFetcher, &IMapFetcher::failed, this, [](const QString &err)
             { qWarning() << err; });
 }
 
@@ -119,7 +116,7 @@ void MainPage::requestMap(double lat, double lon, int zoom)
         size = QSize(600, 600);
     }
 
-    TileMapFetcherCARTO::Request request;
+    IMapFetcher::Request request;
     request.coords = {lon, lat};
     request.zoom = zoom;
     request.imageSize = size;

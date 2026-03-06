@@ -4,6 +4,7 @@
 
 class QWidget;
 class QStackedWidget;
+class IMapFetcher;
 
 class AppWindow : public QMainWindow
 {
@@ -15,6 +16,7 @@ public:
 private:
     QStackedWidget *_pageStack;
     QWidget *_mainPage;
+    IMapFetcher *_mapFetcher;
 
     void initializePages();
 

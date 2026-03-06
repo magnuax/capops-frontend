@@ -30,9 +30,9 @@ QSize StateGridPanel::getGridSize() const
     return _gridWidget->size();
 }
 
-void StateGridPanel::setMapSource(const QPixmap *mapSource)
+void StateGridPanel::setMapSource(const QPixmap &mapSource)
 {
-    _mapSource = *mapSource;
+    _mapSource = mapSource;
     update();
 }
 
