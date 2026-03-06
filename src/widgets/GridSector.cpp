@@ -7,15 +7,41 @@
 GridSector::GridSector(int row, int col, QWidget *parent)
     : QFrame(parent), _row(row), _col(col)
 {
+    // --- default states ---
+    _riskState = NORMAL;
+    _weatherState = OK;
+    _trafficState = LIGHT;
+    _displayMode = RISK;
+    _isSelected = false;
+
+    // --- style ---
     setFrameStyle(QFrame::NoFrame);
     setLineWidth(1);
     setMinimumSize(24, 24);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
-void GridSector::setState(SectorState state)
+void GridSector::setRiskState(RiskState state)
 {
-    _state = state;
+    _riskState = state;
+    update();
+}
+
+void GridSector::setWeatherState(WeatherState state)
+{
+    _weatherState = state;
+    update();
+}
+
+void GridSector::setTrafficState(TrafficState state)
+{
+    _trafficState = state;
+    update();
+}
+
+void GridSector::setDisplayMode(DisplayMode mode)
+{
+    _displayMode = mode;
     update();
 }
 
@@ -41,52 +67,97 @@ void GridSector::contextMenuEvent(QContextMenuEvent *event)
 
 void GridSector::paintEvent(QPaintEvent *event)
 {
-    QFrame::paintEvent(event);
+    Q_UNUSED(event);
+
     QPainter painter(this);
 
-    QRect cell = rect().adjusted(1, 1, -1, -1);
+    const QRect cell = rect();
 
-    int alpha = 64;
     QColor fillColor;
-    switch (_state)
+    switch (_displayMode)
     {
-    case NORMAL:
-        painter.fillRect(cell, QColor(0, 255, 0, alpha)); // green
-        fillColor = QColor(0, 255, 0, alpha);
+    case RISK:
+        fillColor = getRiskStateColor();
         break;
-
-    case AT_RISK:
-        painter.fillRect(cell, QColor(255, 160, 0, alpha)); // orange
-        fillColor = QColor(255, 160, 0, alpha);
+    case WEATHER:
+        fillColor = getWeatherStateColor();
         break;
-
-    case CONGESTED:
-        painter.fillRect(cell, QColor(255, 0, 0, alpha)); // red
-        fillColor = QColor(255, 0, 0, alpha);
+    case TRAFFIC:
+        fillColor = getTrafficStateColor();
         break;
-
-    // !! PLACEHOLDER !!
-    default:
-        painter.fillRect(cell, QColor(0, 255, 0, alpha)); // green
-        fillColor = QColor(0, 255, 0, alpha);
+    case NONE:
+        fillColor = QColor(255, 255, 255, 0);
         break;
     }
-    
-    QPen pen(fillColor.darker(160));
+
+    painter.fillRect(cell, fillColor);
+
+    QPen pen(_isSelected ? Qt::black : QColor(0, 0, 0, 16));
     pen.setWidth(1);
     pen.setCosmetic(true);
- 
-    if (_isSelected)
-    {
-        pen.setColor(Qt::black);
-    }
-    
-
     painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);
- 
-    QRectF cellBorder = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
+
+    QRectF cellBorder = QRectF(cell).adjusted(0.5, 0.5, -0.5, -0.5);
     painter.drawRect(cellBorder);
+}
+
+QColor GridSector::getRiskStateColor()
+{
+    int alpha = 48;
+
+    switch (_riskState)
+    {
+    case NORMAL:
+        return QColor(0, 255, 0, alpha); // green
+
+    case AT_RISK:
+        return QColor(255, 160, 0, alpha); // orange
+
+    case CONGESTED:
+        return QColor(255, 0, 0, alpha); // red
+    }
+
+    QColor fallback(0, 0, 0, 0);
+    return fallback;
+}
+
+QColor GridSector::getWeatherStateColor()
+{
+    int alpha = 48;
+
+    switch (_weatherState)
+    {
+    case OK:
+        return QColor(0, 255, 255, alpha); // cyan
+    case DEGRADED:
+        return QColor(255, 255, 0, alpha); // yellow
+    case SEVERE:
+        return QColor(255, 0, 0, alpha); // red
+    case EXTREME:
+        return QColor(128, 0, 128, alpha); // purple
+    }
+
+    QColor fallback(0, 0, 0, 0);
+    return fallback;
+}
+
+QColor GridSector::getTrafficStateColor()
+{
+    int alpha = 48;
+
+    switch (_trafficState)
+    {
+    case LIGHT:
+        return QColor(0, 255, 0, alpha); // green
+    case MODERATE:
+        return QColor(255, 255, 0, alpha); // yellow
+    case HEAVY:
+        return QColor(255, 0, 0, alpha); // red
+    }
+    
+    QColor fallback(0, 0, 0, 0);
+    return fallback;
 }
 
 void GridSector::resizeEvent(QResizeEvent *event)
