@@ -100,11 +100,12 @@ QWidget *MainPage::createSectorDetailsPanel()
 QWidget *MainPage::createDisplayControls()
 {
 
-    _displayControls = new SegmentedControl({"Risk", "Weather", "Traffic"}, this);
+    _displayControls = new SegmentedControl({"Risk", "Weather", "Traffic", "None"}, this);
 
     _displayControls->setSegmentData(0, static_cast<int>(DisplayMode::RISK));
     _displayControls->setSegmentData(1, static_cast<int>(DisplayMode::WEATHER));
     _displayControls->setSegmentData(2, static_cast<int>(DisplayMode::TRAFFIC));
+    _displayControls->setSegmentData(3, static_cast<int>(DisplayMode::NONE));
 
     return _displayControls;
 }
