@@ -63,16 +63,16 @@ include/
 │   └── MapFetcherCARTO.hpp
 │
 ├── pages/
-│   └── MainPage.hpp / .cpp
+│   └── MainPage.hpp
 │
 ├── panels/
-│   ├── StateGridPanel
-│   ├── SectorDetailsPanel
-│   └── OperatorPanel
+│   ├── StateGridPanel.hpp
+│   ├── SectorDetailsPanel.hpp
+│   └── OperatorPanel.hpp
 │
 ├── widgets/
-│   ├── GridSector
-│   └── SegmentedControl
+│   ├── GridSector.hpp
+│   └── SegmentedControl.hpp
 │
 └── AppWindow
 
