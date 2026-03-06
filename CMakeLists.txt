@@ -5,19 +5,28 @@ project(app
   LANGUAGES CXX
 )
 
+# -----------------------------
+# Global settings
+# -----------------------------
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Helpful defaults
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+
+# -----------------------------
+# Qt setup
+# -----------------------------
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-
-include(CTest)  # enables testing infrastructure
-
-# ---- Qt6 ----
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network)
 
 file(GLOB_RECURSE APP_SOURCES 
     src/*.cpp
@@ -25,7 +34,10 @@ file(GLOB_RECURSE APP_SOURCES
     resources/*.qrc
 )
 
-add_executable(app ${APP_SOURCES})
+# -----------------------------
+# Executable & Linking
+# ------------------------------
 
-target_link_libraries(app PRIVATE Qt6::Core Qt6::Widgets)
+add_executable(app ${APP_SOURCES})
+target_link_libraries(app PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
 target_include_directories(app PRIVATE include)
