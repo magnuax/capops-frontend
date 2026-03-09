@@ -4,15 +4,15 @@
 class QWidget;
 class QTabWidget;
 
-class OperatorPanel : public QFrame
+class AlertPanel : public QFrame
 {
     Q_OBJECT
 
 public:
-    explicit OperatorPanel(QWidget *parent = nullptr);
+    explicit AlertPanel(QWidget *parent = nullptr);
 
 private:
-    QTabWidget *createOperatorPanel();
+    QTabWidget *createAlertPanel();
     QWidget *createLogTab();
     QWidget *createAlertsTab();
 

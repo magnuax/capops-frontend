@@ -2,16 +2,16 @@
 #include <QTabWidget>
 #include <QVBoxLayout>
 
-#include "panels/OperatorPanel.hpp"
+#include "panels/AlertPanel.hpp"
 
-OperatorPanel::OperatorPanel(QWidget *parent) : QFrame(parent)
+AlertPanel::AlertPanel(QWidget *parent) : QFrame(parent)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(createOperatorPanel());
+    layout->addWidget(createAlertPanel());
     setLayout(layout);
 }
 
-QTabWidget *OperatorPanel::createOperatorPanel()
+QTabWidget *AlertPanel::createAlertPanel()
 {
     QTabWidget *tabWidget = new QTabWidget(this);
     _logTab = createLogTab();
@@ -23,14 +23,14 @@ QTabWidget *OperatorPanel::createOperatorPanel()
     return tabWidget;
 }
 
-QWidget *OperatorPanel::createLogTab()
+QWidget *AlertPanel::createLogTab()
 {
     QWidget *logTab = new QWidget(this);
 
     return logTab;
 };
 
-QWidget *OperatorPanel::createAlertsTab()
+QWidget *AlertPanel::createAlertsTab()
 {
     QWidget *alertsTab = new QWidget(this);
 
