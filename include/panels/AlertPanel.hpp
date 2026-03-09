@@ -3,6 +3,8 @@
 
 class QWidget;
 class QTabWidget;
+class QButtonGroup;
+class AlertButton;
 
 class AlertPanel : public QFrame
 {
@@ -11,13 +13,15 @@ class AlertPanel : public QFrame
 public:
     explicit AlertPanel(QWidget *parent = nullptr);
 
-private:
+    private:
     QTabWidget *createAlertPanel();
     QWidget *createLogTab();
     QWidget *createAlertsTab();
+    QWidget *createAlertButton(int sectorId);
 
-    QWidget *_logTab;
-    QWidget *_alertsTab;
+    QVector<AlertButton *> _activeAlerts;
+    QWidget *_logTab = nullptr;
+    QWidget *_alertsTab = nullptr;
 
 signals:
     void alertAcknowledged(const QString &sectorId);
