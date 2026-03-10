@@ -3,7 +3,7 @@
 #include <QPainter>
 #include <QButtonGroup>
 #include <QToolButton>
-#include <QTabWidget>
+#include <QTabBar>
 
 #include "panels/StateGridPanel.hpp"
 #include "widgets/GridCanvas.hpp"
@@ -19,16 +19,40 @@ StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent)
     outer->setContentsMargins(0, 0, 0, 0);
     outer->setSpacing(0);
 
-    auto *tabs = new QTabWidget(this);
-    outer->addWidget(tabs);
+    auto *tabBar = new QTabBar(this);
+    tabBar->addTab("Risk");
+    tabBar->addTab("Weather");
+    tabBar->addTab("Traffic");
+    tabBar->addTab("None");
 
-    auto *riskTab = new QWidget(this);
-    auto *riskLayout = new QVBoxLayout(riskTab);
+    tabBar->setExpanding(false);
+    tabBar->setTabData(0, static_cast<int>(DisplayMode::RISK));
+    tabBar->setTabData(1, static_cast<int>(DisplayMode::WEATHER));
+    tabBar->setTabData(2, static_cast<int>(DisplayMode::TRAFFIC));
+    tabBar->setTabData(3, static_cast<int>(DisplayMode::NONE));
 
-    riskLayout->addWidget(buildGrid(), 0, Qt::AlignCenter);
+    outer->addWidget(tabBar, 0, Qt::AlignLeft);
+    auto *gridContainer = new QWidget(this);
+    gridContainer->setObjectName("GridContainer");
 
-    tabs->addTab(riskTab, "Risk");
+    auto *gridContainerLayout = new QVBoxLayout(gridContainer);
+    gridContainerLayout->setContentsMargins(0, 0, 0, 0);
+    gridContainerLayout->addWidget(buildGrid(), 0, Qt::AlignCenter);
+
+    outer->addWidget(gridContainer, 1);
+
+    connect(tabBar, &QTabBar::currentChanged, this, [this, tabBar](int index)
+            {
+        QVariant data = tabBar->tabData(index);
+        if (!data.isValid())
+            return;
+
+        setDisplayMode(static_cast<DisplayMode>(data.toInt())); });
+
+    tabBar->setCurrentIndex(0);
+    setDisplayMode(DisplayMode::RISK);
 }
+
 
 void StateGridPanel::setDisplayMode(DisplayMode mode)
 {
@@ -100,9 +124,8 @@ void StateGridPanel::resizeEvent(QResizeEvent *event)
 {
     QFrame::resizeEvent(event);
 
-    const int availWidth = contentsRect().width();
-    const int availHeight = contentsRect().height();
-
+    const int availWidth = _gridWidget->parentWidget()->width();
+    const int availHeight = _gridWidget->parentWidget()->height();
     const int cellSize = std::min(
         availWidth / _numCols,
         availHeight / _numRows);

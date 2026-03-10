@@ -5,7 +5,6 @@
 class StateGridPanel;
 class AlertPanel;
 class SectorDetailsPanel;
-class SegmentedControl;
 
 class ITileMapService;
 class IFlightDataService;
@@ -21,12 +20,10 @@ private:
     QWidget *buildStateGrid();
     QWidget *buildAlertPanel();
     QWidget *buildSectorDetailsPanel();
-    QWidget *buildDisplayControls();
 
     void wireConnections();
 
     StateGridPanel *_gridPanel = nullptr;
-    SegmentedControl *_displayControls = nullptr;
     AlertPanel *_alertPanel = nullptr;
     SectorDetailsPanel *_sectorDetailsPanel = nullptr;
 
