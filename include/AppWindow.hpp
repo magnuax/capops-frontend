@@ -5,6 +5,7 @@
 class QWidget;
 class QStackedWidget;
 class IMapFetcher;
+class IFlightDataService;
 
 class AppWindow : public QMainWindow
 {
@@ -17,6 +18,7 @@ private:
     QStackedWidget *_pageStack;
     QWidget *_mainPage;
     IMapFetcher *_mapFetcher;
+    IFlightDataService *_dataService;
 
     void initializePages();
 

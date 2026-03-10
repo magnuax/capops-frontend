@@ -7,13 +7,14 @@
 class QWidget;
 class GridSector;
 class QGridLayout;
+class IFlightDataService;
 
 class StateGridPanel : public QFrame
 {
     Q_OBJECT
 
 public:
-    explicit StateGridPanel(int numRows, int numCols, QWidget *parent = nullptr);
+    explicit StateGridPanel(IFlightDataService &dataService, QWidget *parent = nullptr);
 
     void setDisplayMode(DisplayMode mode);
     void setMapSource(const QPixmap &mapSource);
@@ -37,6 +38,8 @@ private:
     
     int _numRows;
     int _numCols;
+
+    IFlightDataService &_dataService;
 
     GridSector *_selectedCell = nullptr;
     std::vector<GridSector *> _cells;

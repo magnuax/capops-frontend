@@ -14,9 +14,13 @@
 #include "panels/SectorDetailsPanel.hpp"
 
 #include "helpers/IMapFetcher.hpp"
+#include "helpers/IFlightDataService.hpp"
 #include "widgets/SegmentedControl.hpp"
 
-MainPage::MainPage(IMapFetcher *mapFetcher, QWidget *parent) :  QWidget(parent), _mapFetcher(mapFetcher)
+MainPage::MainPage(IFlightDataService &dataService, IMapFetcher *mapFetcher, QWidget *parent)
+    : QWidget(parent),
+      _mapFetcher(mapFetcher),
+      _dataService(dataService)
 {
     QVBoxLayout *displayLayout = new QVBoxLayout();
     displayLayout->setContentsMargins(0, 0, 0, 0);
@@ -69,14 +73,7 @@ void MainPage::wireConnections()
 
 QWidget *MainPage::createStateGrid()
 {
-    int PLACEHOLDER_rows = 30;
-    int PLACEHOLDER_cols = 30;
-
-    _gridPanel = new StateGridPanel(
-        PLACEHOLDER_rows,
-        PLACEHOLDER_cols,
-        this);
-
+    _gridPanel = new StateGridPanel(_dataService, this);
     _gridPanel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     return _gridPanel;
@@ -90,7 +87,7 @@ QWidget *MainPage::createOperatorPanel()
 
 QWidget *MainPage::createSectorDetailsPanel()
 {
-    _sectorDetailsPanel = new SectorDetailsPanel(this);
+    _sectorDetailsPanel = new SectorDetailsPanel(_dataService, this);
     return _sectorDetailsPanel;
 }
 
@@ -109,17 +106,11 @@ QWidget *MainPage::createDisplayControls()
 
 void MainPage::requestMap(double lat, double lon, int zoom)
 {
-    QSize size = _gridPanel->getGridSize();
-
-    if (size.isEmpty())
-    {
-        size = QSize(600, 600);
-    }
 
     IMapFetcher::Request request;
     request.coords = {lon, lat};
     request.zoom = zoom;
-    request.imageSize = size;
+    request.imageSize = {800, 800};
 
     _mapFetcher->fetch(request);
 }

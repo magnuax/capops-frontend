@@ -4,10 +4,17 @@
 
 #include "AppWindow.hpp"
 #include "pages/MainPage.hpp"
+
 #include "helpers/MapFetcherCARTO.hpp"
+#include "helpers/FlightDataServiceTest.hpp"
 
 AppWindow::AppWindow(QWidget *parent) : QMainWindow(parent)
 {
+    _dataService = new FlightDataServiceTest();
+
+    _mapFetcher = new MapFetcherCARTO(this);
+    _mapFetcher->enableDiskCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/maptiles");
+
     initializePages();
     showMainPage();
 }
@@ -15,10 +22,7 @@ AppWindow::AppWindow(QWidget *parent) : QMainWindow(parent)
 
 void AppWindow::initializePages()
 {
-    _mapFetcher = new MapFetcherCARTO(this);
-    _mapFetcher->enableDiskCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/maptiles");
-
-    _mainPage = new MainPage(_mapFetcher, this);
+    _mainPage = new MainPage(*_dataService, _mapFetcher, this);
     _pageStack = new QStackedWidget(this);
     _pageStack->addWidget(_mainPage);
 
