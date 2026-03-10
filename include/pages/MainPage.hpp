@@ -8,13 +8,14 @@ class SectorDetailsPanel;
 class SegmentedControl;
 
 class IMapFetcher;
+class IFlightDataService;
 
 class MainPage : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit MainPage(IMapFetcher *mapFetcher, QWidget *parent = nullptr);
+    explicit MainPage(IFlightDataService &dataService, IMapFetcher *mapFetcher, QWidget *parent = nullptr);
 
 private:
     QWidget *createStateGrid();
@@ -30,6 +31,7 @@ private:
     SectorDetailsPanel *_sectorDetailsPanel = nullptr;
 
     IMapFetcher *_mapFetcher = nullptr;
+    IFlightDataService &_dataService;
 
 public slots:
     void requestMap(double latitude, double longitude, int zoomLevel);

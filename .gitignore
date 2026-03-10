@@ -44,3 +44,6 @@ build/
 
 # vscode configurations
 .vscode/
+
+# gimp files etc
+resources/dev

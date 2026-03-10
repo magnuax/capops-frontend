@@ -6,10 +6,13 @@
 
 #include "panels/StateGridPanel.hpp"
 #include "widgets/GridSector.hpp"
+#include "helpers/IFlightDataService.hpp"
 
-
-StateGridPanel::StateGridPanel(int numRows, int numCols, QWidget *parent) : QFrame(parent), _numRows(numRows), _numCols(numCols)
+StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent) : QFrame(parent), _dataService(dataService)
 {
+    _numRows = _dataService.getRowCount();
+    _numCols = _dataService.getColCount();
+
     auto *outer = new QVBoxLayout(this);
     outer->setContentsMargins(0, 0, 0, 0);
     outer->setSpacing(0);
@@ -64,6 +67,13 @@ QWidget *StateGridPanel::createGrid()
                         _selectedCell->setSelected(true);
 
                         emit sectorSelected(row, col); });
+
+            // PLACEHOLDER ID MAPPING: 
+            int sectorId = row * _numCols + col;
+
+            cell->setRiskState(_dataService.getRisk(sectorId));
+            cell->setWeatherState(_dataService.getWeather(sectorId));
+            cell->setTrafficState(_dataService.getTraffic(sectorId));
 
             _gridLayout->addWidget(cell, row, col);
             _cells.push_back(cell);
