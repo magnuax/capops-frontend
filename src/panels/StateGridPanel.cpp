@@ -6,7 +6,7 @@
 
 #include "panels/StateGridPanel.hpp"
 #include "widgets/GridSector.hpp"
-#include "services/IFlightDataService.hpp"
+#include "services/interfaces/IFlightDataService.hpp"
 
 StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent) : QFrame(parent), _dataService(dataService)
 {

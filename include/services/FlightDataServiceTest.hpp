@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "services/IFlightDataService.hpp"
+#include "services/interfaces/IFlightDataService.hpp"
 
 class FlightDataServiceTest : public IFlightDataService
 {
