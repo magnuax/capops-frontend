@@ -22,8 +22,6 @@ SegmentedControl::SegmentedControl(QWidget *parent) : QWidget(parent)
         if (_selectedIndex == id) return;
         _selectedIndex = id;
         emit segmentSelected(id); });
-
-    applyStyling();
 }
 
 SegmentedControl::SegmentedControl(const QStringList &segments, QWidget *parent) : SegmentedControl(parent)
@@ -101,34 +99,4 @@ void SegmentedControl::setSelectedIndex(int index)
     _selectedIndex = index;
     _buttons[index]->setChecked(true);
     emit segmentSelected(index);
-}
-
-void SegmentedControl::applyStyling()
-{
-    setStyleSheet(R"(
-        SegmentedControl
-        {
-            background: rgb(225, 225, 225);
-            border-radius: 8px;
-        }
-
-        QToolButton 
-        {
-            padding: 6px 12px;
-            margin: 6px;
-            border-radius: 8px;
-            background: transparent;
-            font-size: 24px;
-        }
-        
-        QToolButton:checked
-        {
-            background: rgba(0, 0, 0, 0.1);
-        }
-       
-        QToolButton:disabled
-        {
-            color: rgba(0,0,0,120);
-        }
-    )");
 }

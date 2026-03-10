@@ -34,8 +34,6 @@ private:
     
     QPixmap loadStatusIcon(const QString &iconPath);
 
-    void applyStyling();
-
     QWidget *_sectorStatusWidget;
     QWidget *_aircraftListWidget;
     QWidget *_selectedAircraftWidget;

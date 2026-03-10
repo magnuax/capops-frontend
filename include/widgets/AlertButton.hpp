@@ -19,8 +19,6 @@ private:
 
     QPushButton *createPushButton();
 
-    void applyStyling();
-
     QPushButton *_button;
     QLabel *_label;
     int _sectorId;

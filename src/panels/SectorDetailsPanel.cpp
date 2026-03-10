@@ -31,7 +31,6 @@ SectorDetailsPanel::SectorDetailsPanel(IFlightDataService &dataService, QWidget 
     tabs->addTab(sectorDetails, "Details");
 
     setSector(0, 0);
-    applyStyling();
 }
 
 QWidget *SectorDetailsPanel::buildSectorStatusWidget()
@@ -197,89 +196,4 @@ void SectorDetailsPanel::selectAircraft(QListWidgetItem *item)
     _selectedAircraftId = ICAO;
 
     updateSelectedAircraftWidget();
-}
-
-void SectorDetailsPanel::applyStyling()
-{
-    setStyleSheet(R"(
-        QTabBar::tab
-        {
-            background: rgb(225,225,225);
-            border-radius: 8px;
-            border-bottom-left-radius: 0px;
-            border-bottom-right-radius: 0px;
-            padding: 6px 12px;
-            font-size: 16px;
-        }
-
-        QTabBar::tab:selected
-        {
-            background: rgba(0,0,0,0.1);
-        }
-
-        QTabBar::tab:hover
-        {
-            background: rgba(0,0,0,0.05);
-        }
-
-        QTabWidget::pane
-        {
-            border: none;
-            background: rgb(225,225,225);
-            border-radius: 8px;
-            border-top-left-radius: 0px;
-        }
-
-        #SectorStatusWidget, 
-        #AircraftListWidget, 
-        #SelectedAircraftWidget
-        {
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            padding: 10px;
-        }
-
-        #SectorStatusWidget QLabel,
-        #AircraftListWidget QLabel,
-        #SelectedAircraftWidget QLabel
-        {
-            font-size: 16px;
-        }
-
-        #AircraftListWidget QListWidget
-        {
-            background: transparent;
-            border: none;
-            padding: 4px;
-        }
-
-        #AircraftListWidget QListWidget::item
-        {
-            padding: 6px;
-            border-radius: 6px;
-        }
-
-        #AircraftListWidget QListWidget::item:selected
-        {
-            background: rgba(0, 127, 195, 0.38);
-            color: black;
-        }
-
-        #AircraftListWidget QListWidget::item:hover:!selected
-        {
-            background: rgba(0, 127, 195, 0.23);
-            color: black;
-        }
-
-        #AircraftListWidget QListWidget::item:hover:selected
-        {
-            background: rgba(0, 127, 195, 0.6);
-            color: black;
-        }
-
-        QLabel
-        {
-            color: black;
-        }
-    )");
 }

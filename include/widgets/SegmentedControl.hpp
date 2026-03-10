@@ -34,8 +34,6 @@ signals:
 private:
     QToolButton *createButton(const QString &text, int index);
 
-    void applyStyling();
-
     int _selectedIndex = -1;
 
     QHBoxLayout *_layout = nullptr;
