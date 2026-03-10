@@ -23,7 +23,6 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
-    void paintEvent(QPaintEvent *event) override;
 
 signals:
     void sectorSelected(int row, int col);

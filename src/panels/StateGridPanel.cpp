@@ -3,8 +3,10 @@
 #include <QPainter>
 #include <QButtonGroup>
 #include <QToolButton>
+#include <QTabWidget>
 
 #include "panels/StateGridPanel.hpp"
+#include "widgets/GridCanvas.hpp"
 #include "widgets/GridSector.hpp"
 #include "services/interfaces/IFlightDataService.hpp"
 
@@ -17,7 +19,15 @@ StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent)
     outer->setContentsMargins(0, 0, 0, 0);
     outer->setSpacing(0);
 
-    outer->addWidget(buildGrid(), 0, Qt::AlignCenter);
+    auto *tabs = new QTabWidget(this);
+    outer->addWidget(tabs);
+
+    auto *riskTab = new QWidget(this);
+    auto *riskLayout = new QVBoxLayout(riskTab);
+
+    riskLayout->addWidget(buildGrid(), 0, Qt::AlignCenter);
+
+    tabs->addTab(riskTab, "Risk");
 }
 
 void StateGridPanel::setDisplayMode(DisplayMode mode)
@@ -36,12 +46,15 @@ QSize StateGridPanel::getGridSize() const
 void StateGridPanel::setMapSource(const QPixmap &mapSource)
 {
     _mapSource = mapSource;
-    update();
+    if (auto *canvas = qobject_cast<GridCanvas *>(_gridWidget))
+    {
+        canvas->setMapSource(mapSource);
+    }
 }
 
 QWidget *StateGridPanel::buildGrid()
 {
-    _gridWidget = new QWidget(this);
+    _gridWidget = new GridCanvas(this);
     _gridWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     _gridLayout = new QGridLayout(_gridWidget);
@@ -109,32 +122,4 @@ void StateGridPanel::resizeEvent(QResizeEvent *event)
     _gridWidget->move(
         (availWidth - _gridWidget->width()) / 2,
         (availHeight - _gridWidget->height()) / 2);
-}
-
-void StateGridPanel::paintEvent(QPaintEvent *event)
-{
-    QFrame::paintEvent(event);
-
-    if (_mapSource.isNull())
-    {
-        return;
-    }
-
-    QPainter painter(this);
-    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
-
-    const QRect gridRectangle = _gridWidget->geometry();
-
-    QPixmap scaled = _mapSource.scaled(
-        gridRectangle.size(),
-        Qt::KeepAspectRatioByExpanding,
-        Qt::SmoothTransformation);
-
-    const int x = (scaled.width() - gridRectangle.width()) / 2;
-    const int y = (scaled.height() - gridRectangle.height()) / 2;
-
-    painter.drawPixmap(
-        gridRectangle,
-        scaled,
-        QRect(x, y, gridRectangle.width(), gridRectangle.height()));
 }
