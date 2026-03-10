@@ -2,10 +2,14 @@
 #include <vector>
 #include "helpers/IFlightDataService.hpp"
 
-class FlightDataService : public IFlightDataService
+class FlightDataServiceTest : public IFlightDataService
 {
 public:
-    FlightDataService();
+    FlightDataServiceTest();
+
+    int getRowCount() const override;
+
+    int getColCount() const override;
 
     RiskState getRisk(int sectorId) const override;
 
@@ -21,4 +25,5 @@ private:
     std::vector<TrafficState> _trafficStates;
 
     std::vector<int> _sectorIds;
+    std::vector<std::vector<int>> _flightIds;
 };
