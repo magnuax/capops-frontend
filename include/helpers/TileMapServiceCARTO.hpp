@@ -1,19 +1,19 @@
 #pragma once
 #include <QNetworkAccessManager>
 
-#include "helpers/IMapFetcher.hpp"
+#include "helpers/ITileMapService.hpp"
 #include "domain/Coordinates.hpp"
 
 class QNetworkReply;
 class QImage;
 
-class MapFetcherCARTO : public IMapFetcher
+class TileMapServiceCARTO : public ITileMapService
 {
     Q_OBJECT
 
 public:
-    explicit MapFetcherCARTO(QObject *parent = nullptr);
-    ~MapFetcherCARTO() override = default;
+    explicit TileMapServiceCARTO(QObject *parent = nullptr);
+    ~TileMapServiceCARTO() override = default;
 
     void fetch(const Request &request) override;
 

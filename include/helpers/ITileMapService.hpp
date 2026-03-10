@@ -6,13 +6,13 @@
 
 #include "domain/Coordinates.hpp"
 
-class IMapFetcher : public QObject
+class ITileMapService : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit IMapFetcher(QObject *parent = nullptr) : QObject(parent) {};
-    virtual ~IMapFetcher() = default;
+    explicit ITileMapService(QObject *parent = nullptr) : QObject(parent) {};
+    virtual ~ITileMapService() = default;
 
     struct Request
     {

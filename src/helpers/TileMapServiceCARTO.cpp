@@ -4,12 +4,12 @@
 #include <QUrl>
 #include <cmath>
 
-#include "helpers/MapFetcherCARTO.hpp"
+#include "helpers/TileMapServiceCARTO.hpp"
 #include "domain/Coordinates.hpp"
 
-MapFetcherCARTO::MapFetcherCARTO(QObject *parent) : IMapFetcher(parent) {}
+TileMapServiceCARTO::TileMapServiceCARTO(QObject *parent) : ITileMapService(parent) {}
 
-void MapFetcherCARTO::enableDiskCache(const QString &dir, qint64 maxBytes)
+void TileMapServiceCARTO::enableDiskCache(const QString &dir, qint64 maxBytes)
 {
     auto *cache = new QNetworkDiskCache(&_networkManager);
     cache->setCacheDirectory(dir);
@@ -17,7 +17,7 @@ void MapFetcherCARTO::enableDiskCache(const QString &dir, qint64 maxBytes)
     _networkManager.setCache(cache);
 }
 
-QPointF MapFetcherCARTO::coordsToPixel(const Coordinates &coords, int zoom) const
+QPointF TileMapServiceCARTO::coordsToPixel(const Coordinates &coords, int zoom) const
 {
     // Uses Web Mercator projection (EPSG:3857)
 
@@ -33,13 +33,13 @@ QPointF MapFetcherCARTO::coordsToPixel(const Coordinates &coords, int zoom) cons
     return {x, y};
 }
 
-QPoint MapFetcherCARTO::pixelToTile(const QPointF &pixel) const
+QPoint TileMapServiceCARTO::pixelToTile(const QPointF &pixel) const
 {
     return {int(std::floor(pixel.x() / _currentRequest.tileSize.width())),
             int(std::floor(pixel.y() / _currentRequest.tileSize.height()))};
 }
 
-void MapFetcherCARTO::fetch(const Request &request)
+void TileMapServiceCARTO::fetch(const Request &request)
 {
     _currentRequest = request;
     _failed = false;
@@ -83,7 +83,7 @@ void MapFetcherCARTO::fetch(const Request &request)
     }
 }
 
-void MapFetcherCARTO::onTileFetched(QNetworkReply *reply, int tileX, int tileY)
+void TileMapServiceCARTO::onTileFetched(QNetworkReply *reply, int tileX, int tileY)
 {
 
     const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();

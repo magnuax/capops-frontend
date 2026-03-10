@@ -13,11 +13,11 @@
 #include "panels/AlertPanel.hpp"
 #include "panels/SectorDetailsPanel.hpp"
 
-#include "helpers/IMapFetcher.hpp"
+#include "helpers/ITileMapService.hpp"
 #include "helpers/IFlightDataService.hpp"
 #include "widgets/SegmentedControl.hpp"
 
-MainPage::MainPage(IFlightDataService &dataService, IMapFetcher *mapFetcher, QWidget *parent)
+MainPage::MainPage(IFlightDataService &dataService, ITileMapService *mapFetcher, QWidget *parent)
     : QWidget(parent),
       _mapFetcher(mapFetcher),
       _dataService(dataService)
@@ -64,10 +64,10 @@ void MainPage::wireConnections()
             { _sectorDetailsPanel->setSector(row, col); });
 
     // --- Map fetcher signals ---
-    connect(_mapFetcher, &IMapFetcher::finished, this, [this](const QPixmap &pm)
+    connect(_mapFetcher, &ITileMapService::finished, this, [this](const QPixmap &pm)
             { _gridPanel->setMapSource(pm); });
 
-    connect(_mapFetcher, &IMapFetcher::failed, this, [](const QString &err)
+    connect(_mapFetcher, &ITileMapService::failed, this, [](const QString &err)
             { qWarning() << err; });
 }
 
@@ -107,7 +107,7 @@ QWidget *MainPage::createDisplayControls()
 void MainPage::requestMap(double lat, double lon, int zoom)
 {
 
-    IMapFetcher::Request request;
+    ITileMapService::Request request;
     request.coords = {lon, lat};
     request.zoom = zoom;
     request.imageSize = {800, 800};
