@@ -133,5 +133,9 @@ void MapFetcherCARTO::onTileFetched(QNetworkReply *reply, int tileX, int tileY)
     QPainter painter(&_canvas);
     painter.drawImage(destination, tile);
 
-    emit finished(QPixmap::fromImage(_canvas));
+    _pending--;
+    if (_pending == 0 && !_failed)
+    {
+        emit finished(QPixmap::fromImage(_canvas));
+    }
 }
