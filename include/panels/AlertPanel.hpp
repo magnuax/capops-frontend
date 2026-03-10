@@ -13,10 +13,11 @@ class AlertPanel : public QFrame
 public:
     explicit AlertPanel(QWidget *parent = nullptr);
 
-    private:
-    QTabWidget *createAlertPanel();
-    QWidget *createLogTab();
-    QWidget *createAlertsTab();
+private:
+    QTabWidget *buildAlertPanel();
+    QWidget *buildLogTab();
+    QWidget *buildAlertsTab();
+
     QWidget *createAlertButton(int sectorId);
 
     QVector<AlertButton *> _activeAlerts;

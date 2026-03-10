@@ -23,9 +23,9 @@ public slots:
     void selectAircraft(QListWidgetItem *item);
 
 private:
-    QWidget *createSectorStatusWidget();
-    QWidget *createAircraftListWidget();
-    QWidget *createSelectedAircraftWidget();
+    QWidget *buildSectorStatusWidget();
+    QWidget *buildAircraftListWidget();
+    QWidget *buildSelectedAircraftWidget();
     
     void refresh();
     void updateSectorStatusWidget();
@@ -33,7 +33,6 @@ private:
     void updateSelectedAircraftWidget();
     
     QPixmap loadStatusIcon(const QString &iconPath);
-    QWidget *createSectionCard(const QString &objectName);
 
     void applyStyling();
 

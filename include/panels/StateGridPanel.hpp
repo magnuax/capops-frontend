@@ -29,7 +29,7 @@ signals:
     void sectorSelected(int row, int col);
 
 private:
-    QWidget *createGrid();
+    QWidget *buildGrid();
 
     QPixmap _mapSource;
 

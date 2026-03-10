@@ -25,11 +25,11 @@ MainPage::MainPage(IFlightDataService &dataService, ITileMapService *mapFetcher,
     QVBoxLayout *displayLayout = new QVBoxLayout();
     displayLayout->setContentsMargins(0, 0, 0, 0);
     displayLayout->setSpacing(0);
-    displayLayout->addWidget(createStateGrid());
-    displayLayout->addWidget(createDisplayControls(), 0, Qt::AlignCenter);
+    displayLayout->addWidget(buildStateGrid());
+    displayLayout->addWidget(buildDisplayControls(), 0, Qt::AlignCenter);
 
-    QWidget *sectorDetailsPanel = createSectorDetailsPanel();
-    QWidget *alertPanel = createAlertPanel();
+    QWidget *sectorDetailsPanel = buildSectorDetailsPanel();
+    QWidget *alertPanel = buildAlertPanel();
 
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
     mainLayout->addWidget(sectorDetailsPanel);
@@ -71,7 +71,7 @@ void MainPage::wireConnections()
             { qWarning() << err; });
 }
 
-QWidget *MainPage::createStateGrid()
+QWidget *MainPage::buildStateGrid()
 {
     _gridPanel = new StateGridPanel(_dataService, this);
     _gridPanel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -79,19 +79,19 @@ QWidget *MainPage::createStateGrid()
     return _gridPanel;
 };
 
-QWidget *MainPage::createAlertPanel()
+QWidget *MainPage::buildAlertPanel()
 {
     _alertPanel = new AlertPanel(this);
     return _alertPanel;
 }
 
-QWidget *MainPage::createSectorDetailsPanel()
+QWidget *MainPage::buildSectorDetailsPanel()
 {
     _sectorDetailsPanel = new SectorDetailsPanel(_dataService, this);
     return _sectorDetailsPanel;
 }
 
-QWidget *MainPage::createDisplayControls()
+QWidget *MainPage::buildDisplayControls()
 {
 
     _displayControls = new SegmentedControl({"Risk", "Weather", "Traffic", "None"}, this);

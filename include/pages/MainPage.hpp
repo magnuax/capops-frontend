@@ -18,10 +18,10 @@ public:
     explicit MainPage(IFlightDataService &dataService, ITileMapService *mapFetcher, QWidget *parent = nullptr);
 
 private:
-    QWidget *createStateGrid();
-    QWidget *createAlertPanel();
-    QWidget *createSectorDetailsPanel();
-    QWidget *createDisplayControls();
+    QWidget *buildStateGrid();
+    QWidget *buildAlertPanel();
+    QWidget *buildSectorDetailsPanel();
+    QWidget *buildDisplayControls();
 
     void wireConnections();
 

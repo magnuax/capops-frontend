@@ -17,7 +17,7 @@ StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent)
     outer->setContentsMargins(0, 0, 0, 0);
     outer->setSpacing(0);
 
-    outer->addWidget(createGrid(), 0, Qt::AlignCenter);
+    outer->addWidget(buildGrid(), 0, Qt::AlignCenter);
 }
 
 void StateGridPanel::setDisplayMode(DisplayMode mode)
@@ -39,7 +39,7 @@ void StateGridPanel::setMapSource(const QPixmap &mapSource)
     update();
 }
 
-QWidget *StateGridPanel::createGrid()
+QWidget *StateGridPanel::buildGrid()
 {
     _gridWidget = new QWidget(this);
     _gridWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);

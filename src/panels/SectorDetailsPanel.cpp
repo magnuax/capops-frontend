@@ -21,11 +21,11 @@ SectorDetailsPanel::SectorDetailsPanel(IFlightDataService &dataService, QWidget 
     auto *sectorDetails = new QWidget(this);
     auto *detailsLayout = new QVBoxLayout(sectorDetails);
 
-    detailsLayout->addWidget(createSectorStatusWidget());
+    detailsLayout->addWidget(buildSectorStatusWidget());
     detailsLayout->addStretch();
-    detailsLayout->addWidget(createAircraftListWidget());
+    detailsLayout->addWidget(buildAircraftListWidget());
     detailsLayout->addStretch();
-    detailsLayout->addWidget(createSelectedAircraftWidget());
+    detailsLayout->addWidget(buildSelectedAircraftWidget());
     detailsLayout->addStretch();
 
     tabs->addTab(sectorDetails, "Details");
@@ -34,7 +34,7 @@ SectorDetailsPanel::SectorDetailsPanel(IFlightDataService &dataService, QWidget 
     applyStyling();
 }
 
-QWidget *SectorDetailsPanel::createSectorStatusWidget()
+QWidget *SectorDetailsPanel::buildSectorStatusWidget()
 {
     _sectorStatusWidget = new QWidget(this);
     _sectorStatusWidget->setObjectName("SectorStatusWidget");
@@ -80,7 +80,7 @@ QWidget *SectorDetailsPanel::createSectorStatusWidget()
     return _sectorStatusWidget;
 }
 
-QWidget *SectorDetailsPanel::createAircraftListWidget()
+QWidget *SectorDetailsPanel::buildAircraftListWidget()
 {
     _aircraftListWidget = new QWidget(this);
     _aircraftListWidget->setLayout(new QVBoxLayout());
@@ -100,7 +100,7 @@ QWidget *SectorDetailsPanel::createAircraftListWidget()
     return _aircraftListWidget;
 }
 
-QWidget *SectorDetailsPanel::createSelectedAircraftWidget()
+QWidget *SectorDetailsPanel::buildSelectedAircraftWidget()
 {
     _selectedAircraftWidget = new QWidget(this);
     _selectedAircraftWidget->setObjectName("SelectedAircraftWidget");
