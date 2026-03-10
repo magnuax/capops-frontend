@@ -5,7 +5,7 @@
 #include <QListWidget>
 #include <QIcon>
 
-#include "helpers/IFlightDataService.hpp"
+#include "services/IFlightDataService.hpp"
 #include "panels/SectorDetailsPanel.hpp"
 #include "domain/SectorStates.hpp"
 

@@ -4,7 +4,7 @@
 #include <QUrl>
 #include <cmath>
 
-#include "helpers/TileMapServiceCARTO.hpp"
+#include "services/TileMapServiceCARTO.hpp"
 #include "domain/Coordinates.hpp"
 
 TileMapServiceCARTO::TileMapServiceCARTO(QObject *parent) : ITileMapService(parent) {}

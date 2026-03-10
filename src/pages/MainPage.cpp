@@ -13,8 +13,8 @@
 #include "panels/AlertPanel.hpp"
 #include "panels/SectorDetailsPanel.hpp"
 
-#include "helpers/ITileMapService.hpp"
-#include "helpers/IFlightDataService.hpp"
+#include "services/ITileMapService.hpp"
+#include "services/IFlightDataService.hpp"
 #include "widgets/SegmentedControl.hpp"
 
 MainPage::MainPage(IFlightDataService &dataService, ITileMapService *mapFetcher, QWidget *parent)

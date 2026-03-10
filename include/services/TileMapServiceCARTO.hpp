@@ -1,7 +1,7 @@
 #pragma once
 #include <QNetworkAccessManager>
 
-#include "helpers/ITileMapService.hpp"
+#include "services/ITileMapService.hpp"
 #include "domain/Coordinates.hpp"
 
 class QNetworkReply;

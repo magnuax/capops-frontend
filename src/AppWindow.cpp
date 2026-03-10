@@ -5,8 +5,8 @@
 #include "AppWindow.hpp"
 #include "pages/MainPage.hpp"
 
-#include "helpers/TileMapServiceCARTO.hpp"
-#include "helpers/FlightDataServiceTest.hpp"
+#include "services/TileMapServiceCARTO.hpp"
+#include "services/FlightDataServiceTest.hpp"
 
 AppWindow::AppWindow(QWidget *parent) : QMainWindow(parent)
 {
