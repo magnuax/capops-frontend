@@ -3,7 +3,7 @@
 #include <QWidget>
 
 class StateGridPanel;
-class OperatorPanel;
+class AlertPanel;
 class SectorDetailsPanel;
 class SegmentedControl;
 
@@ -19,7 +19,7 @@ public:
 
 private:
     QWidget *createStateGrid();
-    QWidget *createOperatorPanel();
+    QWidget *createAlertPanel();
     QWidget *createSectorDetailsPanel();
     QWidget *createDisplayControls();
 
@@ -27,7 +27,7 @@ private:
 
     StateGridPanel *_gridPanel = nullptr;
     SegmentedControl *_displayControls = nullptr;
-    OperatorPanel *_operatorPanel = nullptr;
+    AlertPanel *_alertPanel = nullptr;
     SectorDetailsPanel *_sectorDetailsPanel = nullptr;
 
     IMapFetcher *_mapFetcher = nullptr;

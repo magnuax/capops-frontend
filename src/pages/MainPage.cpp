@@ -10,7 +10,7 @@
 
 #include "pages/MainPage.hpp"
 #include "panels/StateGridPanel.hpp"
-#include "panels/OperatorPanel.hpp"
+#include "panels/AlertPanel.hpp"
 #include "panels/SectorDetailsPanel.hpp"
 
 #include "helpers/IMapFetcher.hpp"
@@ -29,12 +29,12 @@ MainPage::MainPage(IFlightDataService &dataService, IMapFetcher *mapFetcher, QWi
     displayLayout->addWidget(createDisplayControls(), 0, Qt::AlignCenter);
 
     QWidget *sectorDetailsPanel = createSectorDetailsPanel();
-    QWidget *operatorPanel = createOperatorPanel();
+    QWidget *alertPanel = createAlertPanel();
 
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
     mainLayout->addWidget(sectorDetailsPanel);
     mainLayout->addLayout(displayLayout);
-    mainLayout->addWidget(operatorPanel);
+    mainLayout->addWidget(alertPanel);
     mainLayout->setStretch(0, 1);
     mainLayout->setStretch(1, 3);
     mainLayout->setStretch(2, 1);
@@ -79,10 +79,10 @@ QWidget *MainPage::createStateGrid()
     return _gridPanel;
 };
 
-QWidget *MainPage::createOperatorPanel()
+QWidget *MainPage::createAlertPanel()
 {
-    _operatorPanel = new OperatorPanel(this);
-    return _operatorPanel;
+    _alertPanel = new AlertPanel(this);
+    return _alertPanel;
 }
 
 QWidget *MainPage::createSectorDetailsPanel()
