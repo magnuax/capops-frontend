@@ -1,8 +1,9 @@
-#include "widgets/GridSector.hpp"
 #include <QPainter>
 #include <QMouseEvent>
 #include <QMenu>
 #include <QContextMenuEvent>
+
+#include "widgets/GridSector.hpp"
 
 GridSector::GridSector(int row, int col, QWidget *parent)
     : QFrame(parent), _row(row), _col(col)

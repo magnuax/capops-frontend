@@ -1,7 +1,7 @@
-#include "services/FlightDataServiceTest.hpp"
-
 #include <QPoint>
 #include <QSize>
+
+#include "services/FlightDataServiceTest.hpp"
 
 FlightDataServiceTest::FlightDataServiceTest()
 {
@@ -52,7 +52,6 @@ QPoint FlightDataServiceTest::getSectorIndices(int sectorId) const
 {
     const int row = sectorId / getColCount();
     const int col = sectorId % getColCount();
-
     return {row, col};
 }
 

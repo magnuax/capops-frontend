@@ -20,19 +20,19 @@ StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent)
     outer->setContentsMargins(0, 8, 0, 8);
     outer->setSpacing(0);
 
-    auto *tabBar = new QTabBar(this);
-    tabBar->addTab(QIcon(":/icons/tab-risk.png"), "Risk");
-    tabBar->addTab(QIcon(":/icons/tab-weather.png"), "Weather");
-    tabBar->addTab(QIcon(":/icons/tab-traffic.png"), "Traffic");
-    tabBar->addTab("None");
+    _tabBar = new QTabBar(this);
+    _tabBar->addTab(QIcon(":/icons/tab-risk.png"), "Risk");
+    _tabBar->addTab(QIcon(":/icons/tab-weather.png"), "Weather");
+    _tabBar->addTab(QIcon(":/icons/tab-traffic.png"), "Traffic");
+    _tabBar->addTab("None");
 
-    tabBar->setExpanding(false);
-    tabBar->setTabData(0, static_cast<int>(DisplayMode::RISK));
-    tabBar->setTabData(1, static_cast<int>(DisplayMode::WEATHER));
-    tabBar->setTabData(2, static_cast<int>(DisplayMode::TRAFFIC));
-    tabBar->setTabData(3, static_cast<int>(DisplayMode::NONE));
+    _tabBar->setExpanding(false);
+    _tabBar->setTabData(0, static_cast<int>(DisplayMode::RISK));
+    _tabBar->setTabData(1, static_cast<int>(DisplayMode::WEATHER));
+    _tabBar->setTabData(2, static_cast<int>(DisplayMode::TRAFFIC));
+    _tabBar->setTabData(3, static_cast<int>(DisplayMode::NONE));
 
-    outer->addWidget(tabBar, 0, Qt::AlignLeft);
+    outer->addWidget(_tabBar, 0, Qt::AlignLeft);
     auto *gridContainer = new QWidget(this);
     gridContainer->setObjectName("GridContainer");
     gridContainer->setContentsMargins(12, 12, 12, 12);
@@ -42,16 +42,11 @@ StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent)
 
     outer->addWidget(gridContainer, 1);
 
-    connect(tabBar, &QTabBar::currentChanged, this, [this, tabBar](int index)
-            {
-        QVariant data = tabBar->tabData(index);
-        if (!data.isValid())
-            return;
-
-        setDisplayMode(static_cast<DisplayMode>(data.toInt())); });
-
-    tabBar->setCurrentIndex(0);
+    _tabBar->setCurrentIndex(0);
     setDisplayMode(DisplayMode::RISK);
+
+    connect(_tabBar, &QTabBar::currentChanged,
+            this, &StateGridPanel::handleTabChange);
 }
 
 void StateGridPanel::setDisplayMode(DisplayMode mode)
@@ -142,4 +137,14 @@ void StateGridPanel::handleSectorSelection(GridSector *cell)
     int sectorId = _dataService.getSectorId(row, col);
 
     emit sectorSelected(sectorId);
+}
+
+void StateGridPanel::handleTabChange(int tabIndex)
+{
+    QVariant data = _tabBar->tabData(tabIndex);
+
+    if (!data.isValid())
+        return;
+
+    setDisplayMode(static_cast<DisplayMode>(data.toInt()));
 }

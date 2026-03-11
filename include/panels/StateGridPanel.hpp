@@ -1,4 +1,5 @@
 #pragma once
+
 #include <QFrame>
 
 #include "domain/DisplayMode.hpp"
@@ -7,6 +8,8 @@
 class QWidget;
 class GridSector;
 class QGridLayout;
+class QTabBar;
+
 class IFlightDataService;
 
 class StateGridPanel : public QFrame
@@ -31,9 +34,12 @@ private:
 
     void handleSectorSelection(GridSector *cell);
 
+    void handleTabChange(int tabIndex);
+
     int _numRows;
     int _numCols;
 
+    QTabBar *_tabBar = nullptr;
     QWidget *_gridWidget = nullptr;
     QGridLayout *_gridLayout = nullptr;
     GridSector *_selectedCell = nullptr;

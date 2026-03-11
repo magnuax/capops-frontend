@@ -2,6 +2,7 @@
 #include <QNetworkDiskCache>
 #include <QNetworkReply>
 #include <QUrl>
+
 #include <cmath>
 
 #include "services/TileMapServiceCARTO.hpp"
@@ -20,7 +21,7 @@ void TileMapServiceCARTO::enableDiskCache(const QString &dir, qint64 maxBytes)
 QPointF TileMapServiceCARTO::coordsToPixel(const Coordinates &coords, int zoom) const
 {
     // Uses Web Mercator projection (EPSG:3857)
-
+    
     const double zoomFactor = std::pow(2.0, zoom);
     const double scaleFactor = 128.0 / M_PI * zoomFactor;
 
