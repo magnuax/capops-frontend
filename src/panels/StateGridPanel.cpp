@@ -17,7 +17,7 @@ StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent)
     _numCols = _dataService.getColCount();
 
     auto *outer = new QVBoxLayout(this);
-    outer->setContentsMargins(0, 8, 0, 8);
+    outer->setContentsMargins(0, 0, 0, 8);
     outer->setSpacing(0);
 
     _tabBar = new QTabBar(this);
