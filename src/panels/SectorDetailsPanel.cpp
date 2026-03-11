@@ -22,15 +22,12 @@ SectorDetailsPanel::SectorDetailsPanel(IFlightDataService &dataService, QWidget 
     auto *detailsLayout = new QVBoxLayout(sectorDetails);
 
     detailsLayout->addWidget(buildSectorStatusWidget());
-    detailsLayout->addStretch();
     detailsLayout->addWidget(buildAircraftListWidget());
-    detailsLayout->addStretch();
     detailsLayout->addWidget(buildSelectedAircraftWidget());
-    detailsLayout->addStretch();
 
     tabs->addTab(sectorDetails, "Details");
 
-    setSector(0, 0);
+    setSector(_dataService.getSectorIds().front());
 }
 
 QWidget *SectorDetailsPanel::buildSectorStatusWidget()
@@ -170,11 +167,10 @@ void SectorDetailsPanel::updateSelectedAircraftWidget()
     // also update `_selectedAircraftInfo` when backend is ready
 }
 
-void SectorDetailsPanel::setSector(int row, int col)
+void SectorDetailsPanel::setSector(int sectorId)
 {
-    // PLACEHOLDER ID MAPPING:
-    _selectedSectorIdx = {row, col};
-    _selectedSectorId = row * _dataService.getColCount() + col;
+    _selectedSectorId = sectorId;
+    _selectedSectorIdx = _dataService.getSectorIndices(sectorId);
     _selectedAircraftId = -1;
 
     refresh();

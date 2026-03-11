@@ -1,4 +1,5 @@
 #include <QPainter>
+#include <QPainterPath>
 
 #include "widgets/GridCanvas.hpp"
 
@@ -21,6 +22,9 @@ void GridCanvas::paintEvent(QPaintEvent *event)
         return;
 
     QPainter painter(this);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+
+    painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
     QPixmap scaled = _mapSource.scaled(

@@ -48,21 +48,22 @@ MainPage::MainPage(IFlightDataService &dataService, ITileMapService *mapFetcher,
 void MainPage::wireConnections()
 {
     // --- Sector details <-> Grid panel ---
-    connect(_gridPanel, &StateGridPanel::sectorSelected, _sectorDetailsPanel, [this](int row, int col)
-            { _sectorDetailsPanel->setSector(row, col); });
+    connect(_gridPanel, &StateGridPanel::sectorSelected,
+            _sectorDetailsPanel, &SectorDetailsPanel::setSector);
 
     // --- Map fetcher signals ---
-    connect(_mapFetcher, &ITileMapService::finished, this, [this](const QPixmap &pm)
-            { _gridPanel->setMapSource(pm); });
+    connect(_mapFetcher, &ITileMapService::finished,
+            _gridPanel, &StateGridPanel::setMapSource);
 
-    connect(_mapFetcher, &ITileMapService::failed, this, [](const QString &err)
-            { qWarning() << err; });
+    connect(_mapFetcher, &ITileMapService::failed,
+            this, [](const QString &err){ qWarning() << err; });
 }
 
 QWidget *MainPage::buildStateGrid()
 {
     _gridPanel = new StateGridPanel(_dataService, this);
     _gridPanel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    _gridPanel->setMinimumWidth(400);
 
     return _gridPanel;
 };

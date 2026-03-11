@@ -17,13 +17,13 @@ StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent)
     _numCols = _dataService.getColCount();
 
     auto *outer = new QVBoxLayout(this);
-    outer->setContentsMargins(0, 0, 0, 0);
+    outer->setContentsMargins(0, 8, 0, 8);
     outer->setSpacing(0);
 
     auto *tabBar = new QTabBar(this);
-    tabBar->addTab("Risk");
-    tabBar->addTab("Weather");
-    tabBar->addTab("Traffic");
+    tabBar->addTab(QIcon(":/icons/tab-risk.png"), "Risk");
+    tabBar->addTab(QIcon(":/icons/tab-weather.png"), "Weather");
+    tabBar->addTab(QIcon(":/icons/tab-traffic.png"), "Traffic");
     tabBar->addTab("None");
 
     tabBar->setExpanding(false);
@@ -62,11 +62,6 @@ void StateGridPanel::setDisplayMode(DisplayMode mode)
     }
 }
 
-QSize StateGridPanel::getGridSize() const
-{
-    return _gridWidget->size();
-}
-
 void StateGridPanel::setMapSource(const QPixmap &mapSource)
 {
     _mapSource = mapSource;
@@ -74,6 +69,29 @@ void StateGridPanel::setMapSource(const QPixmap &mapSource)
     {
         canvas->setMapSource(mapSource);
     }
+}
+
+void StateGridPanel::resizeEvent(QResizeEvent *event)
+{
+    QFrame::resizeEvent(event);
+
+    QRect area = _gridWidget->parentWidget()->contentsRect();
+
+    const int availWidth = area.width();
+    const int availHeight = area.height();
+
+    const int cellSize = std::min(
+        availWidth / _numCols,
+        availHeight / _numRows);
+
+    int newWidth = cellSize * _numCols;
+    int newHeight = cellSize * _numRows;
+
+    _gridWidget->resize(cellSize * _numCols, cellSize * _numRows);
+
+    _gridWidget->move(
+        area.x() + (availWidth - _gridWidget->width()) / 2,
+        area.y() + (availHeight - _gridWidget->height()) / 2);
 }
 
 QWidget *StateGridPanel::buildGrid()
@@ -91,22 +109,10 @@ QWidget *StateGridPanel::buildGrid()
     {
         for (int col = 0; col < _numCols; ++col)
         {
+            int sectorId = _dataService.getSectorId(row, col);
+
             auto *cell = new GridSector(row, col, _gridWidget);
-
-            connect(cell, &GridSector::selected, this, [this, cell](int row, int col)
-                    { 
-                        if (_selectedCell && _selectedCell != cell)
-                        {
-                            _selectedCell->setSelected(false);
-                        }
-
-                        _selectedCell = cell;
-                        _selectedCell->setSelected(true);
-
-                        emit sectorSelected(row, col); });
-
-            // PLACEHOLDER ID MAPPING:
-            int sectorId = row * _numCols + col;
+            connect(cell, &GridSector::selected, this, &StateGridPanel::handleSectorSelection);
 
             cell->setRiskState(_dataService.getRisk(sectorId));
             cell->setWeatherState(_dataService.getWeather(sectorId));
@@ -120,25 +126,20 @@ QWidget *StateGridPanel::buildGrid()
     return _gridWidget;
 }
 
-void StateGridPanel::resizeEvent(QResizeEvent *event)
+void StateGridPanel::handleSectorSelection(GridSector *cell)
 {
-    QFrame::resizeEvent(event);
+    int row = cell->getRow();
+    int col = cell->getCol();
 
-    QRect area = _gridWidget->parentWidget()->contentsRect();
+    if (_selectedCell && _selectedCell != cell)
+    {
+        _selectedCell->setSelected(false);
+    }
 
-    const int availWidth = area.width();
-    const int availHeight = area.height();
-    
-    const int cellSize = std::min(
-        availWidth / _numCols,
-        availHeight / _numRows);
+    _selectedCell = cell;
+    _selectedCell->setSelected(true);
 
-    int newWidth = cellSize * _numCols;
-    int newHeight = cellSize * _numRows;
+    int sectorId = _dataService.getSectorId(row, col);
 
-    _gridWidget->resize(cellSize * _numCols, cellSize * _numRows);
-
-    _gridWidget->move(
-        area.x() + (availWidth - _gridWidget->width()) / 2,
-        area.y() + (availHeight - _gridWidget->height()) / 2);
+    emit sectorSelected(sectorId);
 }

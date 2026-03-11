@@ -21,6 +21,16 @@ GridSector::GridSector(int row, int col, QWidget *parent)
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
+int GridSector::getRow() const
+{
+    return _row;
+}
+
+int GridSector::getCol() const
+{
+    return _col;
+}
+
 void GridSector::setRiskState(RiskState state)
 {
     _riskState = state;
@@ -54,7 +64,7 @@ void GridSector::setSelected(bool selected)
 void GridSector::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
-        emit selected(_row, _col);
+        emit selected(this);
 }
 
 void GridSector::contextMenuEvent(QContextMenuEvent *event)
@@ -155,7 +165,7 @@ QColor GridSector::getTrafficStateColor()
     case HEAVY:
         return QColor(255, 0, 0, alpha); // red
     }
-    
+
     QColor fallback(0, 0, 0, 0);
     return fallback;
 }
