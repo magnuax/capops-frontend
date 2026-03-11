@@ -15,11 +15,17 @@
 
 #include "services/interfaces/ITileMapService.hpp"
 #include "services/interfaces/IFlightDataService.hpp"
+#include "services/interfaces/IFlightDataEvents.hpp"
 
-MainPage::MainPage(IFlightDataService &dataService, ITileMapService *mapFetcher, QWidget *parent)
+MainPage::MainPage(
+    IFlightDataService &dataService,
+    IFlightDataEvents *dataEvents,
+    ITileMapService *mapFetcher,
+    QWidget *parent)
     : QWidget(parent),
       _mapFetcher(mapFetcher),
-      _dataService(dataService)
+      _dataService(dataService),
+      _dataEvents(dataEvents)
 {
     QVBoxLayout *displayLayout = new QVBoxLayout();
     displayLayout->setContentsMargins(0, 0, 0, 0);
@@ -54,9 +60,18 @@ void MainPage::wireConnections()
     // --- Map fetcher signals ---
     connect(_mapFetcher, &ITileMapService::finished,
             _gridPanel, &StateGridPanel::setMapSource);
+            
 
     connect(_mapFetcher, &ITileMapService::failed,
-            this, [](const QString &err){ qWarning() << err; });
+            this, [](const QString &err)
+            { qWarning() << err; });
+
+    // --- Refresh UI on data reload ---
+    connect(_dataEvents, &IFlightDataEvents::dataReloaded,
+            _gridPanel, &StateGridPanel::refresh);
+
+    connect(_dataEvents, &IFlightDataEvents::dataReloaded,
+            _sectorDetailsPanel, &SectorDetailsPanel::refresh);
 }
 
 QWidget *MainPage::buildStateGrid()

@@ -8,13 +8,18 @@ class SectorDetailsPanel;
 
 class ITileMapService;
 class IFlightDataService;
+class IFlightDataEvents;
 
 class MainPage : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit MainPage(IFlightDataService &dataService, ITileMapService *mapFetcher, QWidget *parent = nullptr);
+    explicit MainPage(
+        IFlightDataService &dataService,
+        IFlightDataEvents *dataEvents,
+        ITileMapService *mapFetcher,
+        QWidget *parent = nullptr);
 
 private:
     QWidget *buildStateGrid();
@@ -27,8 +32,9 @@ private:
     AlertPanel *_alertPanel = nullptr;
     SectorDetailsPanel *_sectorDetailsPanel = nullptr;
 
-    ITileMapService *_mapFetcher = nullptr;
     IFlightDataService &_dataService;
+    IFlightDataEvents *_dataEvents = nullptr;
+    ITileMapService *_mapFetcher = nullptr;
 
 public slots:
     void requestMap(double latitude, double longitude, int zoomLevel);
