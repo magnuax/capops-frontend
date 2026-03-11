@@ -4,6 +4,10 @@
         <file>icons/warning-level-1.png</file>
         <file>icons/warning-level-2.png</file>
 
+        <file>icons/tab-risk.png</file>
+        <file>icons/tab-weather.png</file>
+        <file>icons/tab-traffic.png</file>
+
         <file>stylesheet.qss</file>
     </qresource>
 </RCC>
