@@ -9,9 +9,9 @@
 #include <QSize>
 #include <QString>
 
-#include "services/FlightDataServiceTest.hpp"
+#include "services/FlightDataServiceJSON.hpp"
 
-FlightDataServiceTest::FlightDataServiceTest(const QString &jsonPath, QObject *parent)
+FlightDataServiceJSON::FlightDataServiceJSON(const QString &jsonPath, QObject *parent)
     : IFlightDataEvents(parent), _jsonPath(jsonPath)
 {
     loadFromJson();
@@ -19,10 +19,10 @@ FlightDataServiceTest::FlightDataServiceTest(const QString &jsonPath, QObject *p
     _fileWatcher.addPath(_jsonPath);
 
     connect(&_fileWatcher, &QFileSystemWatcher::fileChanged,
-            this, &FlightDataServiceTest::onFileChanged);
+            this, &FlightDataServiceJSON::onFileChanged);
 }
 
-void FlightDataServiceTest::onFileChanged(const QString &path)
+void FlightDataServiceJSON::onFileChanged(const QString &path)
 {
     reloadFromJson();
 
@@ -33,7 +33,7 @@ void FlightDataServiceTest::onFileChanged(const QString &path)
     return;
 }
 
-void FlightDataServiceTest::reloadFromJson()
+void FlightDataServiceJSON::reloadFromJson()
 {
     if (loadFromJson())
     {
@@ -42,7 +42,7 @@ void FlightDataServiceTest::reloadFromJson()
     return;
 }
 
-bool FlightDataServiceTest::loadFromJson()
+bool FlightDataServiceJSON::loadFromJson()
 {
     QFile file(_jsonPath);
     file.open(QIODevice::ReadOnly);
@@ -101,7 +101,7 @@ bool FlightDataServiceTest::loadFromJson()
     return true;
 }
 
-RiskState FlightDataServiceTest::parseRiskState(const QString &value) const
+RiskState FlightDataServiceJSON::parseRiskState(const QString &value) const
 {
     if (value == "NORMAL")
         return NORMAL;
@@ -112,7 +112,7 @@ RiskState FlightDataServiceTest::parseRiskState(const QString &value) const
     return NORMAL;
 }
 
-WeatherState FlightDataServiceTest::parseWeatherState(const QString &value) const
+WeatherState FlightDataServiceJSON::parseWeatherState(const QString &value) const
 {
     if (value == "OK")
         return OK;
@@ -125,7 +125,7 @@ WeatherState FlightDataServiceTest::parseWeatherState(const QString &value) cons
     return OK;
 }
 
-TrafficState FlightDataServiceTest::parseTrafficState(const QString &value) const
+TrafficState FlightDataServiceJSON::parseTrafficState(const QString &value) const
 {
     if (value == "LIGHT")
         return LIGHT;
@@ -136,7 +136,7 @@ TrafficState FlightDataServiceTest::parseTrafficState(const QString &value) cons
     return LIGHT;
 }
 
-void FlightDataServiceTest::updateSectorRisk(int sectorId, RiskState risk)
+void FlightDataServiceJSON::updateSectorRisk(int sectorId, RiskState risk)
 {
     if (sectorId >= 0)
     {
@@ -145,7 +145,7 @@ void FlightDataServiceTest::updateSectorRisk(int sectorId, RiskState risk)
 
     return;
 }
-void FlightDataServiceTest::updateSectorWeather(int sectorId, WeatherState weather)
+void FlightDataServiceJSON::updateSectorWeather(int sectorId, WeatherState weather)
 {
     if (sectorId >= 0)
     {
@@ -155,7 +155,7 @@ void FlightDataServiceTest::updateSectorWeather(int sectorId, WeatherState weath
     return;
 }
 
-void FlightDataServiceTest::updateSectorTraffic(int sectorId, TrafficState traffic)
+void FlightDataServiceJSON::updateSectorTraffic(int sectorId, TrafficState traffic)
 {
     if (sectorId >= 0)
     {
@@ -164,7 +164,7 @@ void FlightDataServiceTest::updateSectorTraffic(int sectorId, TrafficState traff
 
     return;
 }
-void FlightDataServiceTest::updateSectorFlights(int sectorId, std::vector<int> flightIds)
+void FlightDataServiceJSON::updateSectorFlights(int sectorId, std::vector<int> flightIds)
 {
     if (sectorId >= 0)
     {
@@ -174,54 +174,54 @@ void FlightDataServiceTest::updateSectorFlights(int sectorId, std::vector<int> f
     return;
 }
 
-int FlightDataServiceTest::getRowCount() const
+int FlightDataServiceJSON::getRowCount() const
 {
     return _rows;
 }
 
-int FlightDataServiceTest::getColCount() const
+int FlightDataServiceJSON::getColCount() const
 {
     return _cols;
 }
 
-QSize FlightDataServiceTest::getGridSize() const
+QSize FlightDataServiceJSON::getGridSize() const
 {
     return QSize(getColCount(), getRowCount());
 }
 
-RiskState FlightDataServiceTest::getRisk(int sectorId) const
+RiskState FlightDataServiceJSON::getRisk(int sectorId) const
 {
     return _riskStates[sectorId];
 }
 
-WeatherState FlightDataServiceTest::getWeather(int sectorId) const
+WeatherState FlightDataServiceJSON::getWeather(int sectorId) const
 {
     return _weatherStates[sectorId];
 }
 
-TrafficState FlightDataServiceTest::getTraffic(int sectorId) const
+TrafficState FlightDataServiceJSON::getTraffic(int sectorId) const
 {
     return _trafficStates[sectorId];
 }
 
-QPoint FlightDataServiceTest::getSectorIndices(int sectorId) const
+QPoint FlightDataServiceJSON::getSectorIndices(int sectorId) const
 {
     const int row = sectorId / getColCount();
     const int col = sectorId % getColCount();
     return {row, col};
 }
 
-int FlightDataServiceTest::getSectorId(int row, int col) const
+int FlightDataServiceJSON::getSectorId(int row, int col) const
 {
     return _sectorIds[row * getColCount() + col];
 }
 
-std::vector<int> FlightDataServiceTest::getSectorIds() const
+std::vector<int> FlightDataServiceJSON::getSectorIds() const
 {
     return _sectorIds;
 }
 
-std::vector<int> FlightDataServiceTest::getFlightIds(int sectorId) const
+std::vector<int> FlightDataServiceJSON::getFlightIds(int sectorId) const
 {
     return _flightIds.at(sectorId);
 }

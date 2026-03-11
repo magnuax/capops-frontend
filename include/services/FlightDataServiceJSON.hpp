@@ -15,7 +15,7 @@ class QSize;
 class QString;
 class QFileSystemWatcher;
 
-class FlightDataServiceTest : public IFlightDataEvents, public IFlightDataService
+class FlightDataServiceJSON : public IFlightDataEvents, public IFlightDataService
 {
     Q_OBJECT
 
@@ -27,7 +27,7 @@ public slots:
     void onFileChanged(const QString &path);
 
 public:
-    FlightDataServiceTest(const QString &jsonPath, QObject *parent = nullptr);
+    FlightDataServiceJSON(const QString &jsonPath, QObject *parent = nullptr);
 
     int getSectorId(int row, int col) const override;
     std::vector<int> getSectorIds() const override;
