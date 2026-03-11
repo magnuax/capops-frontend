@@ -1,0 +1,34 @@
+{
+  "rows": 2,
+  "cols": 2,
+  "sectors": [
+    {
+      "id": 0,
+      "risk": "CONGESTED",
+      "weather": "OK",
+      "traffic": "LIGHT",
+      "flights": [101, 102, 103, 104]
+    },
+    {
+      "id": 1,
+      "risk": "AT_RISK",
+      "weather": "DEGRADED",
+      "traffic": "MODERATE",
+      "flights": [201, 202]
+    },
+    {
+      "id": 2,
+      "risk": "AT_RISK",
+      "weather": "SEVERE",
+      "traffic": "HEAVY",
+      "flights": [301, 302, 303, 304]
+    },
+    {
+      "id": 3,
+      "risk": "NORMAL",
+      "weather": "EXTREME",
+      "traffic": "LIGHT",
+      "flights": [401]
+    }
+  ]
+}
