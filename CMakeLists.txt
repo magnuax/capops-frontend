@@ -26,7 +26,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network WebSockets)
 
 file(GLOB_RECURSE APP_SOURCES 
     src/*.cpp
@@ -39,5 +39,5 @@ file(GLOB_RECURSE APP_SOURCES
 # ------------------------------
 
 add_executable(app ${APP_SOURCES})
-target_link_libraries(app PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
+target_link_libraries(app PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::WebSockets)
 target_include_directories(app PRIVATE include)

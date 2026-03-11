@@ -32,6 +32,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: '6.8.3'
+          modules: 'qtwebsockets'
       
       - name: Set up MSVC
         if: matrix.os == 'windows-latest'
