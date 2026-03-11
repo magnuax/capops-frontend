@@ -3,6 +3,7 @@
 #include <QPainter>
 #include <QButtonGroup>
 #include <QToolButton>
+#include <QMargins>
 #include <QTabBar>
 
 #include "panels/StateGridPanel.hpp"
@@ -34,9 +35,9 @@ StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent)
     outer->addWidget(tabBar, 0, Qt::AlignLeft);
     auto *gridContainer = new QWidget(this);
     gridContainer->setObjectName("GridContainer");
+    gridContainer->setContentsMargins(12, 12, 12, 12);
 
     auto *gridContainerLayout = new QVBoxLayout(gridContainer);
-    gridContainerLayout->setContentsMargins(0, 0, 0, 0);
     gridContainerLayout->addWidget(buildGrid(), 0, Qt::AlignCenter);
 
     outer->addWidget(gridContainer, 1);
@@ -52,7 +53,6 @@ StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent)
     tabBar->setCurrentIndex(0);
     setDisplayMode(DisplayMode::RISK);
 }
-
 
 void StateGridPanel::setDisplayMode(DisplayMode mode)
 {
@@ -105,7 +105,7 @@ QWidget *StateGridPanel::buildGrid()
 
                         emit sectorSelected(row, col); });
 
-            // PLACEHOLDER ID MAPPING: 
+            // PLACEHOLDER ID MAPPING:
             int sectorId = row * _numCols + col;
 
             cell->setRiskState(_dataService.getRisk(sectorId));
@@ -124,8 +124,11 @@ void StateGridPanel::resizeEvent(QResizeEvent *event)
 {
     QFrame::resizeEvent(event);
 
-    const int availWidth = _gridWidget->parentWidget()->width();
-    const int availHeight = _gridWidget->parentWidget()->height();
+    QRect area = _gridWidget->parentWidget()->contentsRect();
+
+    const int availWidth = area.width();
+    const int availHeight = area.height();
+    
     const int cellSize = std::min(
         availWidth / _numCols,
         availHeight / _numRows);
@@ -133,16 +136,9 @@ void StateGridPanel::resizeEvent(QResizeEvent *event)
     int newWidth = cellSize * _numCols;
     int newHeight = cellSize * _numRows;
 
-    if (newWidth > newHeight)
-    {
-        _gridWidget->resize(newHeight, newHeight);
-    }
-    else
-    {
-        _gridWidget->resize(newWidth, newWidth);
-    }
+    _gridWidget->resize(cellSize * _numCols, cellSize * _numRows);
 
     _gridWidget->move(
-        (availWidth - _gridWidget->width()) / 2,
-        (availHeight - _gridWidget->height()) / 2);
+        area.x() + (availWidth - _gridWidget->width()) / 2,
+        area.y() + (availHeight - _gridWidget->height()) / 2);
 }

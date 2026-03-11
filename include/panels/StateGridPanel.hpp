@@ -34,7 +34,7 @@ private:
 
     QWidget *_gridWidget = nullptr;
     QGridLayout *_gridLayout = nullptr;
-    
+
     int _numRows;
     int _numCols;
 
