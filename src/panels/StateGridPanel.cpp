@@ -49,6 +49,18 @@ StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent)
             this, &StateGridPanel::handleTabChange);
 }
 
+void StateGridPanel::refresh()
+{
+    for (GridSector *cell : _cells)
+    {
+        int sectorId = _dataService.getSectorId(cell->getRow(), cell->getCol());
+
+        cell->setRiskState(_dataService.getRisk(sectorId));
+        cell->setWeatherState(_dataService.getWeather(sectorId));
+        cell->setTrafficState(_dataService.getTraffic(sectorId));
+    }
+}
+
 void StateGridPanel::setDisplayMode(DisplayMode mode)
 {
     for (GridSector *cell : _cells)
