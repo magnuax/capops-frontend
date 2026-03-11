@@ -19,22 +19,13 @@ AlertPanel::AlertPanel(QWidget *parent) : QFrame(parent)
 
 QTabWidget *AlertPanel::buildAlertPanel()
 {
-    QTabWidget *tabWidget = new QTabWidget(this);
-    _logTab = buildLogTab();
     _alertsTab = buildAlertsTab();
-
+    
+    QTabWidget *tabWidget = new QTabWidget(this);
     tabWidget->addTab(_alertsTab, "Alerts");
-    tabWidget->addTab(_logTab, "Logs");
 
     return tabWidget;
 }
-
-QWidget *AlertPanel::buildLogTab()
-{
-    QWidget *logTab = new QWidget(this);
-
-    return logTab;
-};
 
 QWidget *AlertPanel::buildAlertsTab()
 {

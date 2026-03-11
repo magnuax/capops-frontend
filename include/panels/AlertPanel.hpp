@@ -15,13 +15,11 @@ public:
 
 private:
     QTabWidget *buildAlertPanel();
-    QWidget *buildLogTab();
     QWidget *buildAlertsTab();
 
     QWidget *createAlertButton(int sectorId);
 
     QVector<AlertButton *> _activeAlerts;
-    QWidget *_logTab = nullptr;
     QWidget *_alertsTab = nullptr;
 
 signals:
