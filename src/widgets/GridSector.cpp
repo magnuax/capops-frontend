@@ -1,8 +1,9 @@
-#include "widgets/GridSector.hpp"
 #include <QPainter>
 #include <QMouseEvent>
 #include <QMenu>
 #include <QContextMenuEvent>
+
+#include "widgets/GridSector.hpp"
 
 GridSector::GridSector(int row, int col, QWidget *parent)
     : QFrame(parent), _row(row), _col(col)
@@ -19,6 +20,16 @@ GridSector::GridSector(int row, int col, QWidget *parent)
     setLineWidth(1);
     setMinimumSize(24, 24);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+}
+
+int GridSector::getRow() const
+{
+    return _row;
+}
+
+int GridSector::getCol() const
+{
+    return _col;
 }
 
 void GridSector::setRiskState(RiskState state)
@@ -54,7 +65,7 @@ void GridSector::setSelected(bool selected)
 void GridSector::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
-        emit selected(_row, _col);
+        emit selected(this);
 }
 
 void GridSector::contextMenuEvent(QContextMenuEvent *event)
@@ -155,7 +166,7 @@ QColor GridSector::getTrafficStateColor()
     case HEAVY:
         return QColor(255, 0, 0, alpha); // red
     }
-    
+
     QColor fallback(0, 0, 0, 0);
     return fallback;
 }

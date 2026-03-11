@@ -8,7 +8,7 @@
 AlertPanel::AlertPanel(QWidget *parent) : QFrame(parent)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(createAlertPanel());
+    layout->addWidget(buildAlertPanel());
 
     // PLACEHOLDER:
     QWidget *button = createAlertButton(1);
@@ -17,26 +17,17 @@ AlertPanel::AlertPanel(QWidget *parent) : QFrame(parent)
     setLayout(layout);
 }
 
-QTabWidget *AlertPanel::createAlertPanel()
+QTabWidget *AlertPanel::buildAlertPanel()
 {
+    _alertsTab = buildAlertsTab();
+    
     QTabWidget *tabWidget = new QTabWidget(this);
-    _logTab = createLogTab();
-    _alertsTab = createAlertsTab();
-
     tabWidget->addTab(_alertsTab, "Alerts");
-    tabWidget->addTab(_logTab, "Logs");
 
     return tabWidget;
 }
 
-QWidget *AlertPanel::createLogTab()
-{
-    QWidget *logTab = new QWidget(this);
-
-    return logTab;
-};
-
-QWidget *AlertPanel::createAlertsTab()
+QWidget *AlertPanel::buildAlertsTab()
 {
     QWidget *alertsTab = new QWidget(this);
     auto *layout = new QVBoxLayout(alertsTab);

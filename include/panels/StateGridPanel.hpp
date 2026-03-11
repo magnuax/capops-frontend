@@ -1,4 +1,5 @@
 #pragma once
+
 #include <QFrame>
 
 #include "domain/DisplayMode.hpp"
@@ -7,40 +8,43 @@
 class QWidget;
 class GridSector;
 class QGridLayout;
+class QTabBar;
+
 class IFlightDataService;
 
 class StateGridPanel : public QFrame
 {
     Q_OBJECT
 
+signals:
+    void sectorSelected(int sectorId);
+
 public:
     explicit StateGridPanel(IFlightDataService &dataService, QWidget *parent = nullptr);
 
     void setDisplayMode(DisplayMode mode);
-    void setMapSource(const QPixmap &mapSource);
 
-    QSize getGridSize() const;
+    void setMapSource(const QPixmap &mapSource);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
-    void paintEvent(QPaintEvent *event) override;
-
-signals:
-    void sectorSelected(int row, int col);
 
 private:
-    QWidget *createGrid();
+    QWidget *buildGrid();
 
-    QPixmap _mapSource;
+    void handleSectorSelection(GridSector *cell);
 
-    QWidget *_gridWidget = nullptr;
-    QGridLayout *_gridLayout = nullptr;
-    
+    void handleTabChange(int tabIndex);
+
     int _numRows;
     int _numCols;
 
-    IFlightDataService &_dataService;
-
+    QTabBar *_tabBar = nullptr;
+    QWidget *_gridWidget = nullptr;
+    QGridLayout *_gridLayout = nullptr;
     GridSector *_selectedCell = nullptr;
     std::vector<GridSector *> _cells;
+
+    IFlightDataService &_dataService;
+    QPixmap _mapSource;
 };

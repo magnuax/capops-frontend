@@ -13,11 +13,10 @@
 #include "panels/AlertPanel.hpp"
 #include "panels/SectorDetailsPanel.hpp"
 
-#include "helpers/IMapFetcher.hpp"
-#include "helpers/IFlightDataService.hpp"
-#include "widgets/SegmentedControl.hpp"
+#include "services/interfaces/ITileMapService.hpp"
+#include "services/interfaces/IFlightDataService.hpp"
 
-MainPage::MainPage(IFlightDataService &dataService, IMapFetcher *mapFetcher, QWidget *parent)
+MainPage::MainPage(IFlightDataService &dataService, ITileMapService *mapFetcher, QWidget *parent)
     : QWidget(parent),
       _mapFetcher(mapFetcher),
       _dataService(dataService)
@@ -25,11 +24,10 @@ MainPage::MainPage(IFlightDataService &dataService, IMapFetcher *mapFetcher, QWi
     QVBoxLayout *displayLayout = new QVBoxLayout();
     displayLayout->setContentsMargins(0, 0, 0, 0);
     displayLayout->setSpacing(0);
-    displayLayout->addWidget(createStateGrid());
-    displayLayout->addWidget(createDisplayControls(), 0, Qt::AlignCenter);
+    displayLayout->addWidget(buildStateGrid());
 
-    QWidget *sectorDetailsPanel = createSectorDetailsPanel();
-    QWidget *alertPanel = createAlertPanel();
+    QWidget *sectorDetailsPanel = buildSectorDetailsPanel();
+    QWidget *alertPanel = buildAlertPanel();
 
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
     mainLayout->addWidget(sectorDetailsPanel);
@@ -49,65 +47,43 @@ MainPage::MainPage(IFlightDataService &dataService, IMapFetcher *mapFetcher, QWi
 
 void MainPage::wireConnections()
 {
-
-    // --- Display controls <-> Grid panel ---
-    connect(_displayControls, &SegmentedControl::segmentSelected, this, [this](int idx)
-            {
-        QVariant displayMode = _displayControls->getSegmentData(idx);
-        if (displayMode.isValid())
-        {
-            _gridPanel->setDisplayMode(static_cast<DisplayMode>(displayMode.toInt()));
-        } });
-
     // --- Sector details <-> Grid panel ---
-    connect(_gridPanel, &StateGridPanel::sectorSelected, _sectorDetailsPanel, [this](int row, int col)
-            { _sectorDetailsPanel->setSector(row, col); });
+    connect(_gridPanel, &StateGridPanel::sectorSelected,
+            _sectorDetailsPanel, &SectorDetailsPanel::setSector);
 
     // --- Map fetcher signals ---
-    connect(_mapFetcher, &IMapFetcher::finished, this, [this](const QPixmap &pm)
-            { _gridPanel->setMapSource(pm); });
+    connect(_mapFetcher, &ITileMapService::finished,
+            _gridPanel, &StateGridPanel::setMapSource);
 
-    connect(_mapFetcher, &IMapFetcher::failed, this, [](const QString &err)
-            { qWarning() << err; });
+    connect(_mapFetcher, &ITileMapService::failed,
+            this, [](const QString &err){ qWarning() << err; });
 }
 
-QWidget *MainPage::createStateGrid()
+QWidget *MainPage::buildStateGrid()
 {
     _gridPanel = new StateGridPanel(_dataService, this);
     _gridPanel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    _gridPanel->setMinimumWidth(400);
 
     return _gridPanel;
 };
 
-QWidget *MainPage::createAlertPanel()
+QWidget *MainPage::buildAlertPanel()
 {
     _alertPanel = new AlertPanel(this);
     return _alertPanel;
 }
 
-QWidget *MainPage::createSectorDetailsPanel()
+QWidget *MainPage::buildSectorDetailsPanel()
 {
     _sectorDetailsPanel = new SectorDetailsPanel(_dataService, this);
     return _sectorDetailsPanel;
 }
 
-QWidget *MainPage::createDisplayControls()
-{
-
-    _displayControls = new SegmentedControl({"Risk", "Weather", "Traffic", "None"}, this);
-
-    _displayControls->setSegmentData(0, static_cast<int>(DisplayMode::RISK));
-    _displayControls->setSegmentData(1, static_cast<int>(DisplayMode::WEATHER));
-    _displayControls->setSegmentData(2, static_cast<int>(DisplayMode::TRAFFIC));
-    _displayControls->setSegmentData(3, static_cast<int>(DisplayMode::NONE));
-
-    return _displayControls;
-}
-
 void MainPage::requestMap(double lat, double lon, int zoom)
 {
 
-    IMapFetcher::Request request;
+    ITileMapService::Request request;
     request.coords = {lon, lat};
     request.zoom = zoom;
     request.imageSize = {800, 800};

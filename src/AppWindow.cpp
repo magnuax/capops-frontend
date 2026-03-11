@@ -5,14 +5,14 @@
 #include "AppWindow.hpp"
 #include "pages/MainPage.hpp"
 
-#include "helpers/MapFetcherCARTO.hpp"
-#include "helpers/FlightDataServiceTest.hpp"
+#include "services/TileMapServiceCARTO.hpp"
+#include "services/FlightDataServiceTest.hpp"
 
 AppWindow::AppWindow(QWidget *parent) : QMainWindow(parent)
 {
     _dataService = new FlightDataServiceTest();
 
-    _mapFetcher = new MapFetcherCARTO(this);
+    _mapFetcher = new TileMapServiceCARTO(this);
     _mapFetcher->enableDiskCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/maptiles");
 
     initializePages();

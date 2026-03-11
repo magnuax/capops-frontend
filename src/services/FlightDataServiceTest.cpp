@@ -1,4 +1,7 @@
-#include "helpers/FlightDataServiceTest.hpp"
+#include <QPoint>
+#include <QSize>
+
+#include "services/FlightDataServiceTest.hpp"
 
 FlightDataServiceTest::FlightDataServiceTest()
 {
@@ -25,6 +28,11 @@ int FlightDataServiceTest::getColCount() const
     return 2;
 }
 
+QSize FlightDataServiceTest::getGridSize() const
+{
+    return QSize(getColCount(), getRowCount());
+}
+
 RiskState FlightDataServiceTest::getRisk(int sectorId) const
 {
     return _riskStates[sectorId];
@@ -38,6 +46,23 @@ WeatherState FlightDataServiceTest::getWeather(int sectorId) const
 TrafficState FlightDataServiceTest::getTraffic(int sectorId) const
 {
     return _trafficStates[sectorId];
+}
+
+QPoint FlightDataServiceTest::getSectorIndices(int sectorId) const
+{
+    const int row = sectorId / getColCount();
+    const int col = sectorId % getColCount();
+    return {row, col};
+}
+
+int FlightDataServiceTest::getSectorId(int row, int col) const
+{
+    return _sectorIds[row * getColCount() + col];
+}
+
+std::vector<int> FlightDataServiceTest::getSectorIds() const
+{
+    return _sectorIds;
 }
 
 std::vector<int> FlightDataServiceTest::getFlightIds(int sectorId) const

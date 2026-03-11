@@ -11,19 +11,21 @@ class GridSector : public QFrame
 {
     Q_OBJECT
 
+signals:
+    void selected(GridSector *cell);
+
 public:
     explicit GridSector(int row, int col, QWidget *parent = nullptr);
+    explicit GridSector(int row, int col, int id, QWidget *parent = nullptr);
+
+    int getRow() const;
+    int getCol() const;
 
     void setRiskState(RiskState state);
     void setWeatherState(WeatherState state);
     void setTrafficState(TrafficState state);
-
     void setDisplayMode(DisplayMode mode);
-
     void setSelected(bool selected);
-
-signals:
-    void selected(int row, int col);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
@@ -38,18 +40,14 @@ private:
     QColor getWeatherStateColor();
     QColor getTrafficStateColor();
 
-private:
-    int _id;
     int _row;
     int _col;
+    bool _isSelected;
 
     RiskState _riskState;
     WeatherState _weatherState;
     TrafficState _trafficState;
-
     DisplayMode _displayMode;
-
-    bool _isSelected;
 
     QMenu *_contextMenu;
     QAction *_renameAction;

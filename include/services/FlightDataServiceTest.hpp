@@ -1,20 +1,25 @@
 #pragma once
 #include <vector>
-#include "helpers/IFlightDataService.hpp"
+#include "services/interfaces/IFlightDataService.hpp"
+
+class QPoint;
+class QSize;
 
 class FlightDataServiceTest : public IFlightDataService
 {
 public:
     FlightDataServiceTest();
 
-    int getRowCount() const override;
+    int getSectorId(int row, int col) const override;
+    std::vector<int> getSectorIds() const override;
 
+    int getRowCount() const override;
     int getColCount() const override;
+    QSize getGridSize() const override;
+    QPoint getSectorIndices(int sectorId) const override;
 
     RiskState getRisk(int sectorId) const override;
-
     WeatherState getWeather(int sectorId) const override;
-
     TrafficState getTraffic(int sectorId) const override;
 
     std::vector<int> getFlightIds(int sectorId) const override;

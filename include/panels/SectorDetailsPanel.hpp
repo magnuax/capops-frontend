@@ -14,18 +14,17 @@ class SectorDetailsPanel : public QWidget
 {
     Q_OBJECT
 
+public slots:
+    void setSector(int sectorId);
+    void selectAircraft(QListWidgetItem *item);
+
 public:
     explicit SectorDetailsPanel(IFlightDataService &dataService, QWidget *parent = nullptr);
 
-public slots:
-    void setSector(int row, int col);
-
-    void selectAircraft(QListWidgetItem *item);
-
 private:
-    QWidget *createSectorStatusWidget();
-    QWidget *createAircraftListWidget();
-    QWidget *createSelectedAircraftWidget();
+    QWidget *buildSectorStatusWidget();
+    QWidget *buildAircraftListWidget();
+    QWidget *buildSelectedAircraftWidget();
     
     void refresh();
     void updateSectorStatusWidget();
@@ -33,9 +32,6 @@ private:
     void updateSelectedAircraftWidget();
     
     QPixmap loadStatusIcon(const QString &iconPath);
-    QWidget *createSectionCard(const QString &objectName);
-
-    void applyStyling();
 
     QWidget *_sectorStatusWidget;
     QWidget *_aircraftListWidget;
@@ -54,7 +50,6 @@ private:
     QLabel *_trafficIcon = nullptr;
 
     QListWidget *_aircraftEntries;
-
     QLabel *_selectedAircraftHeader;
     QLabel *_selectedAircraftInfo;
 

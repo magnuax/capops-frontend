@@ -5,7 +5,7 @@
 #include <QListWidget>
 #include <QIcon>
 
-#include "helpers/IFlightDataService.hpp"
+#include "services/interfaces/IFlightDataService.hpp"
 #include "panels/SectorDetailsPanel.hpp"
 #include "domain/SectorStates.hpp"
 
@@ -21,20 +21,16 @@ SectorDetailsPanel::SectorDetailsPanel(IFlightDataService &dataService, QWidget 
     auto *sectorDetails = new QWidget(this);
     auto *detailsLayout = new QVBoxLayout(sectorDetails);
 
-    detailsLayout->addWidget(createSectorStatusWidget());
-    detailsLayout->addStretch();
-    detailsLayout->addWidget(createAircraftListWidget());
-    detailsLayout->addStretch();
-    detailsLayout->addWidget(createSelectedAircraftWidget());
-    detailsLayout->addStretch();
+    detailsLayout->addWidget(buildSectorStatusWidget());
+    detailsLayout->addWidget(buildAircraftListWidget());
+    detailsLayout->addWidget(buildSelectedAircraftWidget());
 
     tabs->addTab(sectorDetails, "Details");
 
-    setSector(0, 0);
-    applyStyling();
+    setSector(_dataService.getSectorIds().front());
 }
 
-QWidget *SectorDetailsPanel::createSectorStatusWidget()
+QWidget *SectorDetailsPanel::buildSectorStatusWidget()
 {
     _sectorStatusWidget = new QWidget(this);
     _sectorStatusWidget->setObjectName("SectorStatusWidget");
@@ -80,7 +76,7 @@ QWidget *SectorDetailsPanel::createSectorStatusWidget()
     return _sectorStatusWidget;
 }
 
-QWidget *SectorDetailsPanel::createAircraftListWidget()
+QWidget *SectorDetailsPanel::buildAircraftListWidget()
 {
     _aircraftListWidget = new QWidget(this);
     _aircraftListWidget->setLayout(new QVBoxLayout());
@@ -100,7 +96,7 @@ QWidget *SectorDetailsPanel::createAircraftListWidget()
     return _aircraftListWidget;
 }
 
-QWidget *SectorDetailsPanel::createSelectedAircraftWidget()
+QWidget *SectorDetailsPanel::buildSelectedAircraftWidget()
 {
     _selectedAircraftWidget = new QWidget(this);
     _selectedAircraftWidget->setObjectName("SelectedAircraftWidget");
@@ -171,11 +167,10 @@ void SectorDetailsPanel::updateSelectedAircraftWidget()
     // also update `_selectedAircraftInfo` when backend is ready
 }
 
-void SectorDetailsPanel::setSector(int row, int col)
+void SectorDetailsPanel::setSector(int sectorId)
 {
-    // PLACEHOLDER ID MAPPING:
-    _selectedSectorIdx = {row, col};
-    _selectedSectorId = row * _dataService.getColCount() + col;
+    _selectedSectorId = sectorId;
+    _selectedSectorIdx = _dataService.getSectorIndices(sectorId);
     _selectedAircraftId = -1;
 
     refresh();
@@ -197,89 +192,4 @@ void SectorDetailsPanel::selectAircraft(QListWidgetItem *item)
     _selectedAircraftId = ICAO;
 
     updateSelectedAircraftWidget();
-}
-
-void SectorDetailsPanel::applyStyling()
-{
-    setStyleSheet(R"(
-        QTabBar::tab
-        {
-            background: rgb(225,225,225);
-            border-radius: 8px;
-            border-bottom-left-radius: 0px;
-            border-bottom-right-radius: 0px;
-            padding: 6px 12px;
-            font-size: 16px;
-        }
-
-        QTabBar::tab:selected
-        {
-            background: rgba(0,0,0,0.1);
-        }
-
-        QTabBar::tab:hover
-        {
-            background: rgba(0,0,0,0.05);
-        }
-
-        QTabWidget::pane
-        {
-            border: none;
-            background: rgb(225,225,225);
-            border-radius: 8px;
-            border-top-left-radius: 0px;
-        }
-
-        #SectorStatusWidget, 
-        #AircraftListWidget, 
-        #SelectedAircraftWidget
-        {
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            padding: 10px;
-        }
-
-        #SectorStatusWidget QLabel,
-        #AircraftListWidget QLabel,
-        #SelectedAircraftWidget QLabel
-        {
-            font-size: 16px;
-        }
-
-        #AircraftListWidget QListWidget
-        {
-            background: transparent;
-            border: none;
-            padding: 4px;
-        }
-
-        #AircraftListWidget QListWidget::item
-        {
-            padding: 6px;
-            border-radius: 6px;
-        }
-
-        #AircraftListWidget QListWidget::item:selected
-        {
-            background: rgba(0, 127, 195, 0.38);
-            color: black;
-        }
-
-        #AircraftListWidget QListWidget::item:hover:!selected
-        {
-            background: rgba(0, 127, 195, 0.23);
-            color: black;
-        }
-
-        #AircraftListWidget QListWidget::item:hover:selected
-        {
-            background: rgba(0, 127, 195, 0.6);
-            color: black;
-        }
-
-        QLabel
-        {
-            color: black;
-        }
-    )");
 }
