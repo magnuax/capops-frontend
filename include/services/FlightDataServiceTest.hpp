@@ -1,14 +1,33 @@
 #pragma once
+#include <map>
 #include <vector>
+#include <QObject>
+#include <QFileSystemWatcher>
+#include <QPoint>
+#include <QSize>
+#include <QString>
+
 #include "services/interfaces/IFlightDataService.hpp"
+#include "services/interfaces/IFlightDataEvents.hpp"
 
 class QPoint;
 class QSize;
+class QString;
+class QFileSystemWatcher;
 
-class FlightDataServiceTest : public IFlightDataService
+class FlightDataServiceTest : public IFlightDataEvents, public IFlightDataService
 {
+    Q_OBJECT
+
+public slots:
+    void updateSectorRisk(int sectorId, RiskState risk);
+    void updateSectorWeather(int sectorId, WeatherState weather);
+    void updateSectorTraffic(int sectorId, TrafficState traffic);
+    void updateSectorFlights(int sectorId, std::vector<int> flightIds);
+    void onFileChanged(const QString &path);
+
 public:
-    FlightDataServiceTest();
+    FlightDataServiceTest(const QString &jsonPath, QObject *parent = nullptr);
 
     int getSectorId(int row, int col) const override;
     std::vector<int> getSectorIds() const override;
@@ -25,10 +44,22 @@ public:
     std::vector<int> getFlightIds(int sectorId) const override;
 
 private:
+    QString _jsonPath;
+    QFileSystemWatcher _fileWatcher;
+
+    bool loadFromJson();
+    void reloadFromJson();
+
+    RiskState parseRiskState(const QString &value) const;
+    WeatherState parseWeatherState(const QString &value) const;
+    TrafficState parseTrafficState(const QString &value) const;
+
     std::vector<RiskState> _riskStates;
     std::vector<WeatherState> _weatherStates;
     std::vector<TrafficState> _trafficStates;
 
+    int _rows;
+    int _cols;
     std::vector<int> _sectorIds;
-    std::vector<std::vector<int>> _flightIds;
+    std::map<int, std::vector<int>> _flightIds;
 };
