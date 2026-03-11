@@ -17,6 +17,7 @@ class SectorDetailsPanel : public QWidget
 public slots:
     void setSector(int sectorId);
     void selectAircraft(QListWidgetItem *item);
+    void refresh();
 
 public:
     explicit SectorDetailsPanel(IFlightDataService &dataService, QWidget *parent = nullptr);
@@ -26,7 +27,6 @@ private:
     QWidget *buildAircraftListWidget();
     QWidget *buildSelectedAircraftWidget();
     
-    void refresh();
     void updateSectorStatusWidget();
     void updateAircraftListWidget();
     void updateSelectedAircraftWidget();

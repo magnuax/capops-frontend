@@ -19,6 +19,9 @@ class StateGridPanel : public QFrame
 signals:
     void sectorSelected(int sectorId);
 
+public slots:
+    void refresh();
+
 public:
     explicit StateGridPanel(IFlightDataService &dataService, QWidget *parent = nullptr);
 
