@@ -22,8 +22,8 @@ SectorDetailsPanel::SectorDetailsPanel(IFlightDataService &dataService, QWidget 
     auto *detailsLayout = new QVBoxLayout(sectorDetails);
 
     detailsLayout->addWidget(buildSectorStatusWidget());
-    detailsLayout->addWidget(buildAircraftListWidget());
     detailsLayout->addWidget(buildSelectedAircraftWidget());
+    detailsLayout->addWidget(buildAircraftListWidget());
 
     tabs->addTab(sectorDetails, "Details");
 
@@ -46,9 +46,9 @@ QWidget *SectorDetailsPanel::buildSectorStatusWidget()
     QLabel *weatherLabel = new QLabel("Weather:", _sectorStatusWidget);
     QLabel *trafficLabel = new QLabel("Traffic:", _sectorStatusWidget);
 
-    _riskState = new QLabel("-", _sectorStatusWidget);
-    _weatherState = new QLabel("-", _sectorStatusWidget);
-    _trafficState = new QLabel("-", _sectorStatusWidget);
+    _riskState = new QLabel("n/a", _sectorStatusWidget);
+    _weatherState = new QLabel("n/a", _sectorStatusWidget);
+    _trafficState = new QLabel("n/a", _sectorStatusWidget);
 
     _riskIcon = new QLabel(_sectorStatusWidget);
     _weatherIcon = new QLabel(_sectorStatusWidget);
@@ -100,13 +100,49 @@ QWidget *SectorDetailsPanel::buildSelectedAircraftWidget()
 {
     _selectedAircraftWidget = new QWidget(this);
     _selectedAircraftWidget->setObjectName("SelectedAircraftWidget");
-
     _selectedAircraftHeader = new QLabel("No aircraft selected", _selectedAircraftWidget);
-    _selectedAircraftInfo = new QLabel("Lorem ipsum dolor sit amet", _selectedAircraftWidget);
+    
+    auto *layout = new QVBoxLayout(_selectedAircraftWidget);
+    auto *grid = new QGridLayout();
 
-    _selectedAircraftWidget->setLayout(new QVBoxLayout());
-    _selectedAircraftWidget->layout()->addWidget(_selectedAircraftHeader);
-    _selectedAircraftWidget->layout()->addWidget(_selectedAircraftInfo);
+    layout->addWidget(_selectedAircraftHeader);
+    layout->addLayout(grid);
+
+    QLabel *positionLabel = new QLabel("position:", _selectedAircraftWidget);
+    QLabel *altitudeLabel = new QLabel("altitude:", _selectedAircraftWidget);
+    QLabel *groundSpeedLabel = new QLabel("ground speed:", _selectedAircraftWidget);
+    QLabel *vertRateLabel = new QLabel("vertical rate:", _selectedAircraftWidget);
+    QLabel *headingLabel = new QLabel("heading:", _selectedAircraftWidget);
+    QLabel *groundTrackLabel = new QLabel("ground track:", _selectedAircraftWidget);
+
+    _aircraftPosition = new QLabel("n/a", _selectedAircraftWidget);
+    _aircraftAltitude = new QLabel("n/a", _selectedAircraftWidget);
+    _aircraftGroundSpeed = new QLabel("n/a", _selectedAircraftWidget);
+    _aircraftVertRate = new QLabel("n/a", _selectedAircraftWidget);
+    _aircraftHeading = new QLabel("n/a", _selectedAircraftWidget);
+    _aircraftGroundTrack = new QLabel("n/a", _selectedAircraftWidget);
+
+    grid->addWidget(positionLabel, 0, 0, Qt::AlignLeft);
+    grid->addWidget(_aircraftPosition, 0, 1, Qt::AlignRight);
+
+    grid->addWidget(altitudeLabel, 1, 0, Qt::AlignLeft);
+    grid->addWidget(_aircraftAltitude, 1, 1, Qt::AlignRight);
+
+    grid->addWidget(groundSpeedLabel, 2, 0, Qt::AlignLeft);
+    grid->addWidget(_aircraftGroundSpeed, 2, 1, Qt::AlignRight);
+
+    grid->addWidget(vertRateLabel, 3, 0, Qt::AlignLeft);
+    grid->addWidget(_aircraftVertRate, 3, 1, Qt::AlignRight);
+
+    grid->addWidget(headingLabel, 4, 0, Qt::AlignLeft);
+    grid->addWidget(_aircraftHeading, 4, 1, Qt::AlignRight);
+
+    grid->addWidget(groundTrackLabel, 5, 0, Qt::AlignLeft);
+    grid->addWidget(_aircraftGroundTrack, 5, 1, Qt::AlignRight);
+
+    grid->setColumnMinimumWidth(0, 40);
+
+    updateSelectedAircraftWidget();
 
     return _selectedAircraftWidget;
 }
@@ -156,6 +192,13 @@ void SectorDetailsPanel::updateAircraftListWidget()
 void SectorDetailsPanel::updateSelectedAircraftWidget()
 {
     QString headerText = "No aircraft selected";
+
+    _aircraftPosition->setText("n/a");
+    _aircraftAltitude->setText("n/a");
+    _aircraftGroundSpeed->setText("n/a");
+    _aircraftVertRate->setText("n/a");
+    _aircraftHeading->setText("n/a");
+    _aircraftGroundTrack->setText("n/a");
 
     if (_selectedAircraftId >= 0)
     {

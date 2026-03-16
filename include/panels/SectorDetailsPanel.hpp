@@ -38,6 +38,13 @@ private:
     QWidget *_selectedAircraftWidget;
 
     int _selectedAircraftId = -1;
+    QLabel *_aircraftPosition = nullptr;
+    QLabel *_aircraftAltitude = nullptr;
+    QLabel *_aircraftGroundSpeed = nullptr;
+    QLabel *_aircraftVertRate = nullptr;
+    QLabel *_aircraftHeading = nullptr;
+    QLabel *_aircraftGroundTrack = nullptr;
+
     int _selectedSectorId = -1;
     QPoint _selectedSectorIdx = {-1, -1};
 

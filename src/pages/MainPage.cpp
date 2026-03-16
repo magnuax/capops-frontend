@@ -48,7 +48,7 @@ MainPage::MainPage(
     wireConnections();
 
     QTimer::singleShot(0, this, [this]
-                       { requestMap(60.1986, 11.1130, 13); });
+                       { requestMap(60.1986, 11.1130, 6); });
 }
 
 void MainPage::wireConnections()
@@ -60,7 +60,6 @@ void MainPage::wireConnections()
     // --- Map fetcher signals ---
     connect(_mapFetcher, &ITileMapService::finished,
             _gridPanel, &StateGridPanel::setMapSource);
-            
 
     connect(_mapFetcher, &ITileMapService::failed,
             this, [](const QString &err)
@@ -92,6 +91,7 @@ QWidget *MainPage::buildAlertPanel()
 QWidget *MainPage::buildSectorDetailsPanel()
 {
     _sectorDetailsPanel = new SectorDetailsPanel(_dataService, this);
+    _sectorDetailsPanel->setMinimumWidth(250);
     return _sectorDetailsPanel;
 }
 

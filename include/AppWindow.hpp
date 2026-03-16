@@ -21,7 +21,6 @@ public:
 private:
     void initializePages();
     void initializeServices();
-    void wireServices();
 
     QStackedWidget *_pageStack;
     QWidget *_mainPage;
