@@ -19,11 +19,14 @@ class FlightDataServiceJSON : public IFlightDataEvents, public IFlightDataServic
 {
     Q_OBJECT
 
+    using icao24_t = std::string;
+    using sectorId_t = int;
+
 public slots:
     void updateSectorRisk(int sectorId, RiskState risk);
     void updateSectorWeather(int sectorId, WeatherState weather);
     void updateSectorTraffic(int sectorId, TrafficState traffic);
-    void updateSectorFlights(int sectorId, std::vector<std::string> flightIds);
+    void updateSectorFlights(int sectorId, std::vector<icao24_t> flightIds);
     void onFileChanged(const QString &path);
 
 public:
@@ -60,6 +63,6 @@ private:
 
     int _rows;
     int _cols;
-    std::vector<int> _sectorIds;
-    std::map<int, std::vector<std::string>> _flightIds;
+    std::vector<sectorId_t> _sectorIds;
+    std::map<sectorId_t, std::vector<icao24_t>> _flightIds;
 };
