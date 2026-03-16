@@ -27,19 +27,13 @@ void FlightDataServiceJSON::onFileChanged(const QString &path)
     reloadFromJson();
 
     if (!_fileWatcher.files().contains(path))
-    {
         _fileWatcher.addPath(path);
-    }
-    return;
 }
 
 void FlightDataServiceJSON::reloadFromJson()
 {
     if (loadFromJson())
-    {
         emit dataReloaded();
-    }
-    return;
 }
 
 bool FlightDataServiceJSON::loadFromJson()
@@ -60,7 +54,7 @@ bool FlightDataServiceJSON::loadFromJson()
     std::vector<RiskState> riskStates;
     std::vector<WeatherState> weatherStates;
     std::vector<TrafficState> trafficStates;
-    std::map<int, std::vector<int>> flightIds;
+    std::map<int, std::vector<std::string>> flightIds;
 
     sectorIds.reserve(numSectors);
     riskStates.reserve(numSectors);
@@ -78,15 +72,15 @@ bool FlightDataServiceJSON::loadFromJson()
         weatherStates.push_back(parseWeatherState(sector.value("weather").toString()));
         trafficStates.push_back(parseTrafficState(sector.value("traffic").toString()));
 
-        std::vector<int> flights;
+        std::vector<std::string> flights;
         const QJsonArray flightsArray = sector.value("flights").toArray();
         flights.reserve(flightsArray.size());
 
         for (const QJsonValue &flightValue : flightsArray)
         {
-            flights.push_back(flightValue.toInt());
+            flights.push_back(flightValue.toString().toStdString());
         }
-        
+
         flightIds[id] = std::move(flights);
     }
 
@@ -139,39 +133,25 @@ TrafficState FlightDataServiceJSON::parseTrafficState(const QString &value) cons
 void FlightDataServiceJSON::updateSectorRisk(int sectorId, RiskState risk)
 {
     if (sectorId >= 0)
-    {
         _riskStates[sectorId] = risk;
-    }
-
-    return;
 }
+
 void FlightDataServiceJSON::updateSectorWeather(int sectorId, WeatherState weather)
 {
     if (sectorId >= 0)
-    {
         _weatherStates[sectorId] = weather;
-    }
-
-    return;
 }
 
 void FlightDataServiceJSON::updateSectorTraffic(int sectorId, TrafficState traffic)
 {
     if (sectorId >= 0)
-    {
         _trafficStates[sectorId] = traffic;
-    }
-
-    return;
 }
-void FlightDataServiceJSON::updateSectorFlights(int sectorId, std::vector<int> flightIds)
+
+void FlightDataServiceJSON::updateSectorFlights(int sectorId, std::vector<std::string> flightIds)
 {
     if (sectorId >= 0)
-    {
         _flightIds[sectorId] = flightIds;
-    }
-
-    return;
 }
 
 int FlightDataServiceJSON::getRowCount() const
@@ -221,7 +201,7 @@ std::vector<int> FlightDataServiceJSON::getSectorIds() const
     return _sectorIds;
 }
 
-std::vector<int> FlightDataServiceJSON::getFlightIds(int sectorId) const
+std::vector<std::string> FlightDataServiceJSON::getFlightIds(int sectorId) const
 {
     return _flightIds.at(sectorId);
 }

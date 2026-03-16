@@ -23,7 +23,7 @@ public slots:
     void updateSectorRisk(int sectorId, RiskState risk);
     void updateSectorWeather(int sectorId, WeatherState weather);
     void updateSectorTraffic(int sectorId, TrafficState traffic);
-    void updateSectorFlights(int sectorId, std::vector<int> flightIds);
+    void updateSectorFlights(int sectorId, std::vector<std::string> flightIds);
     void onFileChanged(const QString &path);
 
 public:
@@ -41,7 +41,7 @@ public:
     WeatherState getWeather(int sectorId) const override;
     TrafficState getTraffic(int sectorId) const override;
 
-    std::vector<int> getFlightIds(int sectorId) const override;
+    std::vector<std::string> getFlightIds(int sectorId) const override;
 
 private:
     QString _jsonPath;
@@ -61,5 +61,5 @@ private:
     int _rows;
     int _cols;
     std::vector<int> _sectorIds;
-    std::map<int, std::vector<int>> _flightIds;
+    std::map<int, std::vector<std::string>> _flightIds;
 };

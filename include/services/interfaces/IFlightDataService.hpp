@@ -19,5 +19,5 @@ public:
     virtual WeatherState getWeather(int sectorId) const = 0;
     virtual TrafficState getTraffic(int sectorId) const = 0;
 
-    virtual std::vector<int> getFlightIds(int sectorId) const = 0;
+    virtual std::vector<std::string> getFlightIds(int sectorId) const = 0;
 };

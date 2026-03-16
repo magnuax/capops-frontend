@@ -87,7 +87,7 @@ QWidget *SectorDetailsPanel::buildAircraftListWidget()
     _aircraftEntries->setCursor(Qt::PointingHandCursor);
     _aircraftEntries->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    auto *header = new QLabel("Aircrafts", _aircraftListWidget);
+    auto *header = new QLabel("Aircrafts in sector", _aircraftListWidget);
     _aircraftListWidget->layout()->addWidget(header);
     _aircraftListWidget->layout()->addWidget(_aircraftEntries);
 
@@ -177,15 +177,15 @@ QPixmap SectorDetailsPanel::loadStatusIcon(const QString &iconPath)
 
 void SectorDetailsPanel::updateAircraftListWidget()
 {
-    std::vector<int> flights = _dataService.getFlightIds(_selectedSectorId);
+    std::vector<std::string> flights = _dataService.getFlightIds(_selectedSectorId);
 
     _aircraftEntries->clear();
 
-    for (int ICAO : flights)
+    for (const std::string &icao24 : flights)
     {
-        QString text = QString("ICAO %1").arg(ICAO);
+        QString text = QString::fromStdString(icao24);
         auto *item = new QListWidgetItem(text, _aircraftEntries);
-        item->setData(Qt::UserRole, ICAO);
+        item->setData(Qt::UserRole, icao24.c_str());
     }
 }
 

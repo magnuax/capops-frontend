@@ -14,7 +14,7 @@ signals:
     void sectorRiskReceived(int sectorId, RiskState risk);
     void sectorWeatherReceived(int sectorId, WeatherState weather);
     void sectorTrafficReceived(int sectorId, TrafficState traffic);
-    void sectorFlightsReceived(int sectorId, std::vector<int> flightIds);
+    void sectorFlightsReceived(int sectorId, std::vector<std::string> flightIds);
 
 public:
     WebSocketClient(QObject *parent = nullptr);
