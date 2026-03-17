@@ -27,6 +27,10 @@ QString toString(RiskState state);
 QString toString(WeatherState state);
 QString toString(TrafficState state);
 
+RiskState riskStateFromString(const QString &str);
+WeatherState weatherStateFromString(const QString &str);
+TrafficState trafficStateFromString(const QString &str);
+
 QString toIconPath(RiskState state);
 QString toIconPath(WeatherState state);
 QString toIconPath(TrafficState state);

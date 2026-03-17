@@ -47,6 +47,51 @@ QString toString(TrafficState state)
     }
 }
 
+RiskState riskStateFromString(const QString &str)
+{
+    QString upperStr = str.toUpper();
+
+    if (upperStr == "NORMAL")
+        return NORMAL;
+    else if (upperStr == "AT_RISK" || upperStr == "AT RISK")
+        return AT_RISK;
+    else if (upperStr == "CONGESTED")
+        return CONGESTED;
+    else
+        return NORMAL;
+}
+
+WeatherState weatherStateFromString(const QString &str)
+{
+    QString upperStr = str.toUpper();
+
+    if (upperStr == "OK")
+        return OK;
+    else if (upperStr == "DEGRADED")
+        return DEGRADED;
+    else if (upperStr == "SEVERE")
+        return SEVERE;
+    else if (upperStr == "EXTREME")
+        return EXTREME;
+    else
+        return OK;
+}
+
+TrafficState trafficStateFromString(const QString &str)
+{
+    QString upperStr = str.toUpper();
+
+    if (upperStr == "LIGHT")
+        return LIGHT;
+    else if (upperStr == "MODERATE")
+        return MODERATE;
+    else if (upperStr == "HEAVY")
+        return HEAVY;
+    else
+        return LIGHT;
+}
+
+
 QString toIconPath(RiskState state)
 {
     switch (state)
