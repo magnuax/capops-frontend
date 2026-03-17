@@ -1,0 +1,122 @@
+
+#include <string>
+#include <vector>
+
+#include <QString>
+
+#include "domain/data/MergedRiskEvent.hpp"
+#include "domain/data/RiskEvent.hpp"
+
+MergedRiskEvent::MergedRiskEvent(
+    const int sectorId,
+    const std::vector<RiskEvent> &riskEvents)
+    : _sectorId(sectorId), _riskEvents(riskEvents)
+{
+    updateSummaryInfo();
+}
+
+int MergedRiskEvent::getSectorId() const
+{
+    return _sectorId;
+}
+
+std::vector<RiskEvent> MergedRiskEvent::getRiskEvents() const
+{
+    return _riskEvents;
+}
+
+QString MergedRiskEvent::getSummaryMessage() const
+{
+    return _summaryMessage;
+}
+
+QString MergedRiskEvent::getLastMessage() const
+{
+    return _lastMessage;
+}
+
+void MergedRiskEvent::setRiskEvents(const std::vector<RiskEvent> &riskEvents)
+{
+    _riskEvents = riskEvents;
+    updateSummaryInfo();
+}
+
+void MergedRiskEvent::addRiskEvents(const std::vector<RiskEvent> &riskEvents)
+{
+    for (RiskEvent riskEvent : riskEvents)
+    {
+        addRiskEvent(riskEvent);
+    }
+
+    updateSummaryInfo();
+}
+
+void MergedRiskEvent::addRiskEvent(const RiskEvent &riskEvent)
+{
+    _riskEvents.push_back(riskEvent);
+}
+
+void MergedRiskEvent::setSummaryInfo(
+    const RiskEvent *lastRiskEvent,
+    const RiskEvent *secondLastRiskEvent)
+{
+    // for readability
+    bool lastExists = !!lastRiskEvent;
+    bool secondLastExists = !!secondLastRiskEvent;
+
+    if (!lastExists && !secondLastExists)
+    {
+        _currentSeverity = "";
+        _previousSeverity = "";
+        _summaryMessage = QString("Risk severity in sector %1 unknown").arg(_sectorId);
+    }
+
+    else if (lastExists && !secondLastExists)
+    {
+        _currentSeverity = lastRiskEvent->getRiskSeverity();
+        _lastMessage = lastRiskEvent->getMessage();
+        _summaryMessage = QString("Risk severity in sector %1 changed to %2").arg(_sectorId).arg(_currentSeverity);
+    }
+
+    else if (lastExists && secondLastExists)
+    {
+        _currentSeverity = lastRiskEvent->getRiskSeverity();
+        _previousSeverity = secondLastRiskEvent->getRiskSeverity();
+        _summaryMessage = QString("Risk severity in sector %1 changed from %2 to %3")
+                              .arg(_sectorId)
+                              .arg(_previousSeverity)
+                              .arg(_currentSeverity);
+    }
+
+    else
+    {
+        _currentSeverity = "";
+        _previousSeverity = "";
+        throw std::logic_error(
+            "Unexpected behavior: secondLastRiskEvent exists without lastRiskEvent "
+            "in MergedRiskEvent::setSummaryInfo");
+    }
+}
+
+void MergedRiskEvent::updateSummaryInfo()
+{
+    RiskEvent *lastRiskEvent = nullptr;
+    RiskEvent *secondLastRiskEvent = nullptr;
+
+    for (RiskEvent riskEvent : _riskEvents)
+    {
+        if (!lastRiskEvent)
+        {
+            lastRiskEvent = &riskEvent;
+            continue;
+        }
+
+        if (riskEvent.getCreatedTimestamp() > lastRiskEvent->getCreatedTimestamp())
+        {
+            secondLastRiskEvent = lastRiskEvent;
+            lastRiskEvent = &riskEvent;
+        }
+    }
+
+    setSummaryInfo(lastRiskEvent, secondLastRiskEvent);
+}
