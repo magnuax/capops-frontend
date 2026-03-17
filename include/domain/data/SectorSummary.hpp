@@ -2,6 +2,8 @@
 
 #include <QString>
 
+#include "domain/SectorStates.hpp"
+
 class SectorSummary
 {
 public:
@@ -9,28 +11,31 @@ public:
         const int sectorId,
         const int row,
         const int column,
-        const int localAircraftCount,
-        const int localAircraftBaseCapacity,
-        const int localAircraftEffectiveCapacity,
-        const QString &weatherSeverity,
-        const QString &riskSeverity);
+        const std::vector<QString> aircraftIds,
+        const TrafficState &TrafficState,
+        const WeatherState &weatherState,
+        const RiskState &riskState);
 
     const int getSectorId() const;
     const int getRow() const;
     const int getColumn() const;
-    const int getLocalAircraftCount() const;
-    const int getLocalAircraftBaseCapacity() const;
-    const int getLocalAircraftEffectiveCapacity() const;
-    const QString &getWeatherSeverity() const;
-    const QString &getRiskSeverity() const;
+
+    const std::vector<QString> &getAircraftIds() const;
+    const int getAircraftCount() const;
+
+    const TrafficState &getTrafficState() const;
+    const WeatherState &getWeatherState() const;
+    const RiskState &getRiskState() const;
 
 private:
     int _sectorId;
     int _row;
     int _column;
     int _localAircraftCount;
-    int _localAircraftBaseCapacity;
-    int _localAircraftEffectiveCapacity;
-    QString _weatherSeverity;
-    QString _riskSeverity;
+
+    std::vector<QString> _aircraftIds;
+
+    TrafficState _trafficState;
+    WeatherState _weatherState;
+    RiskState _riskState;
 };
