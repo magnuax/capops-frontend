@@ -11,6 +11,11 @@
 
 #include "services/FlightDataServiceJSON.hpp"
 
+#include "domain/data/SectorSummaryData.hpp"
+#include "domain/data/SectorSummary.hpp"
+#include "domain/data/Track.hpp"
+#include "domain/data/TrackData.hpp"
+
 FlightDataServiceJSON::FlightDataServiceJSON(const QString &jsonPath, QObject *parent)
     : IFlightDataEvents(parent), _jsonPath(jsonPath)
 {
@@ -61,36 +66,48 @@ bool FlightDataServiceJSON::loadFromJson()
     weatherStates.reserve(numSectors);
     trafficStates.reserve(numSectors);
 
+    int totalAircraftCount = 0;
+    std::vector<SectorSummary> sectorSummaries;
+    std::vector<Track> tracks;
+
     for (const QJsonValue &value : sectors)
     {
         const QJsonObject sector = value.toObject();
 
-        const int id = sector.value("id").toInt(-1);
+        std::vector<QString> aircraftIds;
 
-        sectorIds.push_back(id);
-        riskStates.push_back(parseRiskState(sector.value("risk").toString()));
-        weatherStates.push_back(parseWeatherState(sector.value("weather").toString()));
-        trafficStates.push_back(parseTrafficState(sector.value("traffic").toString()));
-
-        std::vector<std::string> flights;
-        const QJsonArray flightsArray = sector.value("flights").toArray();
-        flights.reserve(flightsArray.size());
-
-        for (const QJsonValue &flightValue : flightsArray)
+        for (const QJsonValue &aircraft : sector.value("aircrafts").toArray())
         {
-            flights.push_back(flightValue.toString().toStdString());
+            const QString icao24 = aircraft.toString();
+            aircraftIds.push_back(icao24);
         }
 
-        flightIds[id] = std::move(flights);
+        const int id = sector.value("id").toInt(-1);
+        const int row = sector.value("row").toInt();
+        const int col = sector.value("col").toInt();
+        const int count = aircraftIds.size();
+        const int eff = sector.value("effective_capacity").toInt();
+
+        const TrafficState traffic = parseTrafficState(sector.value("traffic").toString());
+        const WeatherState weather = parseWeatherState(sector.value("weather").toString());
+        const RiskState risk = parseRiskState(sector.value("risk").toString());
+
+        sectorSummaries.push_back(SectorSummary(id, row, col, aircraftIds, traffic, weather, risk));
+
+        for (const auto &icao24 : aircraftIds)
+        {
+            tracks.push_back(
+                Track(icao24, QDateTime{}, {-1.0, -1.0, -1.0}, {-1.0, -1.0}, -1.0, -1.0));
+        }
+
+        totalAircraftCount += count;
     }
 
     _rows = root.value("rows").toInt();
     _cols = root.value("cols").toInt();
-    _sectorIds = std::move(sectorIds);
-    _riskStates = std::move(riskStates);
-    _weatherStates = std::move(weatherStates);
-    _trafficStates = std::move(trafficStates);
-    _flightIds = std::move(flightIds);
+    _sectorSummaryData = new SectorSummaryData(_rows, _cols, -1, -1, -1, -1, sectorSummaries);
+
+    _trackData = new TrackData(totalAircraftCount, "WGS84", tracks);
 
     return true;
 }
@@ -154,54 +171,12 @@ void FlightDataServiceJSON::updateSectorFlights(int sectorId, std::vector<std::s
         _flightIds[sectorId] = flightIds;
 }
 
-int FlightDataServiceJSON::getRowCount() const
+SectorSummaryData FlightDataServiceJSON::getSectorSummaryData() const
 {
-    return _rows;
+    return *_sectorSummaryData;
 }
 
-int FlightDataServiceJSON::getColCount() const
+TrackData FlightDataServiceJSON::getTrackData() const
 {
-    return _cols;
-}
-
-QSize FlightDataServiceJSON::getGridSize() const
-{
-    return QSize(getColCount(), getRowCount());
-}
-
-RiskState FlightDataServiceJSON::getRisk(int sectorId) const
-{
-    return _riskStates[sectorId];
-}
-
-WeatherState FlightDataServiceJSON::getWeather(int sectorId) const
-{
-    return _weatherStates[sectorId];
-}
-
-TrafficState FlightDataServiceJSON::getTraffic(int sectorId) const
-{
-    return _trafficStates[sectorId];
-}
-
-QPoint FlightDataServiceJSON::getSectorIndices(int sectorId) const
-{
-    const int row = sectorId / getColCount();
-    const int col = sectorId % getColCount();
-    return {row, col};
-}
-
-int FlightDataServiceJSON::getSectorId(int row, int col) const
-{
-    return _sectorIds[row * getColCount() + col];
-}
-
-std::vector<int> FlightDataServiceJSON::getSectorIds() const
-{
-    return _sectorIds;
-}
-
-std::vector<std::string> FlightDataServiceJSON::getFlightIds(int sectorId) const
-{
-    return _flightIds.at(sectorId);
+    return *_trackData;
 }
