@@ -6,7 +6,7 @@ SectorSummary::SectorSummary
 (
     const int sectorId,
     const int row,
-    const int colunmn,
+    const int column,
     const int localAircraftCount,
     const int localAircraftBaseCapacity,
     const int localAircraftEffectiveCapacity,
@@ -16,7 +16,7 @@ SectorSummary::SectorSummary
     :
     _sectorId(sectorId),
     _row(row),
-    _colunmn(colunmn),
+    _column(column),
     _localAircraftCount(localAircraftCount),
     _localAircraftBaseCapacity(localAircraftBaseCapacity),
     _localAircraftEffectiveCapacity(localAircraftEffectiveCapacity),
@@ -34,9 +34,9 @@ const int SectorSummary::getRow() const
     return _row;
 }
 
-const int SectorSummary::getColunmn() const
+const int SectorSummary::getColumn() const
 {
-    return _colunmn;
+    return _column;
 }
 
 const int SectorSummary::getLocalAircraftCount() const
