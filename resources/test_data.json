@@ -4,31 +4,39 @@
   "sectors": [
     {
       "id": 0,
+      "row": 0,
+      "col": 0,
       "risk": "CONGESTED",
       "weather": "OK",
       "traffic": "LIGHT",
-      "flights": ["101", "102", "103", "104"]
+      "aircrafts": ["101", "102", "103", "104"]
     },
     {
       "id": 1,
+      "row": 0,
+      "col": 1,
       "risk": "AT_RISK",
       "weather": "DEGRADED",
       "traffic": "MODERATE",
-      "flights": ["201", "202"]
+      "aircrafts": ["201", "202"]
     },
     {
       "id": 2,
+      "row": 1,
+      "col": 0,
       "risk": "AT_RISK",
       "weather": "SEVERE",
       "traffic": "HEAVY",
-      "flights": ["301", "302", "303", "304"]
+      "aircrafts": ["301", "302", "303", "304"]
     },
     {
       "id": 3,
+      "row": 1,
+      "col": 1,
       "risk": "NORMAL",
       "weather": "EXTREME",
       "traffic": "LIGHT",
-      "flights": ["401"]
+      "aircrafts": ["401"]
     }
   ]
 }
