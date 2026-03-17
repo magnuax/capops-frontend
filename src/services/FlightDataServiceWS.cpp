@@ -9,16 +9,16 @@ FlightDataServiceWS::FlightDataServiceWS(QObject *parent)
 
 void FlightDataServiceWS::bindTo(WebSocketClient *client)
 {
-    connect(client, &WebSocketClient::sectorRiskReceived,
+    connect(client, &WebSocketClient::sectorRiskUpdated,
             this, &FlightDataServiceWS::updateSectorRisk);
 
-    connect(client, &WebSocketClient::sectorWeatherReceived,
+    connect(client, &WebSocketClient::sectorWeatherUpdated,
             this, &FlightDataServiceWS::updateSectorWeather);
 
-    connect(client, &WebSocketClient::sectorTrafficReceived,
+    connect(client, &WebSocketClient::sectorTrafficUpdated,
             this, &FlightDataServiceWS::updateSectorTraffic);
 
-    connect(client, &WebSocketClient::sectorFlightsReceived,
+    connect(client, &WebSocketClient::sectorFlightsUpdated,
             this, &FlightDataServiceWS::updateSectorFlights);
 }
 

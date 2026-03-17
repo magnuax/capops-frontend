@@ -1,31 +1,67 @@
 #include <QUrl>
 #include <QObject>
 #include <QDebug>
+#include <QJsonArray>
+#include <QJsonDocument>
 
 #include "services/WebSocketClient.hpp"
 
 WebSocketClient::WebSocketClient(QObject *parent)
     : QObject(parent)
 {
-    connect(&_socket, &QWebSocket::connected, this, []()
-            { qDebug() << "Connected to server"; });
+    connect(&_socket, &QWebSocket::connected, this, &WebSocketClient::onConnected);
 
-    connect(&_socket, &QWebSocket::textMessageReceived, this, [](const QString &msg)
-            { qDebug() << "Received:" << msg; });
+    connect(&_socket, &QWebSocket::textMessageReceived, this, &WebSocketClient::onMessageReceived);
 
-    connect(&_socket, &QWebSocket::disconnected, this, []()
-            { qDebug() << "Disconnected"; });
+    connect(&_socket, &QWebSocket::disconnected, this, &WebSocketClient::onDisconnected);
 
-    connect(&_socket, &QWebSocket::errorOccurred, this, [](QAbstractSocket::SocketError)
-            { qDebug() << "WebSocket error"; });
+    connect(&_socket, &QWebSocket::errorOccurred, this, &WebSocketClient::onError);
 }
 
-void WebSocketClient::connectToServer()
+void WebSocketClient::connectToServer(const QUrl &url)
 {
-    _socket.open(QUrl("ws://127.0.0.1:8080"));
+    _socket.open(url);
 }
 
-void WebSocketClient::sendMessage(const QString &message)
+void WebSocketClient::parseMessage(const QJsonObject &json)
 {
-    _socket.sendTextMessage(message);
+    const QString type = json["type"].toString();
+
+    if (type == "risk")
+        emit sectorRiskUpdated(json["sectorId"].toInt(),
+                               riskStateFromString(json["value"].toString()));
+    else if (type == "weather")
+        emit sectorWeatherUpdated(json["sectorId"].toInt(),
+                                  weatherStateFromString(json["value"].toString()));
+    else if (type == "traffic")
+        emit sectorTrafficUpdated(json["sectorId"].toInt(),
+                                  trafficStateFromString(json["value"].toString()));
+    else if (type == "flights")
+    {
+        std::vector<std::string> ids;
+        for (const auto &v : json["flights"].toArray())
+            ids.push_back(v.toString().toStdString());
+        emit sectorFlightsUpdated(json["sectorId"].toInt(), ids);
+    }
+}
+
+void WebSocketClient::onConnected()
+{
+    emit connected();
+}
+
+void WebSocketClient::onDisconnected()
+{
+    emit disconnected();
+}
+
+void WebSocketClient::onError(QAbstractSocket::SocketError error)
+{
+    emit errorOccurred(_socket.errorString());
+}
+
+void WebSocketClient::onMessageReceived(const QString &message)
+{
+    const QJsonObject json = QJsonDocument::fromJson(message.toUtf8()).object();
+    parseMessage(json);
 }
