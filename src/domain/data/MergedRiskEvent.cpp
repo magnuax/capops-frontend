@@ -73,15 +73,15 @@ void MergedRiskEvent::setSummaryInfo(
 
     else if (lastExists && !secondLastExists)
     {
-        _currentSeverity = lastRiskEvent->getRiskSeverity();
+        _currentSeverity = lastRiskEvent->getRiskState();
         _lastMessage = lastRiskEvent->getMessage();
         _summaryMessage = QString("Risk severity in sector %1 changed to %2").arg(_sectorId).arg(_currentSeverity);
     }
 
     else if (lastExists && secondLastExists)
     {
-        _currentSeverity = lastRiskEvent->getRiskSeverity();
-        _previousSeverity = secondLastRiskEvent->getRiskSeverity();
+        _currentSeverity = lastRiskEvent->getRiskState();
+        _previousSeverity = secondLastRiskEvent->getRiskState();
         _summaryMessage = QString("Risk severity in sector %1 changed from %2 to %3")
                               .arg(_sectorId)
                               .arg(_previousSeverity)

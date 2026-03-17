@@ -16,7 +16,7 @@ RiskEvent::RiskEvent
     _riskEventId(riskEventId), 
     _sectorId(sectorId),
     _acknowledged(acknowledged),
-    _riskSeverity(riskSeverity),
+    _riskState(riskSeverity),
     _createdTimestamp(createdTimestamp),
     _acknowledgedTimestamp(acknowledgedTimestamp),
     _message(message)
@@ -37,9 +37,9 @@ const bool RiskEvent::getAcknowledged() const
     return _acknowledged;
 }
 
-const QString& RiskEvent::getRiskSeverity() const
+const QString& RiskEvent::getRiskState() const
 {
-    return _riskSeverity;
+    return _riskState;
 }
 
 const QDateTime& RiskEvent::getCreatedTimestamp() const
