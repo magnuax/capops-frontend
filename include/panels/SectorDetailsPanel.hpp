@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <domain/data/SectorSummary.hpp>
 
 class QPoint;
 class QLabel;
@@ -37,7 +38,8 @@ private:
     QWidget *_aircraftListWidget;
     QWidget *_selectedAircraftWidget;
 
-    int _selectedAircraftId = -1;
+    QString _selectedAircraftId = "";
+    QLabel *_aircraftListHeader = nullptr;
     QLabel *_aircraftPosition = nullptr;
     QLabel *_aircraftAltitude = nullptr;
     QLabel *_aircraftGroundSpeed = nullptr;

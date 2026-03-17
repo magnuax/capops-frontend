@@ -5,6 +5,8 @@
 #include <QListWidget>
 #include <QIcon>
 
+#include <stdexcept>
+
 #include "services/interfaces/IFlightDataService.hpp"
 #include "panels/SectorDetailsPanel.hpp"
 #include "domain/SectorStates.hpp"
@@ -13,6 +15,16 @@ SectorDetailsPanel::SectorDetailsPanel(IFlightDataService &dataService, QWidget 
     : QWidget(parent),
       _dataService(dataService)
 {
+    const std::vector<SectorSummary> sectors = _dataService
+                                                   .getSectorSummaryData()
+                                                   .getSectorSummaries();
+
+    if (!sectors.empty())
+    {
+        _selectedSectorId = sectors.front().getSectorId();
+        _selectedSectorIdx = QPoint(sectors.front().getRow(), sectors.front().getColumn());
+    }
+
     auto *mainLayout = new QVBoxLayout(this);
 
     auto *tabs = new QTabWidget(this);
@@ -27,7 +39,7 @@ SectorDetailsPanel::SectorDetailsPanel(IFlightDataService &dataService, QWidget 
 
     tabs->addTab(sectorDetails, "Details");
 
-    setSector(_dataService.getSectorIds().front());
+    refresh();
 }
 
 QWidget *SectorDetailsPanel::buildSectorStatusWidget()
@@ -87,11 +99,12 @@ QWidget *SectorDetailsPanel::buildAircraftListWidget()
     _aircraftEntries->setCursor(Qt::PointingHandCursor);
     _aircraftEntries->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    auto *header = new QLabel("Aircrafts in sector", _aircraftListWidget);
-    _aircraftListWidget->layout()->addWidget(header);
+    _aircraftListHeader = new QLabel(QString("Aircrafts in sector ID-%1").arg(_selectedSectorId), _aircraftListWidget);
+    _aircraftListWidget->layout()->addWidget(_aircraftListHeader);
     _aircraftListWidget->layout()->addWidget(_aircraftEntries);
 
-    connect(_aircraftEntries, &QListWidget::itemClicked, this, &SectorDetailsPanel::selectAircraft);
+    connect(_aircraftEntries, &QListWidget::itemClicked,
+            this, &SectorDetailsPanel::selectAircraft);
 
     return _aircraftListWidget;
 }
@@ -101,7 +114,7 @@ QWidget *SectorDetailsPanel::buildSelectedAircraftWidget()
     _selectedAircraftWidget = new QWidget(this);
     _selectedAircraftWidget->setObjectName("SelectedAircraftWidget");
     _selectedAircraftHeader = new QLabel("No aircraft selected", _selectedAircraftWidget);
-    
+
     auto *layout = new QVBoxLayout(_selectedAircraftWidget);
     auto *grid = new QGridLayout();
 
@@ -149,9 +162,25 @@ QWidget *SectorDetailsPanel::buildSelectedAircraftWidget()
 
 void SectorDetailsPanel::updateSectorStatusWidget()
 {
-    RiskState risk = _dataService.getRisk(_selectedSectorId);
-    WeatherState weather = _dataService.getWeather(_selectedSectorId);
-    TrafficState traffic = _dataService.getTraffic(_selectedSectorId);
+    if (_selectedSectorId < 0)
+    {
+        _riskState->setText("n/a");
+        _weatherState->setText("n/a");
+        _trafficState->setText("n/a");
+
+        _riskIcon->clear();
+        _weatherIcon->clear();
+        _trafficIcon->clear();
+        return;
+    }
+
+    SectorSummary sector = _dataService
+                               .getSectorSummaryData()
+                               .getSectorSummary(_selectedSectorId);
+
+    RiskState risk = sector.getRiskState();
+    WeatherState weather = sector.getWeatherState();
+    TrafficState traffic = sector.getTrafficState();
 
     _riskState->setText(toString(risk));
     _weatherState->setText(toString(weather));
@@ -177,15 +206,18 @@ QPixmap SectorDetailsPanel::loadStatusIcon(const QString &iconPath)
 
 void SectorDetailsPanel::updateAircraftListWidget()
 {
-    std::vector<std::string> flights = _dataService.getFlightIds(_selectedSectorId);
-
+    std::vector<QString> flights = _dataService
+                                       .getSectorSummaryData()
+                                       .getSectorSummary(_selectedSectorId)
+                                       .getAircraftIds();
+    
     _aircraftEntries->clear();
+    _aircraftListHeader->setText(QString("Aircrafts in sector ID-%1").arg(_selectedSectorId));
 
-    for (const std::string &icao24 : flights)
+    for (const QString &icao24 : flights)
     {
-        QString text = QString::fromStdString(icao24);
-        auto *item = new QListWidgetItem(text, _aircraftEntries);
-        item->setData(Qt::UserRole, icao24.c_str());
+        auto *item = new QListWidgetItem(icao24, _aircraftEntries);
+        item->setData(Qt::UserRole, icao24);
     }
 }
 
@@ -200,7 +232,7 @@ void SectorDetailsPanel::updateSelectedAircraftWidget()
     _aircraftHeading->setText("n/a");
     _aircraftGroundTrack->setText("n/a");
 
-    if (_selectedAircraftId >= 0)
+    if (!_selectedAircraftId.isEmpty())
     {
         headerText = QString("Selected aircraft: %1").arg(_selectedAircraftId);
     }
@@ -212,9 +244,13 @@ void SectorDetailsPanel::updateSelectedAircraftWidget()
 
 void SectorDetailsPanel::setSector(int sectorId)
 {
+    SectorSummary sector = _dataService
+                               .getSectorSummaryData()
+                               .getSectorSummary(sectorId);
+
     _selectedSectorId = sectorId;
-    _selectedSectorIdx = _dataService.getSectorIndices(sectorId);
-    _selectedAircraftId = -1;
+    _selectedSectorIdx = QPoint(sector.getRow(), sector.getColumn());
+    _selectedAircraftId = "";
 
     refresh();
 }
@@ -231,7 +267,7 @@ void SectorDetailsPanel::selectAircraft(QListWidgetItem *item)
     if (!item)
         return;
 
-    int ICAO = item->data(Qt::UserRole).toInt();
+    QString ICAO = item->data(Qt::UserRole).toString();
     _selectedAircraftId = ICAO;
 
     updateSelectedAircraftWidget();

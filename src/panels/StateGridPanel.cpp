@@ -13,8 +13,8 @@
 
 StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent) : QFrame(parent), _dataService(dataService)
 {
-    _numRows = _dataService.getRowCount();
-    _numCols = _dataService.getColCount();
+    _numRows = _dataService.getSectorSummaryData().getRowCount();
+    _numCols = _dataService.getSectorSummaryData().getColCount();
 
     auto *outer = new QVBoxLayout(this);
     outer->setContentsMargins(0, 0, 0, 8);
@@ -51,13 +51,15 @@ StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent)
 
 void StateGridPanel::refresh()
 {
+    SectorSummaryData data = _dataService.getSectorSummaryData();
+
     for (GridSector *cell : _cells)
     {
-        int sectorId = _dataService.getSectorId(cell->getRow(), cell->getCol());
+        SectorSummary summary = data.getSectorSummary(cell->getRow(), cell->getCol());
 
-        cell->setRiskState(_dataService.getRisk(sectorId));
-        cell->setWeatherState(_dataService.getWeather(sectorId));
-        cell->setTrafficState(_dataService.getTraffic(sectorId));
+        cell->setRiskState(summary.getRiskState());
+        cell->setWeatherState(summary.getWeatherState());
+        cell->setTrafficState(summary.getTrafficState());
     }
 }
 
@@ -112,18 +114,22 @@ QWidget *StateGridPanel::buildGrid()
 
     _cells.reserve(_numRows * _numCols);
 
+    SectorSummaryData data = _dataService.getSectorSummaryData();
+
     for (int row = 0; row < _numRows; ++row)
     {
         for (int col = 0; col < _numCols; ++col)
         {
-            int sectorId = _dataService.getSectorId(row, col);
+            SectorSummary summary = data.getSectorSummary(row, col);
 
             auto *cell = new GridSector(row, col, _gridWidget);
-            connect(cell, &GridSector::selected, this, &StateGridPanel::handleSectorSelection);
 
-            cell->setRiskState(_dataService.getRisk(sectorId));
-            cell->setWeatherState(_dataService.getWeather(sectorId));
-            cell->setTrafficState(_dataService.getTraffic(sectorId));
+            connect(cell, &GridSector::selected,
+                    this, &StateGridPanel::handleSectorSelection);
+
+            cell->setRiskState(summary.getRiskState());
+            cell->setWeatherState(summary.getWeatherState());
+            cell->setTrafficState(summary.getTrafficState());
 
             _gridLayout->addWidget(cell, row, col);
             _cells.push_back(cell);
@@ -146,7 +152,10 @@ void StateGridPanel::handleSectorSelection(GridSector *cell)
     _selectedCell = cell;
     _selectedCell->setSelected(true);
 
-    int sectorId = _dataService.getSectorId(row, col);
+    int sectorId = _dataService
+                       .getSectorSummaryData()
+                       .getSectorSummary(row, col)
+                       .getSectorId();
 
     emit sectorSelected(sectorId);
 }
