@@ -24,10 +24,9 @@ class FlightDataServiceWS : public IFlightDataEvents, public IFlightDataService
     using sectorId_t = int;
 
 public slots:
-    void updateSectorRisk(int sectorId, RiskState risk);
-    void updateSectorWeather(int sectorId, WeatherState weather);
-    void updateSectorTraffic(int sectorId, TrafficState traffic);
-    void updateSectorFlights(int sectorId, std::vector<icao24_t> flightIds);
+    void updateSectorSummaryData(const SectorSummaryData &data);
+    // void updateRiskEventData(const RiskEventData &data);
+    void updateTrackData(const TrackData &data);
 
 public:
     FlightDataServiceWS(QObject *parent = nullptr);
@@ -43,11 +42,6 @@ private:
     int _cols;
 
     std::vector<int> _sectorIds;
-
-    std::map<sectorId_t, RiskState> _riskStates;
-    std::map<sectorId_t, WeatherState> _weatherStates;
-    std::map<sectorId_t, TrafficState> _trafficStates;
-    std::map<sectorId_t, std::vector<icao24_t>> _flightIds;
 
     SectorSummaryData *_sectorSummaryData;
     TrackData *_trackData;

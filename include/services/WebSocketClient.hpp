@@ -6,6 +6,9 @@
 #include <QUrl>
 
 #include "domain/SectorStates.hpp"
+#include "domain/data/SectorSummaryData.hpp"
+#include "domain/data/RiskEventData.hpp"
+#include "domain/data/TrackData.hpp"
 
 class QString;
 
@@ -14,10 +17,9 @@ class WebSocketClient : public QObject
     Q_OBJECT
 
 signals:
-    void sectorRiskUpdated(int sectorId, RiskState risk);
-    void sectorWeatherUpdated(int sectorId, WeatherState weather);
-    void sectorTrafficUpdated(int sectorId, TrafficState traffic);
-    void sectorFlightsUpdated(int sectorId, std::vector<std::string> flightIds);
+    void sectorSummaryDataUpdated(const SectorSummaryData &data);
+    // void riskEventDataUpdated(const RiskEventData &data);
+    void trackDataUpdated(const TrackData &data);
 
     void connected();
     void disconnected();

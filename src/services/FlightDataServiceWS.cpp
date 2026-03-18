@@ -9,41 +9,28 @@ FlightDataServiceWS::FlightDataServiceWS(QObject *parent)
 
 void FlightDataServiceWS::bindTo(WebSocketClient *client)
 {
-    connect(client, &WebSocketClient::sectorRiskUpdated,
-            this, &FlightDataServiceWS::updateSectorRisk);
+    connect(client, &WebSocketClient::sectorSummaryDataUpdated,
+            this, &FlightDataServiceWS::updateSectorSummaryData);
 
-    connect(client, &WebSocketClient::sectorWeatherUpdated,
-            this, &FlightDataServiceWS::updateSectorWeather);
+    connect(client, &WebSocketClient::trackDataUpdated,
+            this, &FlightDataServiceWS::updateTrackData);
 
-    connect(client, &WebSocketClient::sectorTrafficUpdated,
-            this, &FlightDataServiceWS::updateSectorTraffic);
-
-    connect(client, &WebSocketClient::sectorFlightsUpdated,
-            this, &FlightDataServiceWS::updateSectorFlights);
+    /*
+    connect(client, &WebSocketClient::riskEventDataUpdated,
+            this, &FlightDataServiceWS::updateRiskEventData);
+    */
 }
 
-void FlightDataServiceWS::updateSectorRisk(int sectorId, RiskState risk)
+void FlightDataServiceWS::updateSectorSummaryData(const SectorSummaryData &data)
 {
-    if (sectorId >= 0)
-        _riskStates.at(sectorId) = risk;
+    *_sectorSummaryData = data;
+    emit dataReloaded();
 }
 
-void FlightDataServiceWS::updateSectorWeather(int sectorId, WeatherState weather)
+void FlightDataServiceWS::updateTrackData(const TrackData &data)
 {
-    if (sectorId >= 0)
-        _weatherStates.at(sectorId) = weather;
-}
-
-void FlightDataServiceWS::updateSectorTraffic(int sectorId, TrafficState traffic)
-{
-    if (sectorId >= 0)
-        _trafficStates.at(sectorId) = traffic;
-}
-
-void FlightDataServiceWS::updateSectorFlights(int sectorId, std::vector<std::string> flightIds)
-{
-    if (sectorId >= 0)
-        _flightIds.at(sectorId) = flightIds;
+    *_trackData = data;
+    emit dataReloaded();
 }
 
 SectorSummaryData FlightDataServiceWS::getSectorSummaryData() const
