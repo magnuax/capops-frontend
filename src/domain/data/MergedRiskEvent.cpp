@@ -66,32 +66,32 @@ void MergedRiskEvent::setSummaryInfo(
 
     if (!lastExists && !secondLastExists)
     {
-        _currentSeverity = "";
-        _previousSeverity = "";
+        _currentState = RiskState::UNKNOWN;
+        _previousState = RiskState::UNKNOWN;
         _summaryMessage = QString("Risk severity in sector %1 unknown").arg(_sectorId);
     }
 
     else if (lastExists && !secondLastExists)
     {
-        _currentSeverity = lastRiskEvent->getRiskState();
+        _currentState = lastRiskEvent->getRiskState();
         _lastMessage = lastRiskEvent->getMessage();
-        _summaryMessage = QString("Risk severity in sector %1 changed to %2").arg(_sectorId).arg(_currentSeverity);
+        _summaryMessage = QString("Risk severity in sector %1 changed to %2").arg(_sectorId).arg(toString(_currentState));
     }
 
     else if (lastExists && secondLastExists)
     {
-        _currentSeverity = lastRiskEvent->getRiskState();
-        _previousSeverity = secondLastRiskEvent->getRiskState();
+        _currentState = lastRiskEvent->getRiskState();
+        _previousState = secondLastRiskEvent->getRiskState();
         _summaryMessage = QString("Risk severity in sector %1 changed from %2 to %3")
                               .arg(_sectorId)
-                              .arg(_previousSeverity)
-                              .arg(_currentSeverity);
+                              .arg(toString(_previousState))
+                              .arg(toString(_currentState));
     }
 
     else
     {
-        _currentSeverity = "";
-        _previousSeverity = "";
+        _currentState = RiskState::UNKNOWN;
+        _previousState = RiskState::UNKNOWN;
         throw std::logic_error(
             "Unexpected behavior: secondLastRiskEvent exists without lastRiskEvent "
             "in MergedRiskEvent::setSummaryInfo");
