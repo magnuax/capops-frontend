@@ -1,11 +1,10 @@
-
+/** --- Base --- */
 QLabel
 {
     color: black;
 }
 
-/** --- General QTabWidget --- */
-
+/** --- Tab Widget --- */
 QTabBar
 {
     border: none;
@@ -14,19 +13,22 @@ QTabBar
 
 QTabBar::tab
 {
-    background: rgb(225,225,225);
+    min-width: 100px;
+    background: rgba(0, 0, 0, 0.12);
     border-radius: 8px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
     border: none;
-    padding: 6px 12px;
-    font-size: 16px;
+    padding: 6px 16px;
+    font-size: 15px;
+    color: rgb(60, 60, 60);
 }
 
 QTabBar::tab:selected
 {
-    background: rgba(0,0,0,0.1);
-    margin-top: 0px;
+    background: rgb(225, 225, 225);
+    color: rgb(20, 20, 20);
+    font-weight: bold;
 }
 
 QTabBar::tab:!selected
@@ -35,9 +37,9 @@ QTabBar::tab:!selected
     background: rgba(0, 0, 0, 0.2);
 }
 
-QTabBar::tab:hover
+QTabBar::tab:hover:!selected
 {
-    background: rgba(0,0,0,0.05);
+    background: rgba(0,0,0,0.08);
 }
 
 QTabWidget::pane
@@ -59,23 +61,25 @@ QTabWidget::pane
 }
 
 /** --- Sector details panel --- */
-
 #SectorStatusWidget, 
 #AircraftListWidget, 
 #SelectedAircraftWidget
 {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.07);
     border-radius: 8px;
     padding: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 #SectorStatusWidget QLabel,
 #AircraftListWidget QLabel,
 #SelectedAircraftWidget QLabel
 {
-    font-size: 16px;
+    font-size: 15px;
+    color: rgb(40, 40, 40);
 }
 
+/** --- Aircraft list --- */
 #AircraftListWidget QListWidget
 {
     background: transparent;
@@ -85,31 +89,28 @@ QTabWidget::pane
 
 #AircraftListWidget QListWidget::item
 {
-    padding: 6px;
+    padding: 8px 6px;
     border-radius: 6px;
+    color: rgb(40, 40, 40);
 }
 
 #AircraftListWidget QListWidget::item:selected
 {
-    background: rgba(0, 127, 195, 0.38);
-    color: black;
+    background: rgba(0, 110, 180, 0.25);
+    color: rgb(20, 20, 20);
 }
 
-#AircraftListWidget QListWidget::item:hover:!selected
-{
-    background: rgba(0, 127, 195, 0.23);
-    color: black;
+#AircraftListWidget QListWidget::item:hover:!selected {
+    background: rgba(0, 110, 180, 0.12);
+    color: rgb(20, 20, 20);
 }
 
-#AircraftListWidget QListWidget::item:hover:selected
-{
-    background: rgba(0, 127, 195, 0.6);
-    color: black;
+#AircraftListWidget QListWidget::item:hover:selected {
+    background: rgba(0, 110, 180, 0.38);
+    color: rgb(20, 20, 20);
 }
 
-
-/** --- Alert notification button --- */
-
+/** --- Alert buttons --- */
 
 /** DEFAULT STATE */
 AlertButton
@@ -190,32 +191,4 @@ AlertButton[riskState="At Risk"] {
 #acknowledgeButton:pressed[riskState="At Risk"]
 {
     background-color: rgb(230, 100, 0);
-}
-
-
-
-/** --- Segmented control button */
-SegmentedControl
-{
-    background: rgb(225, 225, 225);
-    border-radius: 8px;
-}
-
-QToolButton 
-{
-    padding: 6px 12px;
-    margin: 6px;
-    border-radius: 8px;
-    background: transparent;
-    font-size: 24px;
-}
-
-QToolButton:checked
-{
-    background: rgba(0, 0, 0, 0.1);
-}
-
-QToolButton:disabled
-{
-    color: rgba(0,0,0,120);
 }
