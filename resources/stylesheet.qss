@@ -110,6 +110,8 @@ QTabWidget::pane
 
 /** --- Alert notification button --- */
 
+
+/** DEFAULT STATE */
 AlertButton
 {
     background-color: rgb(255, 128, 128);
@@ -145,6 +147,52 @@ AlertButton
 {
     background-color: rgb(255, 0, 0);
 }
+
+/** CONGESTED */
+AlertButton[riskState="Congested"] {
+    border: 1px solid rgb(180, 20, 20);
+    background-color: rgb(255, 90, 90);
+}
+
+#acknowledgeButton[riskState="Congested"]
+{
+    border: 1px solid rgb(180   , 0, 0);
+    background-color: rgb(226, 40, 40);
+}
+
+#acknowledgeButton:hover[riskState="Congested"]
+{
+    background-color: rgb(255, 48, 48);
+}
+
+#acknowledgeButton:pressed[riskState="Congested"]
+{
+    background-color: rgb(196, 0, 0);
+}
+
+/** AT RISK */
+AlertButton[riskState="At Risk"] {
+    background-color: rgb(255, 156, 0);
+    border: 1px solid rgb(200, 90, 0);
+}
+
+#acknowledgeButton[riskState="At Risk"]
+{
+    background-color: rgb(255, 120, 0);
+    border: 1px solid rgb(200, 90, 0);
+}
+
+#acknowledgeButton:hover[riskState="At Risk"]
+{
+    background-color: rgb(255, 140, 0);
+}
+
+#acknowledgeButton:pressed[riskState="At Risk"]
+{
+    background-color: rgb(230, 100, 0);
+}
+
+
 
 /** --- Segmented control button */
 SegmentedControl
