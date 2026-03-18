@@ -115,60 +115,36 @@ bool FlightDataServiceJSON::loadFromJson()
 RiskState FlightDataServiceJSON::parseRiskState(const QString &value) const
 {
     if (value == "NORMAL")
-        return NORMAL;
+        return RiskState::NORMAL;
     if (value == "AT_RISK")
-        return AT_RISK;
+        return RiskState::AT_RISK;
     if (value == "CONGESTED")
-        return CONGESTED;
-    return NORMAL;
+        return RiskState::CONGESTED;
+    return RiskState::UNKNOWN;
 }
 
 WeatherState FlightDataServiceJSON::parseWeatherState(const QString &value) const
 {
     if (value == "OK")
-        return OK;
+        return WeatherState::OK;
     if (value == "DEGRADED")
-        return DEGRADED;
+        return WeatherState::DEGRADED;
     if (value == "SEVERE")
-        return SEVERE;
+        return WeatherState::SEVERE;
     if (value == "EXTREME")
-        return EXTREME;
-    return OK;
+        return WeatherState::EXTREME;
+    return WeatherState::UNKNOWN;
 }
 
 TrafficState FlightDataServiceJSON::parseTrafficState(const QString &value) const
 {
     if (value == "LIGHT")
-        return LIGHT;
+        return TrafficState::LIGHT;
     if (value == "MODERATE")
-        return MODERATE;
+        return TrafficState::MODERATE;
     if (value == "HEAVY")
-        return HEAVY;
-    return LIGHT;
-}
-
-void FlightDataServiceJSON::updateSectorRisk(int sectorId, RiskState risk)
-{
-    if (sectorId >= 0)
-        _riskStates[sectorId] = risk;
-}
-
-void FlightDataServiceJSON::updateSectorWeather(int sectorId, WeatherState weather)
-{
-    if (sectorId >= 0)
-        _weatherStates[sectorId] = weather;
-}
-
-void FlightDataServiceJSON::updateSectorTraffic(int sectorId, TrafficState traffic)
-{
-    if (sectorId >= 0)
-        _trafficStates[sectorId] = traffic;
-}
-
-void FlightDataServiceJSON::updateSectorFlights(int sectorId, std::vector<std::string> flightIds)
-{
-    if (sectorId >= 0)
-        _flightIds[sectorId] = flightIds;
+        return TrafficState::HEAVY;
+    return TrafficState::LIGHT;
 }
 
 SectorSummaryData FlightDataServiceJSON::getSectorSummaryData() const
