@@ -1,26 +1,29 @@
 #pragma once
 #include <QMetaType>
 
-enum RiskState
+enum class RiskState
 {
     NORMAL,
     AT_RISK,
     CONGESTED,
+    UNKNOWN
 };
 
-enum WeatherState
+enum class WeatherState
 {
     OK,
     DEGRADED,
     SEVERE,
     EXTREME,
+    UNKNOWN
 };
 
-enum TrafficState
+enum class TrafficState
 {
     LIGHT,
     MODERATE,
     HEAVY,
+    UNKNOWN
 };
 
 QString toString(RiskState state);

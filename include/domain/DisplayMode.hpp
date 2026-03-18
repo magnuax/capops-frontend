@@ -1,7 +1,7 @@
 #pragma once
 #include <QMetaType>
 
-enum DisplayMode
+enum class DisplayMode
 {
     RISK,
     WEATHER,

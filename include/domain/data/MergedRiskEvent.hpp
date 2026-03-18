@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <QString>
+#include "domain/SectorStates.hpp"
 
 class RiskEvent;
 
@@ -26,8 +27,8 @@ private:
     std::vector<RiskEvent> _riskEvents;
     QString _summaryMessage;
     QString _lastMessage;
-    QString _previousSeverity;
-    QString _currentSeverity;
+    RiskState _previousState;
+    RiskState _currentState;
 
     void addRiskEvent(const RiskEvent &riskEvent);
     void updateSummaryInfo();
