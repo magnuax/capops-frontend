@@ -34,24 +34,36 @@ int GridSector::getCol() const
 
 void GridSector::setRiskState(RiskState state)
 {
+    if (_riskState == state)
+        return;
+
     _riskState = state;
     update();
 }
 
 void GridSector::setWeatherState(WeatherState state)
 {
+    if (_weatherState == state)
+        return;
+
     _weatherState = state;
     update();
 }
 
 void GridSector::setTrafficState(TrafficState state)
 {
+    if (_trafficState == state)
+        return;
+
     _trafficState = state;
     update();
 }
 
 void GridSector::setDisplayMode(DisplayMode mode)
 {
+    if (_displayMode == mode)
+        return;
+
     _displayMode = mode;
     update();
 }
@@ -186,4 +198,10 @@ void GridSector::resizeEvent(QResizeEvent *event)
     {
         QWidget::resize(newWidth, newWidth);
     }
+}
+
+void GridSector::mouseMoveEvent(QMouseEvent *event)
+{
+    event->ignore(); // let it propagate to parent
+    QWidget::mouseMoveEvent(event);
 }
