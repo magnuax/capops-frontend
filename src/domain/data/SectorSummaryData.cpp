@@ -7,10 +7,10 @@ SectorSummaryData::SectorSummaryData
 (
     const int rowsCount,
     const int columnsCount,
-    const double minLongitude,
-    const double maxLongitude,
     const double minLatitude,
     const double maxLatitude,
+    const double minLongitude,
+    const double maxLongitude,
     const std::vector<SectorSummary>& sectorSummaries
 )
     :
@@ -44,37 +44,46 @@ int SectorSummaryData::getColCount() const
     return _columnsCount;
 }
 
-double SectorSummaryData::getMinLongitude() const
+double SectorSummaryData::getMinLon() const
 {
     return _minLongitude;
 }
 
-double SectorSummaryData::getMaxLongitude() const
+double SectorSummaryData::getMaxLon() const
 {
     return _maxLongitude;
 }
 
-double SectorSummaryData::getMinLatitude() const
+double SectorSummaryData::getMinLat() const
 {
     return _minLatitude;
 }
 
-double SectorSummaryData::getMaxLatitude() const
+double SectorSummaryData::getMaxLat() const
 {
     return _maxLatitude;
 }
 
 SectorSummary SectorSummaryData::getSectorSummary(int sectorId) const
 {
-    return _sectorSummaries.at(sectorId);
+    auto it = _sectorSummaries.find(sectorId);
+    if (it == _sectorSummaries.end())
+        return SectorSummary(); // need a default constructor
+    return it->second;
 }
 
 SectorSummary SectorSummaryData::getSectorSummary(int row, int col) const
 {
-    int sectorId = _sectorIds.at(QPoint(row, col));
-    return _sectorSummaries.at(sectorId);
-}
+    auto it = _sectorIds.find(QPoint(row, col));
+    if (it == _sectorIds.end())
+        return SectorSummary();
 
+    auto it2 = _sectorSummaries.find(it->second);
+    if (it2 == _sectorSummaries.end())
+        return SectorSummary();
+
+    return it2->second;
+}
 
 std::vector<SectorSummary> SectorSummaryData::getSectorSummaries() const
 {
