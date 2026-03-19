@@ -25,5 +25,4 @@ private:
     double _minLat, _maxLat, _minLon, _maxLon;
 
     MapProjection _projection;
-    QSize _pixmapSize;
 };
