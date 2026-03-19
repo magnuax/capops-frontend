@@ -5,10 +5,15 @@
 #include <QSize>
 
 #include "domain/Coordinates.hpp"
+#include "domain/MapProjection.hpp"
 
 class ITileMapService : public QObject
 {
     Q_OBJECT
+
+signals:
+    void finished(const QPixmap &map, const MapProjection &projection);
+    void failed(const QString &error);
 
 public:
     explicit ITileMapService(QObject *parent = nullptr) : QObject(parent) {};
@@ -16,17 +21,13 @@ public:
 
     struct Request
     {
-        int zoom = 13;
-        Coordinates coords = {0.0, 0.0};
-        QSize imageSize = {512, 512};
+        double minLat = 0, maxLat = 0;
+        double minLon = 0, maxLon = 0;
+
         QSize tileSize = {256, 256};
     };
 
     virtual void fetch(const Request &request) = 0;
 
     virtual void enableDiskCache(const QString &cacheDir, qint64 maxBytes = 256LL * 1024 * 1024) = 0;
-
-signals:
-    void finished(const QPixmap &map);
-    void failed(const QString &error);
 };

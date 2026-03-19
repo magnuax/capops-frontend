@@ -46,6 +46,7 @@ MainPage::MainPage(
     setLayout(mainLayout);
 
     wireConnections();
+    _gridPanel->refresh();
 
     QTimer::singleShot(0, this, [this]
                        { requestMap(60.1986, 11.1130, 6); });
@@ -97,11 +98,13 @@ QWidget *MainPage::buildSectorDetailsPanel()
 
 void MainPage::requestMap(double lat, double lon, int zoom)
 {
+    SectorSummaryData data = _dataService.getSectorSummaryData();
 
     ITileMapService::Request request;
-    request.coords = {lon, lat};
-    request.zoom = zoom;
-    request.imageSize = {800, 800};
+    request.minLat = data.getMinLat();
+    request.maxLat = data.getMaxLat();
+    request.minLon = data.getMinLon();
+    request.maxLon = data.getMaxLon();
 
     _mapFetcher->fetch(request);
 }
