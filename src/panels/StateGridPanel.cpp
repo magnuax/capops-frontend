@@ -5,14 +5,18 @@
 #include <QToolButton>
 #include <QMargins>
 #include <QTabBar>
+#include <QLabel>
 
 #include "panels/StateGridPanel.hpp"
 #include "widgets/GridCanvas.hpp"
 #include "widgets/GridSector.hpp"
+#include "widgets/GridTrackOverlay.hpp"
 #include "services/interfaces/IFlightDataService.hpp"
 
 StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent) : QFrame(parent), _dataService(dataService)
 {
+    _gridContainer = new QWidget(this);
+
     _numRows = _dataService.getSectorSummaryData().getRowCount();
     _numCols = _dataService.getSectorSummaryData().getColCount();
 
@@ -32,7 +36,20 @@ StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent)
     _tabBar->setTabData(2, static_cast<int>(DisplayMode::TRAFFIC));
     _tabBar->setTabData(3, static_cast<int>(DisplayMode::NONE));
 
-    outer->addWidget(_tabBar, 0, Qt::AlignLeft);
+    auto *tabRow = new QHBoxLayout();
+    tabRow->setContentsMargins(0, 0, 0, 0);
+    tabRow->setSpacing(0);
+
+    _coordLabel = new QLabel("", this);
+    _coordLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    _coordLabel->setObjectName("coordLabel");
+
+    tabRow->addWidget(_tabBar, 0, Qt::AlignLeft | Qt::AlignBottom);
+    tabRow->addStretch();
+    tabRow->addWidget(_coordLabel, 0, Qt::AlignRight | Qt::AlignVCenter);
+
+    outer->addLayout(tabRow);
+
     auto *gridContainer = new QWidget(this);
     gridContainer->setObjectName("GridContainer");
     gridContainer->setContentsMargins(12, 12, 12, 12);
@@ -47,6 +64,16 @@ StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent)
 
     connect(_tabBar, &QTabBar::currentChanged,
             this, &StateGridPanel::handleTabChange);
+
+    connect(_gridWidget, &GridCanvas::cursorLatLon,
+            this, [this](double lat, double lon)
+            {
+    if (std::isnan(lat))
+        _coordLabel->setText("");
+    else
+        _coordLabel->setText(QString("Lat: %1\nLon: %2")
+            .arg(lat, 0, 'f', 4)
+            .arg(lon, 0, 'f', 4)); });
 }
 
 void StateGridPanel::refresh()
@@ -61,6 +88,13 @@ void StateGridPanel::refresh()
         cell->setWeatherState(summary.getWeatherState());
         cell->setTrafficState(summary.getTrafficState());
     }
+
+    if (_trackOverlay)
+    {
+        _trackOverlay->setTracks(_dataService
+                                     .getTrackData()
+                                     .getTracks());
+    }
 }
 
 void StateGridPanel::setDisplayMode(DisplayMode mode)
@@ -71,13 +105,17 @@ void StateGridPanel::setDisplayMode(DisplayMode mode)
     }
 }
 
-void StateGridPanel::setMapSource(const QPixmap &mapSource)
+void StateGridPanel::setMapSource(const QPixmap &mapSource, const MapProjection &projection)
 {
+    _projection = projection;
     _mapSource = mapSource;
     if (auto *canvas = qobject_cast<GridCanvas *>(_gridWidget))
     {
         canvas->setMapSource(mapSource);
     }
+
+    _trackOverlay->setProjection(projection);
+    _gridWidget->setProjection(projection);
 }
 
 void StateGridPanel::resizeEvent(QResizeEvent *event)
@@ -101,20 +139,28 @@ void StateGridPanel::resizeEvent(QResizeEvent *event)
     _gridWidget->move(
         area.x() + (availWidth - _gridWidget->width()) / 2,
         area.y() + (availHeight - _gridWidget->height()) / 2);
+
+    _trackOverlay->setGeometry(_gridWidget->rect());
 }
 
 QWidget *StateGridPanel::buildGrid()
 {
+
+    SectorSummaryData data = _dataService.getSectorSummaryData();
+
     _gridWidget = new GridCanvas(this);
     _gridWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    _gridWidget->setMouseTracking(true);
+
+    _trackOverlay = new GridTrackOverlay(_gridWidget);
+    _trackOverlay->setGeometry(_gridWidget->rect());
+    _trackOverlay->raise();
 
     _gridLayout = new QGridLayout(_gridWidget);
     _gridLayout->setContentsMargins(0, 0, 0, 0);
     _gridLayout->setSpacing(0);
 
     _cells.reserve(_numRows * _numCols);
-
-    SectorSummaryData data = _dataService.getSectorSummaryData();
 
     for (int row = 0; row < _numRows; ++row)
     {
@@ -131,10 +177,14 @@ QWidget *StateGridPanel::buildGrid()
             cell->setWeatherState(summary.getWeatherState());
             cell->setTrafficState(summary.getTrafficState());
 
+            cell->setMouseTracking(true);
+
             _gridLayout->addWidget(cell, row, col);
             _cells.push_back(cell);
         }
     }
+
+    _trackOverlay->raise();
 
     return _gridWidget;
 }
