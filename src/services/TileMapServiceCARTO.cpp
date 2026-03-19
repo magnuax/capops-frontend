@@ -2,13 +2,16 @@
 #include <QNetworkDiskCache>
 #include <QNetworkReply>
 #include <QUrl>
+#include <QSize>
 
 #include <cmath>
 
 #include "services/TileMapServiceCARTO.hpp"
 #include "domain/Coordinates.hpp"
 
-TileMapServiceCARTO::TileMapServiceCARTO(QObject *parent) : ITileMapService(parent) {}
+TileMapServiceCARTO::TileMapServiceCARTO(QObject *parent) : ITileMapService(parent)
+{
+}
 
 void TileMapServiceCARTO::enableDiskCache(const QString &dir, qint64 maxBytes)
 {
@@ -18,64 +21,75 @@ void TileMapServiceCARTO::enableDiskCache(const QString &dir, qint64 maxBytes)
     _networkManager.setCache(cache);
 }
 
-QPointF TileMapServiceCARTO::coordsToPixel(const Coordinates &coords, int zoom) const
-{
-    // Uses Web Mercator projection (EPSG:3857)
-    
-    const double zoomFactor = std::pow(2.0, zoom);
-    const double scaleFactor = 128.0 / M_PI * zoomFactor;
-
-    const double lon = coords.lon.rad();
-    const double lat = coords.lat.rad();
-
-    const double x = scaleFactor * (lon + M_PI);
-    const double y = scaleFactor * (M_PI - std::log(std::tan(M_PI / 4.0 + lat / 2.0)));
-
-    return {x, y};
-}
-
 QPoint TileMapServiceCARTO::pixelToTile(const QPointF &pixel) const
 {
-    return {int(std::floor(pixel.x() / _currentRequest.tileSize.width())),
-            int(std::floor(pixel.y() / _currentRequest.tileSize.height()))};
+    return {int(std::floor(pixel.x() / _tileSize.width())),
+            int(std::floor(pixel.y() / _tileSize.height()))};
 }
 
 void TileMapServiceCARTO::fetch(const Request &request)
 {
-    _currentRequest = request;
     _failed = false;
+    _tileSize = request.tileSize;
 
-    _canvas = QImage(_currentRequest.imageSize, QImage::Format_Grayscale8);
+    initProjection(
+        request.minLat, request.maxLat,
+        request.minLon, request.maxLon);
 
-    const QPointF centerPixel = coordsToPixel(
-        _currentRequest.coords,
-        _currentRequest.zoom);
+    initCanvas();
+    fetchTiles();
+}
 
-    const QPointF diagonal = QPointF(
-        _currentRequest.imageSize.width(),
-        _currentRequest.imageSize.height());
+void TileMapServiceCARTO::initProjection(double minLat, double maxLat, double minLon, double maxLon)
+{
+    _currentProjection = MapProjection(minLat, maxLat, minLon, maxLon);
 
-    _canvasTopLeft = centerPixel - diagonal / 2.0;
-    _topLeftTile = pixelToTile(_canvasTopLeft);
+    QPointF mercatorTopLeft = _currentProjection.mercatorBoundsTopLeft();
+    QPointF mercatorBtmRight = _currentProjection.mercatorBoundsBtmRight();
 
-    _canvasBtmRight = centerPixel + diagonal / 2.0 - QPointF(1, 1);
-    _btmRightTile = pixelToTile(_canvasBtmRight);
+    _topLeftTile = pixelToTile(mercatorTopLeft);
+    _btmRightTile = pixelToTile(mercatorBtmRight);
 
+    double canvasMinX = _topLeftTile.x() * _tileSize.width();
+    double canvasMinY = _topLeftTile.y() * _tileSize.height();
+    double canvasMaxX = (_btmRightTile.x() + 1) * _tileSize.width();
+    double canvasMaxY = (_btmRightTile.y() + 1) * _tileSize.height();
+
+    _canvasTopLeft = QPointF(canvasMinX, canvasMinY);
+    _canvasBtmRight = QPointF(canvasMaxX, canvasMaxY);
+
+    _cropRect = QRect(
+        QPoint(
+            int(std::round(mercatorTopLeft.x() - _canvasTopLeft.x())),
+            int(std::round(mercatorTopLeft.y() - _canvasTopLeft.y()))),
+        QPoint(
+            int(std::round(mercatorBtmRight.x() - _canvasTopLeft.x())),
+            int(std::round(mercatorBtmRight.y() - _canvasTopLeft.y()))));
+}
+
+void TileMapServiceCARTO::initCanvas()
+{
+    QSize canvasSize(
+        int(std::ceil(_canvasBtmRight.x() - _canvasTopLeft.x())),
+        int(std::ceil(_canvasBtmRight.y() - _canvasTopLeft.y())));
+
+    _canvas = QImage(canvasSize, QImage::Format_RGB32);
+    _canvas.fill(Qt::white);
     _pending = 0;
+}
 
+void TileMapServiceCARTO::fetchTiles()
+{
     QNetworkRequest base;
-    base.setRawHeader(
-        "User-Agent",
-        "QtCapOps/0.1 (contact: magnua2005@gmail.com)");
+    base.setRawHeader("User-Agent", "QtCapOps/0.1 (contact: magnua2005@gmail.com)");
 
     for (int tileX = _topLeftTile.x(); tileX <= _btmRightTile.x(); ++tileX)
     {
         for (int tileY = _topLeftTile.y(); tileY <= _btmRightTile.y(); ++tileY)
         {
-
-            QNetworkRequest request(base);
-            request.setUrl(_tileURL.arg(_currentRequest.zoom).arg(tileX).arg(tileY));
-            QNetworkReply *reply = _networkManager.get(request);
+            QNetworkRequest tileRequest(base);
+            tileRequest.setUrl(_tileURL.arg(_currentProjection.zoom()).arg(tileX).arg(tileY));
+            QNetworkReply *reply = _networkManager.get(tileRequest);
             _pending++;
 
             connect(reply, &QNetworkReply::finished, this, [=]()
@@ -86,9 +100,23 @@ void TileMapServiceCARTO::fetch(const Request &request)
 
 void TileMapServiceCARTO::onTileFetched(QNetworkReply *reply, int tileX, int tileY)
 {
+    if (!validateTileReply(reply))
+    {
+        return;
+    }
 
+    paintTile(reply, tileX, tileY);
+    _pending--;
+
+    if (_pending == 0 && !_failed)
+    {
+        finalizeTiles();
+    }
+}
+
+bool TileMapServiceCARTO::validateTileReply(QNetworkReply *reply)
+{
     const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-
     if (status != 200)
     {
         qWarning() << "Tile HTTP" << status << reply->url();
@@ -97,22 +125,23 @@ void TileMapServiceCARTO::onTileFetched(QNetworkReply *reply, int tileX, int til
     if (_failed)
     {
         reply->deleteLater();
-        return;
+        return false;
     }
 
     if (reply->error() != QNetworkReply::NoError)
     {
         _failed = true;
-
-        const QString reply_str = reply->url().toString();
-        const QString error_str = reply->errorString();
-        const QString error = QString("Tile failed: %1 (%2)").arg(reply_str, error_str);
-
+        emit failed(QString("Tile failed: %1 (%2)")
+                        .arg(reply->url().toString(), reply->errorString()));
         reply->deleteLater();
-        emit failed(error);
-        return;
+        return false;
     }
 
+    return true;
+}
+
+void TileMapServiceCARTO::paintTile(QNetworkReply *reply, int tileX, int tileY)
+{
     QImage tile;
     tile.loadFromData(reply->readAll());
     reply->deleteLater();
@@ -124,19 +153,25 @@ void TileMapServiceCARTO::onTileFetched(QNetworkReply *reply, int tileX, int til
         return;
     }
 
-    const double tileOriginX = tileX * _currentRequest.tileSize.width();
-    const double tileOriginY = tileY * _currentRequest.tileSize.height();
-
     QPoint destination(
-        int(std::round(tileOriginX - _canvasTopLeft.x())),
-        int(std::round(tileOriginY - _canvasTopLeft.y())));
+        int(std::round(tileX * _tileSize.width() - _canvasTopLeft.x())),
+        int(std::round(tileY * _tileSize.height() - _canvasTopLeft.y())));
 
     QPainter painter(&_canvas);
     painter.drawImage(destination, tile);
+}
 
-    _pending--;
-    if (_pending == 0 && !_failed)
-    {
-        emit finished(QPixmap::fromImage(_canvas));
-    }
+void TileMapServiceCARTO::finalizeTiles()
+{
+    QImage cropped = _canvas.copy(_cropRect);
+
+    QPointF croppedTopLeft = QPointF(_canvasTopLeft.x() + _cropRect.x(),
+                                     _canvasTopLeft.y() + _cropRect.y());
+
+    QPointF croppedBtmRight = QPointF(_canvasTopLeft.x() + _cropRect.right(),
+                                      _canvasTopLeft.y() + _cropRect.bottom());
+
+    _currentProjection.setCanvasOrigin(croppedTopLeft, croppedBtmRight);
+
+    emit finished(QPixmap::fromImage(cropped), _currentProjection);
 }
