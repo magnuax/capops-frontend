@@ -37,5 +37,5 @@ private:
     ITileMapService *_mapFetcher = nullptr;
 
 public slots:
-    void requestMap(double latitude, double longitude, int zoomLevel);
+    void requestMap();
 };

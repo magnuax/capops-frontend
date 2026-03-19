@@ -48,8 +48,7 @@ MainPage::MainPage(
     wireConnections();
     _gridPanel->refresh();
 
-    QTimer::singleShot(0, this, [this]
-                       { requestMap(60.1986, 11.1130, 6); });
+    QTimer::singleShot(0, this, &MainPage::requestMap);
 }
 
 void MainPage::wireConnections()
@@ -96,7 +95,7 @@ QWidget *MainPage::buildSectorDetailsPanel()
     return _sectorDetailsPanel;
 }
 
-void MainPage::requestMap(double lat, double lon, int zoom)
+void MainPage::requestMap()
 {
     SectorSummaryData data = _dataService.getSectorSummaryData();
 
