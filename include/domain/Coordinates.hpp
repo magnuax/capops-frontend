@@ -33,6 +33,6 @@ struct Longitude : public GeodeticCoordinate
 
 struct Coordinates
 {
-    Longitude lon;
     Latitude lat;
+    Longitude lon;
 };

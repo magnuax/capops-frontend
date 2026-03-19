@@ -15,19 +15,19 @@ public:
     SectorSummaryData(
         const int rowsCount,
         const int columnsCount,
-        const double minLongitude,
-        const double maxLongitude,
         const double minLatitude,
         const double maxLatitude,
+        const double maxLongitude,
+        const double minLongitude,
         const std::vector<SectorSummary> &sectorSummaries);
 
     int getRowCount() const;
     int getColCount() const;
     
-    double getMinLongitude() const;
-    double getMaxLongitude() const;
-    double getMinLatitude() const;
-    double getMaxLatitude() const;
+    double getMinLon() const;
+    double getMaxLon() const;
+    double getMinLat() const;
+    double getMaxLat() const;
 
     SectorSummary getSectorSummary(int sectorId) const;
     SectorSummary getSectorSummary(int row, int col) const;
