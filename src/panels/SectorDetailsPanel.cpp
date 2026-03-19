@@ -121,37 +121,42 @@ QWidget *SectorDetailsPanel::buildSelectedAircraftWidget()
     layout->addWidget(_selectedAircraftHeader);
     layout->addLayout(grid);
 
-    QLabel *positionLabel = new QLabel("position:", _selectedAircraftWidget);
+    QLabel *latitudeLabel = new QLabel("latitude:", _selectedAircraftWidget);
+    QLabel *longitudeLabel = new QLabel("longitude:", _selectedAircraftWidget);
     QLabel *altitudeLabel = new QLabel("altitude:", _selectedAircraftWidget);
     QLabel *groundSpeedLabel = new QLabel("ground speed:", _selectedAircraftWidget);
     QLabel *vertRateLabel = new QLabel("vertical rate:", _selectedAircraftWidget);
     QLabel *headingLabel = new QLabel("heading:", _selectedAircraftWidget);
     QLabel *groundTrackLabel = new QLabel("ground track:", _selectedAircraftWidget);
 
-    _aircraftPosition = new QLabel("n/a", _selectedAircraftWidget);
+    _aircraftLatitude = new QLabel("n/a", _selectedAircraftWidget);
+    _aircraftLongitude = new QLabel("n/a", _selectedAircraftWidget);
     _aircraftAltitude = new QLabel("n/a", _selectedAircraftWidget);
     _aircraftGroundSpeed = new QLabel("n/a", _selectedAircraftWidget);
     _aircraftVertRate = new QLabel("n/a", _selectedAircraftWidget);
     _aircraftHeading = new QLabel("n/a", _selectedAircraftWidget);
     _aircraftGroundTrack = new QLabel("n/a", _selectedAircraftWidget);
 
-    grid->addWidget(positionLabel, 0, 0, Qt::AlignLeft);
-    grid->addWidget(_aircraftPosition, 0, 1, Qt::AlignRight);
+    grid->addWidget(latitudeLabel, 0, 0, Qt::AlignLeft);
+    grid->addWidget(_aircraftLatitude, 0, 1, Qt::AlignRight);
 
-    grid->addWidget(altitudeLabel, 1, 0, Qt::AlignLeft);
-    grid->addWidget(_aircraftAltitude, 1, 1, Qt::AlignRight);
+    grid->addWidget(longitudeLabel, 1, 0, Qt::AlignLeft);
+    grid->addWidget(_aircraftLongitude, 1, 1, Qt::AlignRight);
 
-    grid->addWidget(groundSpeedLabel, 2, 0, Qt::AlignLeft);
-    grid->addWidget(_aircraftGroundSpeed, 2, 1, Qt::AlignRight);
+    grid->addWidget(altitudeLabel, 2, 0, Qt::AlignLeft);
+    grid->addWidget(_aircraftAltitude, 2, 1, Qt::AlignRight);
 
-    grid->addWidget(vertRateLabel, 3, 0, Qt::AlignLeft);
-    grid->addWidget(_aircraftVertRate, 3, 1, Qt::AlignRight);
+    grid->addWidget(groundSpeedLabel, 3, 0, Qt::AlignLeft);
+    grid->addWidget(_aircraftGroundSpeed, 3, 1, Qt::AlignRight);
 
-    grid->addWidget(headingLabel, 4, 0, Qt::AlignLeft);
-    grid->addWidget(_aircraftHeading, 4, 1, Qt::AlignRight);
+    grid->addWidget(vertRateLabel, 4, 0, Qt::AlignLeft);
+    grid->addWidget(_aircraftVertRate, 4, 1, Qt::AlignRight);
 
-    grid->addWidget(groundTrackLabel, 5, 0, Qt::AlignLeft);
-    grid->addWidget(_aircraftGroundTrack, 5, 1, Qt::AlignRight);
+    grid->addWidget(headingLabel, 5, 0, Qt::AlignLeft);
+    grid->addWidget(_aircraftHeading, 5, 1, Qt::AlignRight);
+
+    grid->addWidget(groundTrackLabel, 6, 0, Qt::AlignLeft);
+    grid->addWidget(_aircraftGroundTrack, 6, 1, Qt::AlignRight);
 
     grid->setColumnMinimumWidth(0, 40);
 
@@ -225,7 +230,8 @@ void SectorDetailsPanel::updateSelectedAircraftWidget()
 {
     QString headerText = "No aircraft selected";
 
-    _aircraftPosition->setText("n/a");
+    _aircraftLatitude->setText("n/a");
+    _aircraftLongitude->setText("n/a");
     _aircraftAltitude->setText("n/a");
     _aircraftGroundSpeed->setText("n/a");
     _aircraftVertRate->setText("n/a");
@@ -239,7 +245,35 @@ void SectorDetailsPanel::updateSelectedAircraftWidget()
 
     _selectedAircraftHeader->setText(headerText);
 
-    // also update `_selectedAircraftInfo` when backend is ready
+    _selectedAircraftHeader->setText(QString("Selected aircraft: %1").arg(_selectedAircraftId));
+
+    const std::vector<Track> &tracks = _dataService.getTrackData().getTracks();
+
+    auto it = std::find_if(tracks.begin(), tracks.end(), [&](const Track &t)
+                           { return t.getIcao24() == _selectedAircraftId; });
+
+    if (it == tracks.end())
+        return;
+
+    const Track &track = *it;
+
+    _aircraftLatitude->setText(QString("%1°")
+                                   .arg(track.getPosition()[0], 0, 'f', 4));
+
+    _aircraftLongitude->setText(QString("%1°")
+                                    .arg(track.getPosition()[1], 0, 'f', 4));
+
+    _aircraftAltitude->setText(QString("%1 ft")
+                                   .arg(track.getPosition()[2], 0, 'f', 0));
+
+    _aircraftGroundSpeed->setText(QString("%1 kts")
+                                      .arg(track.getVelocity()[0], 0, 'f', 1));
+
+    _aircraftHeading->setText(QString("%1°")
+                                  .arg(track.getHeading(), 0, 'f', 1));
+
+    _aircraftGroundTrack->setText(QString("%1°")
+                                      .arg(track.getGroundTrack(), 0, 'f', 1));
 }
 
 void SectorDetailsPanel::setSector(int sectorId)

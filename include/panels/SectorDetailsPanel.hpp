@@ -40,7 +40,8 @@ private:
 
     QString _selectedAircraftId = "";
     QLabel *_aircraftListHeader = nullptr;
-    QLabel *_aircraftPosition = nullptr;
+    QLabel *_aircraftLatitude = nullptr;
+    QLabel *_aircraftLongitude = nullptr;
     QLabel *_aircraftAltitude = nullptr;
     QLabel *_aircraftGroundSpeed = nullptr;
     QLabel *_aircraftVertRate = nullptr;
