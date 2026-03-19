@@ -43,8 +43,8 @@ private:
     WeatherState parseWeatherState(const QString &value) const;
     TrafficState parseTrafficState(const QString &value) const;
 
-    SectorSummaryData *_sectorSummaryData;
-    TrackData *_trackData;
+    std::unique_ptr<SectorSummaryData> _sectorSummaryData;
+    std::unique_ptr<TrackData> _trackData;
 
     std::vector<RiskState> _riskStates;
     std::vector<WeatherState> _weatherStates;

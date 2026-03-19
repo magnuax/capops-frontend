@@ -76,11 +76,33 @@ bool FlightDataServiceJSON::loadFromJson()
 
         std::vector<QString> aircraftIds;
 
-        for (const QJsonValue &aircraft : sector.value("aircrafts").toArray())
+        QJsonArray trackArray = sector.value("tracks").toArray();
+
+        for (const QJsonValue &value : trackArray)
         {
-            const QString icao24 = aircraft.toString();
+            const QJsonObject track = value.toObject();
+
+            const QString icao24 = track.value("icao24").toString();
             aircraftIds.push_back(icao24);
+
+            const QDateTime timestamp = QDateTime::fromSecsSinceEpoch(track.value("timestamp").toInt());
+
+            const std::array<double, 3> position = {
+                track.value("position").toObject().value("x").toDouble(),
+                track.value("position").toObject().value("y").toDouble(),
+                track.value("altitude").toDouble()};
+
+            const std::array<double, 2> velocity = {
+                track.value("speed").toDouble(),
+                track.value("speed").toDouble()};
+
+            const double heading = track.value("heading").toDouble();
+            const double groundTrack = track.value("groundTrack").toDouble();
+
+            tracks.push_back(Track(icao24, timestamp, position, velocity, heading, groundTrack));
         }
+
+        totalAircraftCount += aircraftIds.size();
 
         const int id = sector.value("id").toInt(-1);
         const int row = sector.value("row").toInt();
@@ -93,21 +115,18 @@ bool FlightDataServiceJSON::loadFromJson()
         const RiskState risk = parseRiskState(sector.value("risk").toString());
 
         sectorSummaries.push_back(SectorSummary(id, row, col, aircraftIds, traffic, weather, risk));
-
-        for (const auto &icao24 : aircraftIds)
-        {
-            tracks.push_back(
-                Track(icao24, QDateTime{}, {-1.0, -1.0, -1.0}, {-1.0, -1.0}, -1.0, -1.0));
-        }
-
-        totalAircraftCount += count;
     }
 
     _rows = root.value("rows").toInt();
     _cols = root.value("cols").toInt();
-    _sectorSummaryData = new SectorSummaryData(_rows, _cols, -1, -1, -1, -1, sectorSummaries);
 
-    _trackData = new TrackData(totalAircraftCount, "WGS84", tracks);
+    double minLat = root.value("minLat").toDouble(-1);
+    double maxLat = root.value("maxLat").toDouble(-1);
+    double minLon = root.value("minLon").toDouble(-1);
+    double maxLon = root.value("maxLon").toDouble(-1);
+
+    _sectorSummaryData = std::make_unique<SectorSummaryData>(_rows, _cols, minLat, maxLat, minLon, maxLon, sectorSummaries);
+    _trackData = std::make_unique<TrackData>(totalAircraftCount, "WGS84", tracks);
 
     return true;
 }
