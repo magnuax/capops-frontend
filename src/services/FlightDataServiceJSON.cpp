@@ -175,3 +175,17 @@ TrackData FlightDataServiceJSON::getTrackData() const
 {
     return *_trackData;
 }
+
+RiskEventData FlightDataServiceJSON::getRiskEventData() const
+{
+    RiskEvent placeholderEvent(
+        1,
+        1,
+        false,
+        RiskState::UNKNOWN,
+        QDateTime(),
+        QDateTime(),
+        "Not implemented in JSON service");
+
+    return RiskEventData(1, {placeholderEvent});
+}
