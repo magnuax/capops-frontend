@@ -34,6 +34,8 @@ RiskState riskStateFromString(const QString &str);
 WeatherState weatherStateFromString(const QString &str);
 TrafficState trafficStateFromString(const QString &str);
 
+TrafficState computeTrafficState(int aircraftCount, int baseCapacity);
+
 QString toIconPath(RiskState state);
 QString toIconPath(WeatherState state);
 QString toIconPath(TrafficState state);
