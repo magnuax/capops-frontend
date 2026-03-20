@@ -15,17 +15,14 @@
 
 #include "services/interfaces/ITileMapService.hpp"
 #include "services/interfaces/IFlightDataService.hpp"
-#include "services/interfaces/IFlightDataEvents.hpp"
 
 MainPage::MainPage(
-    IFlightDataService &dataService,
-    IFlightDataEvents *dataEvents,
+    IFlightDataService *dataService,
     ITileMapService *mapFetcher,
     QWidget *parent)
     : QWidget(parent),
       _mapFetcher(mapFetcher),
-      _dataService(dataService),
-      _dataEvents(dataEvents)
+      _dataService(dataService)
 {
     buildPage();
     wireConnections();
@@ -48,7 +45,7 @@ void MainPage::wireConnections()
             this, &MainPage::onMapFetchFailed);
 
     // --- Refresh UI on data reload ---
-    connect(_dataEvents, &IFlightDataEvents::dataReloaded,
+    connect(_dataService, &IFlightDataService::dataReloaded,
             this, &MainPage::refresh);
 }
 
@@ -90,7 +87,7 @@ QWidget *MainPage::buildStateGrid()
 
 QWidget *MainPage::buildAlertPanel()
 {
-    _alertPanel = new AlertPanel(this);
+    _alertPanel = new AlertPanel(_dataService, this);
     return _alertPanel;
 }
 
@@ -103,7 +100,7 @@ QWidget *MainPage::buildSectorDetailsPanel()
 
 void MainPage::requestMap()
 {
-    SectorSummaryData data = _dataService.getSectorSummaryData();
+    SectorSummaryData data = _dataService->getSectorSummaryData();
 
     ITileMapService::Request request;
     request.minLat = data.getMinLat();

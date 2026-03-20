@@ -8,7 +8,6 @@ class SectorDetailsPanel;
 
 class ITileMapService;
 class IFlightDataService;
-class IFlightDataEvents;
 
 class MainPage : public QWidget
 {
@@ -23,8 +22,7 @@ private slots:
 
 public:
     explicit MainPage(
-        IFlightDataService &dataService,
-        IFlightDataEvents *dataEvents,
+        IFlightDataService *dataService,
         ITileMapService *mapFetcher,
         QWidget *parent = nullptr);
 
@@ -40,8 +38,7 @@ private:
     AlertPanel *_alertPanel = nullptr;
     SectorDetailsPanel *_sectorDetailsPanel = nullptr;
 
-    IFlightDataService &_dataService;
-    IFlightDataEvents *_dataEvents = nullptr;
+    IFlightDataService *_dataService = nullptr;
     ITileMapService *_mapFetcher = nullptr;
 
     static constexpr int DETAILS_PANEL_STRETCH = 1;

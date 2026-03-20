@@ -2,6 +2,13 @@
 #include <QStackedWidget>
 #include <QStandardPaths>
 
+#include <QKeyEvent>
+#include <QApplication>
+#include <QFont>
+
+#include <QFile>
+#include <QRegularExpression>
+
 #include "AppWindow.hpp"
 #include "pages/MainPage.hpp"
 
@@ -17,8 +24,13 @@ AppWindow::AppWindow(QWidget *parent) : QMainWindow(parent)
 
 void AppWindow::initializeServices()
 {
+    /**
+     * _dataService = new FlightDataServiceWS("...")
+     * dataServiceWS->connectToServer();
+     *
+     */
+
     _dataService = new FlightDataServiceJSON("./resources/test_data.json");
-    _dataEvents = _dataService;
     _mapFetcher = new TileMapServiceCARTO(this);
 
     _mapFetcher->enableDiskCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/maptiles");
@@ -27,8 +39,7 @@ void AppWindow::initializeServices()
 void AppWindow::initializePages()
 {
     _mainPage = new MainPage(
-        *_dataService,
-        _dataEvents,
+        _dataService,
         _mapFetcher,
         this);
 
@@ -41,4 +52,15 @@ void AppWindow::initializePages()
 void AppWindow::showMainPage()
 {
     _pageStack->setCurrentWidget(_mainPage);
+}
+
+void AppWindow::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_F11)
+    {
+        isFullScreen() ? showNormal() : showFullScreen();
+        return;
+    }
+    
+    QMainWindow::keyPressEvent(event);
 }

@@ -17,6 +17,9 @@ public slots:
 public:
     explicit AppWindow(QWidget *parent = nullptr);
 
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+
 private:
     void initializePages();
     void initializeServices();
@@ -25,6 +28,5 @@ private:
     QWidget *_mainPage;
 
     FlightDataServiceJSON *_dataService;
-    FlightDataServiceJSON *_dataEvents;
     ITileMapService *_mapFetcher;
 };
