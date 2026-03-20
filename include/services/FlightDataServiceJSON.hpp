@@ -29,7 +29,7 @@ public:
     FlightDataServiceJSON(const QString &jsonPath, QObject *parent = nullptr);
 
     SectorSummaryData getSectorSummaryData() const override;
-    // RiskEventData getRiskEventData() const override;
+    RiskEventData getRiskEventData() const override;
     TrackData getTrackData() const override;
 
 private:

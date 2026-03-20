@@ -43,6 +43,7 @@ private:
 
     int _row;
     int _col;
+    int _id;
     bool _isSelected;
 
     RiskState _riskState;

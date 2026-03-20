@@ -1,9 +1,9 @@
+#include <algorithm>
+#include <cmath>
+
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QGridLayout>
-#include <QPainter>
-#include <QButtonGroup>
-#include <QToolButton>
-#include <QMargins>
 #include <QTabBar>
 #include <QLabel>
 
@@ -13,141 +13,89 @@
 #include "widgets/GridTrackOverlay.hpp"
 #include "services/interfaces/IFlightDataService.hpp"
 
-StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent) : QFrame(parent), _dataService(dataService)
+StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent)
+    : QFrame(parent),
+      _dataService(dataService)
 {
-    _gridContainer = new QWidget(this);
+    buildPanel();
+    wireConnections();
+}
 
-    _numRows = _dataService.getSectorSummaryData().getRowCount();
-    _numCols = _dataService.getSectorSummaryData().getColCount();
-
-    auto *outer = new QVBoxLayout(this);
-    outer->setContentsMargins(0, 0, 0, 8);
-    outer->setSpacing(0);
-
-    _tabBar = new QTabBar(this);
-    _tabBar->addTab(QIcon(":/icons/tab-risk.png"), "Risk");
-    _tabBar->addTab(QIcon(":/icons/tab-weather.png"), "Weather");
-    _tabBar->addTab(QIcon(":/icons/tab-traffic.png"), "Traffic");
-    _tabBar->addTab("None");
-
-    _tabBar->setExpanding(false);
-    _tabBar->setTabData(0, static_cast<int>(DisplayMode::RISK));
-    _tabBar->setTabData(1, static_cast<int>(DisplayMode::WEATHER));
-    _tabBar->setTabData(2, static_cast<int>(DisplayMode::TRAFFIC));
-    _tabBar->setTabData(3, static_cast<int>(DisplayMode::NONE));
-
-    auto *tabRow = new QHBoxLayout();
-    tabRow->setContentsMargins(0, 0, 0, 0);
-    tabRow->setSpacing(0);
-
-    _coordLabel = new QLabel("", this);
-    _coordLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    _coordLabel->setObjectName("coordLabel");
-
-    tabRow->addWidget(_tabBar, 0, Qt::AlignLeft | Qt::AlignBottom);
-    tabRow->addStretch();
-    tabRow->addWidget(_coordLabel, 0, Qt::AlignRight | Qt::AlignVCenter);
-
-    outer->addLayout(tabRow);
-
-    auto *gridContainer = new QWidget(this);
-    gridContainer->setObjectName("GridContainer");
-    gridContainer->setContentsMargins(12, 12, 12, 12);
-
-    auto *gridContainerLayout = new QVBoxLayout(gridContainer);
-    gridContainerLayout->addWidget(buildGrid(), 0, Qt::AlignCenter);
-
-    outer->addWidget(gridContainer, 1);
-
-    _tabBar->setCurrentIndex(0);
-    setDisplayMode(DisplayMode::RISK);
-
+void StateGridPanel::wireConnections()
+{
     connect(_tabBar, &QTabBar::currentChanged,
             this, &StateGridPanel::handleTabChange);
 
     connect(_gridWidget, &GridCanvas::cursorLatLon,
-            this, [this](double lat, double lon)
-            {
-    if (std::isnan(lat))
-        _coordLabel->setText("");
-    else
-        _coordLabel->setText(QString("Lat: %1\nLon: %2")
-            .arg(lat, 0, 'f', 4)
-            .arg(lon, 0, 'f', 4)); });
+            this, &StateGridPanel::updateCoordinateLabel);
 }
 
-void StateGridPanel::refresh()
+void StateGridPanel::buildPanel()
 {
-    SectorSummaryData data = _dataService.getSectorSummaryData();
+    const SectorSummaryData data = _dataService.getSectorSummaryData();
+    _numRows = data.getRowCount();
+    _numCols = data.getColCount();
 
-    for (GridSector *cell : _cells)
-    {
-        SectorSummary summary = data.getSectorSummary(cell->getRow(), cell->getCol());
+    auto *tabs = buildTabLayout();
+    auto *grid = buildGridContainer(data);
 
-        cell->setRiskState(summary.getRiskState());
-        cell->setWeatherState(summary.getWeatherState());
-        cell->setTrafficState(summary.getTrafficState());
-    }
+    auto *outer = new QVBoxLayout(this);
+    outer->setContentsMargins(PANEL_OUTER_MARGINS);
+    outer->setSpacing(0);
+    outer->addLayout(tabs);
+    outer->addWidget(grid, 1);
 
-    if (_trackOverlay)
-    {
-        _trackOverlay->setTracks(_dataService
-                                     .getTrackData()
-                                     .getTracks());
-    }
+    _tabBar->setCurrentIndex(0);
+    setDisplayMode(DisplayMode::RISK);
 }
 
-void StateGridPanel::setDisplayMode(DisplayMode mode)
+QHBoxLayout *StateGridPanel::buildTabLayout()
 {
-    for (GridSector *cell : _cells)
-    {
-        cell->setDisplayMode(mode);
-    }
+    _tabBar = buildTabWidget();
+    _coordLabel = new QLabel("", this);
+    _coordLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    _coordLabel->setObjectName("coordLabel");
+
+    auto *tabRow = new QHBoxLayout();
+    tabRow->setContentsMargins(0, 0, 0, 0);
+    tabRow->setSpacing(0);
+    tabRow->addWidget(_tabBar, 0, Qt::AlignLeft | Qt::AlignBottom);
+    tabRow->addStretch();
+    tabRow->addWidget(_coordLabel, 0, Qt::AlignRight | Qt::AlignVCenter);
+
+    return tabRow;
 }
 
-void StateGridPanel::setMapSource(const QPixmap &mapSource, const MapProjection &projection)
+QTabBar *StateGridPanel::buildTabWidget()
 {
-    _projection = projection;
-    _mapSource = mapSource;
-    if (auto *canvas = qobject_cast<GridCanvas *>(_gridWidget))
-    {
-        canvas->setMapSource(mapSource);
-    }
+    auto *tabBar = new QTabBar(this);
+    tabBar->addTab(QIcon(":/icons/tab-risk.png"), "Risk");
+    tabBar->addTab(QIcon(":/icons/tab-weather.png"), "Weather");
+    tabBar->addTab(QIcon(":/icons/tab-traffic.png"), "Traffic");
+    tabBar->addTab("None");
+    tabBar->setExpanding(false);
+    tabBar->setTabData(TAB_IDX_RISK, static_cast<int>(DisplayMode::RISK));
+    tabBar->setTabData(TAB_IDX_WEATHER, static_cast<int>(DisplayMode::WEATHER));
+    tabBar->setTabData(TAB_IDX_TRAFFIC, static_cast<int>(DisplayMode::TRAFFIC));
+    tabBar->setTabData(TAB_IDX_NONE, static_cast<int>(DisplayMode::NONE));
 
-    _trackOverlay->setProjection(projection);
-    _gridWidget->setProjection(projection);
+    return tabBar;
 }
 
-void StateGridPanel::resizeEvent(QResizeEvent *event)
+QWidget *StateGridPanel::buildGridContainer(const SectorSummaryData &data)
 {
-    QFrame::resizeEvent(event);
+    auto *container = new QWidget(this);
+    container->setObjectName("GridContainer");
+    container->setContentsMargins(GRID_CONTAINER_MARGINS);
 
-    QRect area = _gridWidget->parentWidget()->contentsRect();
+    auto *layout = new QVBoxLayout(container);
+    layout->addWidget(buildGridWidget(data), 0, Qt::AlignCenter);
 
-    const int availWidth = area.width();
-    const int availHeight = area.height();
-
-    const int cellSize = std::min(
-        availWidth / _numCols,
-        availHeight / _numRows);
-
-    int newWidth = cellSize * _numCols;
-    int newHeight = cellSize * _numRows;
-
-    _gridWidget->resize(cellSize * _numCols, cellSize * _numRows);
-
-    _gridWidget->move(
-        area.x() + (availWidth - _gridWidget->width()) / 2,
-        area.y() + (availHeight - _gridWidget->height()) / 2);
-
-    _trackOverlay->setGeometry(_gridWidget->rect());
+    return container;
 }
 
-QWidget *StateGridPanel::buildGrid()
+GridCanvas *StateGridPanel::buildGridWidget(const SectorSummaryData &data)
 {
-
-    SectorSummaryData data = _dataService.getSectorSummaryData();
-
     _gridWidget = new GridCanvas(this);
     _gridWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     _gridWidget->setMouseTracking(true);
@@ -168,7 +116,7 @@ QWidget *StateGridPanel::buildGrid()
         {
             SectorSummary summary = data.getSectorSummary(row, col);
 
-            auto *cell = new GridSector(row, col, _gridWidget);
+            auto *cell = new GridSector(row, col, summary.getSectorId(), _gridWidget);
 
             connect(cell, &GridSector::selected,
                     this, &StateGridPanel::handleSectorSelection);
@@ -187,6 +135,73 @@ QWidget *StateGridPanel::buildGrid()
     _trackOverlay->raise();
 
     return _gridWidget;
+}
+
+void StateGridPanel::refresh()
+{
+    const SectorSummaryData data = _dataService.getSectorSummaryData();
+
+    for (GridSector *cell : _cells)
+    {
+        const SectorSummary summary = data.getSectorSummary(cell->getRow(), cell->getCol());
+
+        cell->setRiskState(summary.getRiskState());
+        cell->setWeatherState(summary.getWeatherState());
+        cell->setTrafficState(summary.getTrafficState());
+    }
+
+    if (_trackOverlay)
+    {
+        _trackOverlay->setTracks(_dataService.getTrackData().getTracks());
+    }
+}
+
+void StateGridPanel::setDisplayMode(DisplayMode mode)
+{
+    for (GridSector *cell : _cells)
+    {
+        cell->setDisplayMode(mode);
+    }
+}
+
+void StateGridPanel::setMapSource(const QPixmap &mapSource, const MapProjection &projection)
+{
+    if (!_gridWidget || !_trackOverlay)
+        return;
+
+    _gridWidget->setMapSource(mapSource);
+    _trackOverlay->setProjection(projection);
+    _gridWidget->setProjection(projection);
+}
+
+void StateGridPanel::resizeEvent(QResizeEvent *event)
+{
+    QFrame::resizeEvent(event);
+
+    if (!_gridWidget || !_trackOverlay || !_gridWidget->parentWidget())
+        return;
+
+    if (_numRows <= 0 || _numCols <= 0)
+        return;
+
+    QRect area = _gridWidget->parentWidget()->contentsRect();
+
+    const int availWidth = area.width();
+    const int availHeight = area.height();
+
+    const int cellSize = std::min(
+        availWidth / _numCols,
+        availHeight / _numRows);
+
+    _gridWidget->resize(
+        cellSize * _numCols,
+        cellSize * _numRows);
+
+    _gridWidget->move(
+        area.x() + (availWidth - _gridWidget->width()) / 2,
+        area.y() + (availHeight - _gridWidget->height()) / 2);
+
+    _trackOverlay->setGeometry(_gridWidget->rect());
 }
 
 void StateGridPanel::handleSectorSelection(GridSector *cell)
@@ -212,10 +227,23 @@ void StateGridPanel::handleSectorSelection(GridSector *cell)
 
 void StateGridPanel::handleTabChange(int tabIndex)
 {
-    QVariant data = _tabBar->tabData(tabIndex);
+    const QVariant data = _tabBar->tabData(tabIndex);
 
     if (!data.isValid())
         return;
 
     setDisplayMode(static_cast<DisplayMode>(data.toInt()));
+}
+
+void StateGridPanel::updateCoordinateLabel(double lat, double lon)
+{
+    if (std::isnan(lat) || std::isnan(lon))
+    {
+        _coordLabel->setText("");
+        return;
+    }
+
+    _coordLabel->setText(QString("Lat: %1\nLon: %2")
+                             .arg(lat, 0, 'f', 4)
+                             .arg(lon, 0, 'f', 4));
 }

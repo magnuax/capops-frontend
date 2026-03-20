@@ -12,6 +12,6 @@ public:
     virtual ~IFlightDataService() = default;
 
     virtual SectorSummaryData getSectorSummaryData() const = 0;
-    // virtual RiskEventData getRiskEventData() const = 0;
+    virtual RiskEventData getRiskEventData() const = 0;
     virtual TrackData getTrackData() const = 0;
 };

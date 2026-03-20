@@ -22,6 +22,12 @@ GridSector::GridSector(int row, int col, QWidget *parent)
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
+GridSector::GridSector(int row, int col, int id, QWidget *parent)
+    : GridSector(row, col, parent)
+{
+    _id = id;
+}
+
 int GridSector::getRow() const
 {
     return _row;
