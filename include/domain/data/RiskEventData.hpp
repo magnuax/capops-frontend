@@ -10,7 +10,8 @@ class RiskEventData
 public:
     RiskEventData(
         const int riskEventCount,
-        const std::vector<RiskEvent> &riskEvents);
+        const std::vector<RiskEvent> &riskEvents,
+        const std::vector<MergedRiskEvent> &mergedRiskEvents = {});
 
     int getRiskEventCount() const;
     std::vector<RiskEvent> getRiskEvents() const;
