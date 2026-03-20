@@ -2,10 +2,12 @@
 #include <map>
 #include <vector>
 #include <QObject>
-#include <QFileSystemWatcher>
+#include <QTimer>
 #include <QPoint>
 #include <QSize>
 #include <QString>
+#include <QAbstractSocket>
+#include <QWebSocket>
 
 #include "services/interfaces/IFlightDataService.hpp"
 #include "services/interfaces/IFlightDataEvents.hpp"
@@ -23,26 +25,42 @@ class FlightDataServiceWS : public IFlightDataEvents, public IFlightDataService
     using icao24_t = std::string;
     using sectorId_t = int;
 
-public slots:
-    void updateSectorSummaryData(const SectorSummaryData &data);
-    // void updateRiskEventData(const RiskEventData &data);
-    void updateTrackData(const TrackData &data);
+private slots:
+    void onConnected();
+    void onDisconnected();
+    void onMessageReceived(const QByteArray &message);
+    void onError(QAbstractSocket::SocketError error);
 
 public:
-    FlightDataServiceWS(QObject *parent = nullptr);
-
-    void bindTo(WebSocketClient *client);
+    explicit FlightDataServiceWS(const QString &url, QObject *parent = nullptr);
 
     SectorSummaryData getSectorSummaryData() const override;
-    // RiskEventData getRiskEventData() const override;
+    RiskEventData getRiskEventData() const override;
     TrackData getTrackData() const override;
 
+    void connectToServer();
+    void disconnectFromServer();
+
 private:
-    int _rows;
-    int _cols;
+    void scheduleReconnect();
+    void parseMessage(const QByteArray &message);
 
-    std::vector<int> _sectorIds;
+    SectorSummaryData parseSectorSummaryData(const QJsonObject &root) const;
+    RiskEventData parseRiskEventData(const QJsonObject &root) const;
+    TrackData parseTrackData(const QJsonObject &root) const;
 
-    SectorSummaryData *_sectorSummaryData;
-    TrackData *_trackData;
+    QString _url;
+    QWebSocket _socket;
+    QTimer _reconnectTimer;
+
+    int _retries = 0;
+    bool _closedByUser = false;
+
+    std::unique_ptr<SectorSummaryData> _sectorSummaryData;
+    std::unique_ptr<RiskEventData> _riskEventData;
+    std::unique_ptr<TrackData> _trackData;
+
+    static constexpr int MAX_RECONNECT_MS = 15000;
+    static constexpr int BASE_RECONNECT_MS = 500;
+    static constexpr int MAX_RETRIES = 10;
 };
