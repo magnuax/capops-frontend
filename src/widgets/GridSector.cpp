@@ -9,10 +9,10 @@ GridSector::GridSector(int row, int col, QWidget *parent)
     : QFrame(parent), _row(row), _col(col)
 {
     // --- default states ---
-    _riskState = NORMAL;
-    _weatherState = OK;
-    _trafficState = LIGHT;
-    _displayMode = RISK;
+    _riskState = RiskState::NORMAL;
+    _weatherState = WeatherState::OK;
+    _trafficState = TrafficState::LIGHT;
+    _displayMode = DisplayMode::RISK;
     _isSelected = false;
 
     // --- style ---
@@ -20,6 +20,12 @@ GridSector::GridSector(int row, int col, QWidget *parent)
     setLineWidth(1);
     setMinimumSize(24, 24);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+}
+
+GridSector::GridSector(int row, int col, int id, QWidget *parent)
+    : GridSector(row, col, parent)
+{
+    _id = id;
 }
 
 int GridSector::getRow() const
@@ -34,24 +40,36 @@ int GridSector::getCol() const
 
 void GridSector::setRiskState(RiskState state)
 {
+    if (_riskState == state)
+        return;
+
     _riskState = state;
     update();
 }
 
 void GridSector::setWeatherState(WeatherState state)
 {
+    if (_weatherState == state)
+        return;
+
     _weatherState = state;
     update();
 }
 
 void GridSector::setTrafficState(TrafficState state)
 {
+    if (_trafficState == state)
+        return;
+
     _trafficState = state;
     update();
 }
 
 void GridSector::setDisplayMode(DisplayMode mode)
 {
+    if (_displayMode == mode)
+        return;
+
     _displayMode = mode;
     update();
 }
@@ -87,16 +105,16 @@ void GridSector::paintEvent(QPaintEvent *event)
     QColor fillColor;
     switch (_displayMode)
     {
-    case RISK:
+    case DisplayMode::RISK:
         fillColor = getRiskStateColor();
         break;
-    case WEATHER:
+    case DisplayMode::WEATHER:
         fillColor = getWeatherStateColor();
         break;
-    case TRAFFIC:
+    case DisplayMode::TRAFFIC:
         fillColor = getTrafficStateColor();
         break;
-    case NONE:
+    case DisplayMode::NONE:
         fillColor = QColor(255, 255, 255, 0);
         break;
     }
@@ -119,13 +137,13 @@ QColor GridSector::getRiskStateColor()
 
     switch (_riskState)
     {
-    case NORMAL:
+    case RiskState::NORMAL:
         return QColor(0, 255, 0, alpha); // green
 
-    case AT_RISK:
+    case RiskState::AT_RISK:
         return QColor(255, 160, 0, alpha); // orange
 
-    case CONGESTED:
+    case RiskState::CONGESTED:
         return QColor(255, 0, 0, alpha); // red
     }
 
@@ -139,13 +157,13 @@ QColor GridSector::getWeatherStateColor()
 
     switch (_weatherState)
     {
-    case OK:
+    case WeatherState::OK:
         return QColor(0, 255, 255, alpha); // cyan
-    case DEGRADED:
+    case WeatherState::DEGRADED:
         return QColor(255, 255, 0, alpha); // yellow
-    case SEVERE:
+    case WeatherState::SEVERE:
         return QColor(255, 0, 0, alpha); // red
-    case EXTREME:
+    case WeatherState::EXTREME:
         return QColor(128, 0, 128, alpha); // purple
     }
 
@@ -159,11 +177,11 @@ QColor GridSector::getTrafficStateColor()
 
     switch (_trafficState)
     {
-    case LIGHT:
+    case TrafficState::LIGHT:
         return QColor(0, 255, 0, alpha); // green
-    case MODERATE:
+    case TrafficState::MODERATE:
         return QColor(255, 255, 0, alpha); // yellow
-    case HEAVY:
+    case TrafficState::HEAVY:
         return QColor(255, 0, 0, alpha); // red
     }
 
@@ -186,4 +204,10 @@ void GridSector::resizeEvent(QResizeEvent *event)
     {
         QWidget::resize(newWidth, newWidth);
     }
+}
+
+void GridSector::mouseMoveEvent(QMouseEvent *event)
+{
+    event->ignore(); // let it propagate to parent
+    QWidget::mouseMoveEvent(event);
 }

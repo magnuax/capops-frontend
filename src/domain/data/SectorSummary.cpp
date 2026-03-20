@@ -2,27 +2,24 @@
 
 #include "domain/data/SectorSummary.hpp"
 
-SectorSummary::SectorSummary
-(
+SectorSummary::SectorSummary(
     const int sectorId,
     const int row,
-    const int colunmn,
-    const int localAircraftCount,
-    const int localAircraftBaseCapacity,
-    const int localAircraftEffectiveCapacity,
-    const QString& weatherSeverity,
-    const QString& riskSeverity
-)   
-    :
-    _sectorId(sectorId),
-    _row(row),
-    _colunmn(colunmn),
-    _localAircraftCount(localAircraftCount),
-    _localAircraftBaseCapacity(localAircraftBaseCapacity),
-    _localAircraftEffectiveCapacity(localAircraftEffectiveCapacity),
-    _weatherSeverity(weatherSeverity),
-    _riskSeverity(riskSeverity)
-{}
+    const int column,
+    const std::vector<QString> aircraftIds,
+    const TrafficState &trafficState,
+    const WeatherState &weatherState,
+    const RiskState &riskState)
+    : _sectorId(sectorId),
+      _row(row),
+      _column(column),
+      _aircraftIds(aircraftIds),
+      _trafficState(trafficState),
+      _weatherState(weatherState),
+      _riskState(riskState)
+{
+    _localAircraftCount = aircraftIds.size();
+}
 
 const int SectorSummary::getSectorId() const
 {
@@ -34,31 +31,31 @@ const int SectorSummary::getRow() const
     return _row;
 }
 
-const int SectorSummary::getColunmn() const
+const int SectorSummary::getColumn() const
 {
-    return _colunmn;
+    return _column;
 }
 
-const int SectorSummary::getLocalAircraftCount() const
+const std::vector<QString> &SectorSummary::getAircraftIds() const
+{
+    return _aircraftIds;
+}
+
+const int SectorSummary::getAircraftCount() const
 {
     return _localAircraftCount;
 }
 
-const int SectorSummary::getLocalAircraftBaseCapacity() const
+const TrafficState &SectorSummary::getTrafficState() const
 {
-    return _localAircraftBaseCapacity;
+    return _trafficState;
 }
 
-const int SectorSummary::getLocalAircraftEffectiveCapacity() const
+const WeatherState &SectorSummary::getWeatherState() const
 {
-    return _localAircraftEffectiveCapacity;
+    return _weatherState;
 }
-
-const QString& SectorSummary::getWeatherSeverity() const
+const RiskState &SectorSummary::getRiskState() const
 {
-    return _weatherSeverity;
-}
-const QString& SectorSummary::getRiskSeverity() const
-{
-    return _riskSeverity;
+    return _riskState;
 }

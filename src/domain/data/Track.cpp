@@ -40,12 +40,22 @@ const Track::TrackVelocity &Track::getVelocity() const
     return _velocity;
 }
 
-const double Track::getHeadingDegrees() const
+const double Track::getHeading() const
 {
     return _headingDegrees;
 }
 
-const double Track::getGroundTrackDegrees() const
+const double Track::getGroundTrack() const
 {
     return _groundTrackDegrees;
+}
+
+bool Track::operator==(const Track &other) const
+{
+    return _icao24 == other._icao24 &&
+           _timestamp == other._timestamp &&
+           _position == other._position &&
+           _velocity == other._velocity &&
+           _headingDegrees == other._headingDegrees &&
+           _groundTrackDegrees == other._groundTrackDegrees;
 }

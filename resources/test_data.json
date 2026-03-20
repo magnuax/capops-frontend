@@ -1,0 +1,106 @@
+{
+  "rows": 2,
+  "cols": 2,
+  "minLat": 58.0,
+  "maxLat": 62.0,
+  "minLon": 7.0,
+  "maxLon": 15.0,
+  "sectors": [
+    {
+      "id": 0,
+      "row": 0,
+      "col": 0,
+      "risk": "CONGESTED",
+      "weather": "OK",
+      "traffic": "LIGHT",
+      "tracks": [
+        {
+          "icao24": "T1",
+          "callsign": "Flight 101",
+          "position": {
+            "x": 61.0,
+            "y": 9.5
+          },
+          "altitude": 30000,
+          "speed": 450,
+          "vertRate": 0,
+          "heading": 90,
+          "groundTrack": 85,
+          "timestamp": 0
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "row": 0,
+      "col": 1,
+      "risk": "AT_RISK",
+      "weather": "DEGRADED",
+      "traffic": "MODERATE",
+      "tracks": [
+        {
+          "icao24": "T2",
+          "callsign": "Flight 102",
+          "position": {
+            "x": 61.0,
+            "y": 12.5
+          },
+          "altitude": 30000,
+          "speed": 450,
+          "vertRate": 0,
+          "heading": 180,
+          "groundTrack": 85,
+          "timestamp": 0
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "row": 1,
+      "col": 0,
+      "risk": "AT_RISK",
+      "weather": "SEVERE",
+      "traffic": "HEAVY",
+      "tracks": [
+        {
+          "icao24": "T3",
+          "callsign": "Flight 101",
+          "position": {
+            "x": 58.9,
+            "y": 12.5
+          },
+          "altitude": 30000,
+          "speed": 450,
+          "vertRate": 0,
+          "heading": 225,
+          "groundTrack": 85,
+          "timestamp": 0
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "row": 1,
+      "col": 1,
+      "risk": "NORMAL",
+      "weather": "EXTREME",
+      "traffic": "LIGHT",
+      "tracks": [
+        {
+          "icao24": "T4",
+          "callsign": "Flight 101",
+          "position": {
+            "x": 59.0,
+            "y": 10.0
+          },
+          "altitude": 30000,
+          "speed": 410,
+          "vertRate": 0,
+          "heading": 10,
+          "groundTrack": 0,
+          "timestamp": 0
+        }
+      ]
+    }
+  ]
+}

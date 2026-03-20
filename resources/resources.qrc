@@ -8,6 +8,8 @@
         <file>icons/tab-weather.png</file>
         <file>icons/tab-traffic.png</file>
 
+        <file>icons/track.png</file>
+
         <file>stylesheet.qss</file>
     </qresource>
 </RCC>

@@ -32,6 +32,7 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
     void createContextMenu();
@@ -42,6 +43,7 @@ private:
 
     int _row;
     int _col;
+    int _id;
     bool _isSelected;
 
     RiskState _riskState;

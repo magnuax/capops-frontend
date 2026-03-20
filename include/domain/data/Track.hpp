@@ -21,8 +21,10 @@ public:
     const QDateTime &getTimestamp() const;
     const TrackPosition &getPosition() const;
     const TrackVelocity &getVelocity() const;
-    const double getHeadingDegrees() const;
-    const double getGroundTrackDegrees() const;
+    const double getHeading() const;
+    const double getGroundTrack() const;
+
+    bool operator==(const Track &other) const;
 
 private:
     QString _icao24;

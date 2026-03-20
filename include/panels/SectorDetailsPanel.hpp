@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <domain/data/SectorSummary.hpp>
 
 class QPoint;
 class QLabel;
@@ -17,6 +18,7 @@ class SectorDetailsPanel : public QWidget
 public slots:
     void setSector(int sectorId);
     void selectAircraft(QListWidgetItem *item);
+    void refresh();
 
 public:
     explicit SectorDetailsPanel(IFlightDataService &dataService, QWidget *parent = nullptr);
@@ -26,7 +28,6 @@ private:
     QWidget *buildAircraftListWidget();
     QWidget *buildSelectedAircraftWidget();
     
-    void refresh();
     void updateSectorStatusWidget();
     void updateAircraftListWidget();
     void updateSelectedAircraftWidget();
@@ -37,7 +38,16 @@ private:
     QWidget *_aircraftListWidget;
     QWidget *_selectedAircraftWidget;
 
-    int _selectedAircraftId = -1;
+    QString _selectedAircraftId = "";
+    QLabel *_aircraftListHeader = nullptr;
+    QLabel *_aircraftLatitude = nullptr;
+    QLabel *_aircraftLongitude = nullptr;
+    QLabel *_aircraftAltitude = nullptr;
+    QLabel *_aircraftGroundSpeed = nullptr;
+    QLabel *_aircraftVertRate = nullptr;
+    QLabel *_aircraftHeading = nullptr;
+    QLabel *_aircraftGroundTrack = nullptr;
+
     int _selectedSectorId = -1;
     QPoint _selectedSectorIdx = {-1, -1};
 

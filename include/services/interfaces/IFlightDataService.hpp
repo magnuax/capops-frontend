@@ -1,23 +1,17 @@
 #pragma once
 #include <vector>
+
 #include "domain/SectorStates.hpp"
+#include "domain/data/SectorSummaryData.hpp"
+#include "domain/data/RiskEventData.hpp"
+#include "domain/data/TrackData.hpp"
 
 class IFlightDataService
 {
 public:
     virtual ~IFlightDataService() = default;
-    
-    virtual int getSectorId(int row, int col) const = 0;
-    virtual std::vector<int> getSectorIds() const = 0;
-    
-    virtual int getRowCount() const = 0;
-    virtual int getColCount() const = 0;
-    virtual QSize getGridSize() const = 0;
-    virtual QPoint getSectorIndices(int sectorId) const = 0;
-    
-    virtual RiskState getRisk(int sectorId) const = 0;
-    virtual WeatherState getWeather(int sectorId) const = 0;
-    virtual TrafficState getTraffic(int sectorId) const = 0;
 
-    virtual std::vector<int> getFlightIds(int sectorId) const = 0;
+    virtual SectorSummaryData getSectorSummaryData() const = 0;
+    virtual RiskEventData getRiskEventData() const = 0;
+    virtual TrackData getTrackData() const = 0;
 };

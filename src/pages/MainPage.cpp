@@ -15,34 +15,23 @@
 
 #include "services/interfaces/ITileMapService.hpp"
 #include "services/interfaces/IFlightDataService.hpp"
+#include "services/interfaces/IFlightDataEvents.hpp"
 
-MainPage::MainPage(IFlightDataService &dataService, ITileMapService *mapFetcher, QWidget *parent)
+MainPage::MainPage(
+    IFlightDataService &dataService,
+    IFlightDataEvents *dataEvents,
+    ITileMapService *mapFetcher,
+    QWidget *parent)
     : QWidget(parent),
       _mapFetcher(mapFetcher),
-      _dataService(dataService)
+      _dataService(dataService),
+      _dataEvents(dataEvents)
 {
-    QVBoxLayout *displayLayout = new QVBoxLayout();
-    displayLayout->setContentsMargins(0, 0, 0, 0);
-    displayLayout->setSpacing(0);
-    displayLayout->addWidget(buildStateGrid());
-
-    QWidget *sectorDetailsPanel = buildSectorDetailsPanel();
-    QWidget *alertPanel = buildAlertPanel();
-
-    QHBoxLayout *mainLayout = new QHBoxLayout(this);
-    mainLayout->addWidget(sectorDetailsPanel);
-    mainLayout->addLayout(displayLayout);
-    mainLayout->addWidget(alertPanel);
-    mainLayout->setStretch(0, 1);
-    mainLayout->setStretch(1, 3);
-    mainLayout->setStretch(2, 1);
-
-    setLayout(mainLayout);
-
+    buildPage();
     wireConnections();
+    refresh();
 
-    QTimer::singleShot(0, this, [this]
-                       { requestMap(60.1986, 11.1130, 13); });
+    QTimer::singleShot(0, this, &MainPage::requestMap);
 }
 
 void MainPage::wireConnections()
@@ -56,14 +45,45 @@ void MainPage::wireConnections()
             _gridPanel, &StateGridPanel::setMapSource);
 
     connect(_mapFetcher, &ITileMapService::failed,
-            this, [](const QString &err){ qWarning() << err; });
+            this, &MainPage::onMapFetchFailed);
+
+    // --- Refresh UI on data reload ---
+    connect(_dataEvents, &IFlightDataEvents::dataReloaded,
+            this, &MainPage::refresh);
+}
+
+void MainPage::refresh()
+{
+    _gridPanel->refresh();
+    _sectorDetailsPanel->refresh();
+}
+
+void MainPage::buildPage()
+{
+    QVBoxLayout *displayLayout = new QVBoxLayout();
+    displayLayout->setContentsMargins(0, 0, 0, 0);
+    displayLayout->setSpacing(0);
+    displayLayout->addWidget(buildStateGrid());
+
+    QWidget *sectorDetailsPanel = buildSectorDetailsPanel();
+    QWidget *alertPanel = buildAlertPanel();
+
+    QHBoxLayout *mainLayout = new QHBoxLayout(this);
+    mainLayout->addWidget(sectorDetailsPanel);
+    mainLayout->addLayout(displayLayout);
+    mainLayout->addWidget(alertPanel);
+    mainLayout->setStretch(0, DETAILS_PANEL_STRETCH);
+    mainLayout->setStretch(1, GRID_PANEL_STRETCH);
+    mainLayout->setStretch(2, ALERT_PANEL_STRETCH);
+
+    setLayout(mainLayout);
 }
 
 QWidget *MainPage::buildStateGrid()
 {
     _gridPanel = new StateGridPanel(_dataService, this);
     _gridPanel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    _gridPanel->setMinimumWidth(400);
+    _gridPanel->setMinimumWidth(MIN_GRID_WIDTH);
 
     return _gridPanel;
 };
@@ -77,16 +97,24 @@ QWidget *MainPage::buildAlertPanel()
 QWidget *MainPage::buildSectorDetailsPanel()
 {
     _sectorDetailsPanel = new SectorDetailsPanel(_dataService, this);
+    _sectorDetailsPanel->setMinimumWidth(MIN_DETAILS_WIDTH);
     return _sectorDetailsPanel;
 }
 
-void MainPage::requestMap(double lat, double lon, int zoom)
+void MainPage::requestMap()
 {
+    SectorSummaryData data = _dataService.getSectorSummaryData();
 
     ITileMapService::Request request;
-    request.coords = {lon, lat};
-    request.zoom = zoom;
-    request.imageSize = {800, 800};
+    request.minLat = data.getMinLat();
+    request.maxLat = data.getMaxLat();
+    request.minLon = data.getMinLon();
+    request.maxLon = data.getMaxLon();
 
     _mapFetcher->fetch(request);
+}
+
+void MainPage::onMapFetchFailed(const QString &error)
+{
+    qWarning() << "Map fetch failed:" << error;
 }

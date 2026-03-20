@@ -5,14 +5,14 @@
 #include "domain/data/RiskEvent.hpp"
 #include "domain/data/MergedRiskEvent.hpp"
 
-RiskEventData::RiskEventData
-(
+RiskEventData::RiskEventData(
     const int riskEventCount,
-    const std::vector<RiskEvent>& riskEvents
-)
-    : _riskEventCount(riskEventCount)
+    const std::vector<RiskEvent> &riskEvents,
+    const std::vector<MergedRiskEvent> &mergedRiskEvents)
+    : _riskEventCount(riskEventCount), _riskEvents(riskEvents), _mergedRiskEvents(mergedRiskEvents)
 {
-    mergeRiskEvents();
+    if (_mergedRiskEvents.empty())
+        mergeRiskEvents();
 }
 
 int RiskEventData::getRiskEventCount() const
@@ -34,7 +34,7 @@ void RiskEventData::mergeRiskEvents()
 {
     std::unordered_map<int, std::vector<RiskEvent>> riskEventsPerSector;
 
-    for (RiskEvent riskEvent : _riskEvents)
+    for (const RiskEvent &riskEvent : _riskEvents)
     {
         int sectorId = riskEvent.getSectorId();
         riskEventsPerSector[sectorId].push_back(riskEvent);
@@ -42,7 +42,7 @@ void RiskEventData::mergeRiskEvents()
 
     _mergedRiskEvents.clear();
     _mergedRiskEvents.reserve(riskEventsPerSector.size());
-    for (const auto& [sectorId, riskEvents] : riskEventsPerSector)
+    for (const auto &[sectorId, riskEvents] : riskEventsPerSector)
     {
         _mergedRiskEvents.push_back(MergedRiskEvent(sectorId, riskEvents));
     }
