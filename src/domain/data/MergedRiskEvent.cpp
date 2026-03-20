@@ -7,6 +7,10 @@
 #include "domain/data/MergedRiskEvent.hpp"
 #include "domain/data/RiskEvent.hpp"
 
+MergedRiskEvent::MergedRiskEvent() : _sectorId(-1), _riskEvents({})
+{
+}
+
 MergedRiskEvent::MergedRiskEvent(
     const int sectorId,
     const std::vector<RiskEvent> &riskEvents)
@@ -33,6 +37,21 @@ QString MergedRiskEvent::getSummaryMessage() const
 QString MergedRiskEvent::getLastMessage() const
 {
     return _lastMessage;
+}
+
+const RiskEvent &MergedRiskEvent::getLastEvent() const
+{
+    return *std::max_element(
+        _riskEvents.begin(), _riskEvents.end(),
+        [](const RiskEvent &a, const RiskEvent &b)
+        {
+            return a.getCreatedTimestamp() < b.getCreatedTimestamp();
+        });
+}
+
+RiskState MergedRiskEvent::getLastRiskState() const
+{
+    return getLastEvent().getRiskState();
 }
 
 void MergedRiskEvent::setRiskEvents(const std::vector<RiskEvent> &riskEvents)

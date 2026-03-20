@@ -31,7 +31,7 @@ const int SectorSummary::getRow() const
     return _row;
 }
 
-const int SectorSummary::getColumn() const
+const int SectorSummary::getCol() const
 {
     return _column;
 }

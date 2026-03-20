@@ -1,17 +1,28 @@
+#include <QNetworkRequest>
+#include <QNetworkReply>
+
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
-#include <QDebug>
+
 #include <QRandomGenerator>
+
+#include <QDebug>
 
 #include "services/FlightDataServiceWS.hpp"
 #include "domain/data/SectorSummary.hpp"
 #include "domain/data/Track.hpp"
 #include "domain/SectorStates.hpp"
 
+#include "domain/serialization/Deserializers.hpp"
+#include "domain/serialization/Serializers.hpp"
+
 FlightDataServiceWS::FlightDataServiceWS(const QString &url, QObject *parent)
-    : IFlightDataEvents(parent), _url(url)
+    : IFlightDataService(parent), _socketUrl(url)
 {
+    _socketUrl = url;
+    _serverUrl = url;
+
     connect(&_socket, &QWebSocket::connected,
             this, &FlightDataServiceWS::onConnected);
 
@@ -37,7 +48,7 @@ void FlightDataServiceWS::connectToServer()
         return;
 
     _closedByUser = false;
-    _socket.open(QUrl(_url));
+    _socket.open(QUrl(_socketUrl));
 }
 
 void FlightDataServiceWS::disconnectFromServer()
@@ -97,13 +108,13 @@ void FlightDataServiceWS::parseMessage(const QByteArray &message)
     const QJsonObject root = doc.object();
 
     auto newSectorData = std::make_unique<SectorSummaryData>(
-        parseSectorSummaryData(root));
+        Deserializers::toSectorSummaryData(root));
 
     auto newTrackData = std::make_unique<TrackData>(
-        parseTrackData(root));
+        Deserializers::toTrackData(root));
 
     auto newRiskEventData = std::make_unique<RiskEventData>(
-        parseRiskEventData(root));
+        Deserializers::toRiskEventData(root));
 
     _sectorSummaryData = std::move(newSectorData);
     _trackData = std::move(newTrackData);
@@ -112,131 +123,31 @@ void FlightDataServiceWS::parseMessage(const QByteArray &message)
     emit dataReloaded();
 }
 
-SectorSummaryData FlightDataServiceWS::parseSectorSummaryData(const QJsonObject &root) const
+void FlightDataServiceWS::acknowledgeRiskEvents(const MergedRiskEvent &mergedEvent)
 {
-    const QJsonObject data = root.value("sectorSummaryData").toObject();
+    QNetworkRequest request(QUrl(_serverUrl + "/acknowledge/PLACEHOLDER-FIX-THIS"));
 
-    const int rows = data.value("rowsCount").toInt();
-    const int cols = data.value("columnsCount").toInt();
-    const double minLon = data.value("minLongitude").toDouble();
-    const double maxLon = data.value("maxLongitude").toDouble();
-    const double minLat = data.value("minLatitude").toDouble();
-    const double maxLat = data.value("maxLatitude").toDouble();
+    request.setHeader(
+        QNetworkRequest::ContentTypeHeader,
+        "application/json");
 
-    std::vector<SectorSummary> summaries;
-    const QJsonArray sectorArray = data.value("sectorSummaries").toArray();
+    const QJsonObject body = Serializers::toJson(mergedEvent);
 
-    for (const QJsonValue &value : sectorArray)
-    {
-        const QJsonObject sector = value.toObject();
+    QNetworkReply *reply = _networkManager.put(
+        request,
+        QJsonDocument(body).toJson());
 
-        const int id = sector.value("sectorId").toInt();
-        const int row = sector.value("row").toInt();
-        const int col = sector.value("column").toInt();
+    connect(reply, &QNetworkReply::finished, this, [this, reply]()
+            {
+        const int status =
+            reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
-        const RiskState risk = riskStateFromString(sector.value("riskSeverity").toString());
-        const WeatherState weather = weatherStateFromString(sector.value("weatherSeverity").toString());
-        const TrafficState traffic = computeTrafficState(
-            sector.value("aircraftCount").toInt(),
-            sector.value("baseCapacity").toInt());
+        if (status == 204 || status == 200)
+            emit acknowledgeSucceeded();
+        else
+            emit acknowledgeFailed();
 
-        summaries.push_back(SectorSummary(id, row, col, {}, traffic, weather, risk));
-    }
-
-    return SectorSummaryData(rows, cols, minLon, maxLon, minLat, maxLat, summaries);
-}
-
-TrackData FlightDataServiceWS::parseTrackData(const QJsonObject &root) const
-{
-    const QJsonObject rawData = root.value("trackData").toObject();
-
-    const int totalCount = rawData.value("totalAircraftCount").toInt();
-    const QString coordSystem = rawData.value("coordinateSystem").toString();
-
-    std::vector<Track> tracks;
-    const QJsonArray trackArray = rawData.value("tracks").toArray();
-
-    for (const QJsonValue &value : trackArray)
-    {
-        const QJsonObject track = value.toObject();
-
-        const QString icao24 = track.value("icao24").toString();
-        const QDateTime timestamp = QDateTime::fromString(
-            track.value("timestamp").toString(), Qt::ISODate);
-
-        const QJsonObject pos = track.value("position").toObject();
-        const QJsonObject vel = track.value("velocity").toObject();
-
-        const std::array<double, 3> position = {
-            pos.value("latitudeDegrees").toDouble(),
-            pos.value("longitudeDegrees").toDouble(),
-            pos.value("altitudeFeet").toDouble()};
-
-        const std::array<double, 2> velocity = {
-            vel.value("groundSpeedKnots").toDouble(),
-            vel.value("verticalSpeedFeetPerMinute").toDouble()};
-
-        const double heading = track.value("headingDegrees").toDouble();
-        const double groundTrack = track.value("groundTrackDegrees").toDouble();
-
-        tracks.push_back(Track(icao24, timestamp, position, velocity, heading, groundTrack));
-    }
-
-    return TrackData(totalCount, coordSystem, tracks);
-}
-
-RiskEventData FlightDataServiceWS::parseRiskEventData(const QJsonObject &root) const
-{
-    const QJsonObject rawData = root.value("riskEventData").toObject();
-
-    const int riskEventCount = rawData.value("riskEventCount").toInt();
-
-    std::vector<RiskEvent> riskEvents;
-    const QJsonArray riskEventArray = rawData.value("riskEvents").toArray();
-
-    for (const QJsonValue &value : riskEventArray)
-    {
-        const QJsonObject obj = value.toObject();
-
-        const int riskEventId = obj.value("riskEventId").toInt();
-        const RiskState riskState = riskStateFromString(obj.value("riskSeverity").toString());
-        const int sectorId = obj.value("sectorId").toInt();
-        const QDateTime createdTimestamp = QDateTime::fromString(
-            obj.value("createdTimestamp").toString(), Qt::ISODate);
-        const QDateTime acknowledgedTimestamp = QDateTime::fromString(
-            obj.value("acknowledgedTimestamp").toString(), Qt::ISODate);
-        const QString message = obj.value("message").toString();
-        const bool acknowledged = obj.value("acknowledged").toBool();
-
-        riskEvents.push_back(RiskEvent(
-            riskEventId,
-            sectorId,
-            acknowledged,
-            riskState,
-            createdTimestamp,
-            acknowledgedTimestamp,
-            message));
-    }
-
-    std::vector<MergedRiskEvent> mergedRiskEvents;
-    const QJsonArray mergedArray = rawData.value("mergedRiskEvents").toArray();
-
-    for (const QJsonValue &value : mergedArray)
-    {
-        const QJsonObject obj = value.toObject();
-
-        const int sectorId = obj.value("sectorId").toInt();
-        const QString summaryMessage = obj.value("summaryMessage").toString();
-        const QString lastMessage = obj.value("lastMessage").toString();
-
-        std::vector<RiskEvent> events;
-        for (const QJsonValue &idVal : obj.value("riskEventIds").toArray())
-            events.push_back(riskEvents[idVal.toInt()]);
-
-        mergedRiskEvents.push_back(MergedRiskEvent(sectorId, events));
-    }
-
-    return RiskEventData(riskEventCount, riskEvents, mergedRiskEvents);
+        reply->deleteLater(); });
 }
 
 SectorSummaryData FlightDataServiceWS::getSectorSummaryData() const

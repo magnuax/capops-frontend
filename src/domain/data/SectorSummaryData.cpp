@@ -29,7 +29,7 @@ SectorSummaryData::SectorSummaryData
 
     for (const auto& [sectorId, summary] : _sectorSummaries)
     {
-        _sectorIds[QPoint(summary.getRow(), summary.getColumn())] = sectorId;
+        _sectorIds[QPoint(summary.getRow(), summary.getCol())] = sectorId;
     }
 
 }

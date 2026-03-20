@@ -11,18 +11,18 @@
 #include "panels/SectorDetailsPanel.hpp"
 #include "domain/SectorStates.hpp"
 
-SectorDetailsPanel::SectorDetailsPanel(IFlightDataService &dataService, QWidget *parent)
+SectorDetailsPanel::SectorDetailsPanel(IFlightDataService *dataService, QWidget *parent)
     : QWidget(parent),
       _dataService(dataService)
 {
     const std::vector<SectorSummary> sectors = _dataService
-                                                   .getSectorSummaryData()
+                                                   ->getSectorSummaryData()
                                                    .getSectorSummaries();
 
     if (!sectors.empty())
     {
         _selectedSectorId = sectors.front().getSectorId();
-        _selectedSectorIdx = QPoint(sectors.front().getRow(), sectors.front().getColumn());
+        _selectedSectorIdx = QPoint(sectors.front().getRow(), sectors.front().getCol());
     }
 
     auto *mainLayout = new QVBoxLayout(this);
@@ -180,7 +180,7 @@ void SectorDetailsPanel::updateSectorStatusWidget()
     }
 
     SectorSummary sector = _dataService
-                               .getSectorSummaryData()
+                               ->getSectorSummaryData()
                                .getSectorSummary(_selectedSectorId);
 
     RiskState risk = sector.getRiskState();
@@ -212,10 +212,10 @@ QPixmap SectorDetailsPanel::loadStatusIcon(const QString &iconPath)
 void SectorDetailsPanel::updateAircraftListWidget()
 {
     std::vector<QString> flights = _dataService
-                                       .getSectorSummaryData()
+                                       ->getSectorSummaryData()
                                        .getSectorSummary(_selectedSectorId)
                                        .getAircraftIds();
-    
+
     _aircraftEntries->clear();
     _aircraftListHeader->setText(QString("Aircrafts in sector ID-%1").arg(_selectedSectorId));
 
@@ -247,7 +247,7 @@ void SectorDetailsPanel::updateSelectedAircraftWidget()
 
     _selectedAircraftHeader->setText(QString("Selected aircraft: %1").arg(_selectedAircraftId));
 
-    const std::vector<Track> &tracks = _dataService.getTrackData().getTracks();
+    const std::vector<Track> &tracks = _dataService->getTrackData().getTracks();
 
     auto it = std::find_if(tracks.begin(), tracks.end(), [&](const Track &t)
                            { return t.getIcao24() == _selectedAircraftId; });
@@ -279,11 +279,11 @@ void SectorDetailsPanel::updateSelectedAircraftWidget()
 void SectorDetailsPanel::setSector(int sectorId)
 {
     SectorSummary sector = _dataService
-                               .getSectorSummaryData()
+                               ->getSectorSummaryData()
                                .getSectorSummary(sectorId);
 
     _selectedSectorId = sectorId;
-    _selectedSectorIdx = QPoint(sector.getRow(), sector.getColumn());
+    _selectedSectorIdx = QPoint(sector.getRow(), sector.getCol());
     _selectedAircraftId = "";
 
     refresh();

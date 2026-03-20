@@ -17,7 +17,7 @@
 #include "domain/data/TrackData.hpp"
 
 FlightDataServiceJSON::FlightDataServiceJSON(const QString &jsonPath, QObject *parent)
-    : IFlightDataEvents(parent), _jsonPath(jsonPath)
+    : IFlightDataService(parent), _jsonPath(jsonPath)
 {
     loadFromJson();
 
@@ -188,4 +188,13 @@ RiskEventData FlightDataServiceJSON::getRiskEventData() const
         "Not implemented in JSON service");
 
     return RiskEventData(1, {placeholderEvent});
+}
+
+void FlightDataServiceJSON::acknowledgeRiskEvents(const MergedRiskEvent &mergedEvent)
+{
+
+    qDebug() << "Acknowledging risk events:";
+
+    for (const RiskEvent &event : mergedEvent.getRiskEvents())
+        qDebug() << " - " << event.getMessage();
 }

@@ -206,3 +206,32 @@ AlertButton[riskState="At Risk"]
 {
     background-color: rgb(230, 100, 0);
 }
+
+/** Alert history */
+#expandButton {
+    background: transparent;
+    border: none;
+    background-color: rgba(0, 0, 0, 0.1);
+    color: black;
+    font-size: 10px;
+    padding: 2px 0;
+    width: 100%;
+}
+
+#expandButton {
+    padding-bottom: 0px;
+    padding-top: 6px;  /* nudge ﹀ down */
+}
+
+#expandButton:checked {
+    padding-top: 0px;
+    padding-bottom: 6px;  /* nudge ︿ up */
+}
+
+#expandButton:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+#historyWidget {
+    background-color: rgba(0, 0, 0, 0.1);
+}

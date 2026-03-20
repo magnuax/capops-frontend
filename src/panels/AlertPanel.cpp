@@ -6,34 +6,65 @@
 #include "widgets/AlertButton.hpp"
 #include "services/interfaces/IFlightDataService.hpp"
 
-AlertPanel::AlertPanel(QWidget *parent) : QFrame(parent)
+AlertPanel::AlertPanel(IFlightDataService *_dataService, QWidget *parent) : QFrame(parent), _dataService(_dataService)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(buildAlertPanel());
 
     // PLACEHOLDER:
-    AlertButton *button_high = createAlertButton(1, "PLACEHOLDER MSG", QDateTime::currentDateTime());
-    button_high->setRiskState(RiskState::CONGESTED);
-    _alertsTab->layout()->addWidget(button_high);
+    RiskEvent testEvent3(1, 1, false, RiskState::CONGESTED, QDateTime::currentDateTime(), QDateTime(), "Escalated to CONGESTED");
+    RiskEvent testEvent2(1, 1, false, RiskState::CONGESTED, QDateTime::currentDateTime().addSecs(-60), QDateTime(), "De-escalated to AT_RISK");
+    RiskEvent testEvent1(1, 1, false, RiskState::CONGESTED, QDateTime::currentDateTime().addSecs(-120), QDateTime(), "Escalated to CONGESTED");
 
-    AlertButton *button_medium = createAlertButton(2, "PLACEHOLDER MSG", QDateTime::currentDateTime());
-    button_medium->setRiskState(RiskState::AT_RISK);
-    _alertsTab->layout()->addWidget(button_medium);
+    MergedRiskEvent mergedEvent(1, {testEvent1, testEvent2, testEvent3});
+    addMergedAlert(mergedEvent);
+
+    RiskEvent testEvent4(2, 2, false, RiskState::AT_RISK, QDateTime::currentDateTime(), QDateTime(), "Escalated to AT_RISK");
+    addMergedAlert(MergedRiskEvent(2, {testEvent4}));
 
     setLayout(layout);
 }
 
-QWidget *AlertPanel::addAlert(const RiskEvent &riskEvent)
+void AlertPanel::setRiskEventData(const RiskEventData &data)
 {
+    clearAlerts();
 
-    QWidget *button = createAlertButton(
-        riskEvent.getSectorId(),
-        riskEvent.getMessage(),
-        riskEvent.getCreatedTimestamp());
+    for (const MergedRiskEvent &mergedEvent : data.getMergedRiskEvents())
+        addMergedAlert(mergedEvent);
+}
 
+void AlertPanel::clearAlerts()
+{
+    for (AlertButton *button : _activeAlerts)
+        button->deleteLater();
+
+    _activeAlerts.clear();
+}
+
+void AlertPanel::wireAcknowledgeButton(AlertButton *button)
+{
+    connect(button, &AlertButton::alertAcknowledged,
+            _dataService, &IFlightDataService::acknowledgeRiskEvents);
+
+    connect(_dataService, &IFlightDataService::acknowledgeSucceeded,
+            this, [this, button]()
+            {
+            _activeAlerts.erase(
+                std::remove(_activeAlerts.begin(), _activeAlerts.end(), button),
+                _activeAlerts.end());
+            button->deleteLater(); });
+}
+
+void AlertPanel::addMergedAlert(const MergedRiskEvent &mergedEvent)
+{
+    if (mergedEvent.getRiskEvents().empty())
+        return;
+
+    AlertButton *button = new AlertButton(mergedEvent, this);
+
+    wireAcknowledgeButton(button);
     _alertsTab->layout()->addWidget(button);
-
-    return button;
+    _activeAlerts.push_back(button);
 }
 
 QTabWidget *AlertPanel::buildAlertPanel()
@@ -54,12 +85,4 @@ QWidget *AlertPanel::buildAlertsTab()
     alertsTab->setLayout(layout);
 
     return alertsTab;
-}
-
-AlertButton *AlertPanel::createAlertButton(int sectorId, const QString &label, const QDateTime &timestamp)
-{
-    AlertButton *button = new AlertButton(sectorId, label, timestamp, this);
-    _activeAlerts.push_back(button);
-
-    return button;
 }

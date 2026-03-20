@@ -20,7 +20,7 @@ public:
 
     const int getSectorId() const;
     const int getRow() const;
-    const int getColumn() const;
+    const int getCol() const;
 
     const std::vector<QString> &getAircraftIds() const;
     const int getAircraftCount() const;
