@@ -2,6 +2,8 @@
 #include <QWidget>
 
 #include <domain/SectorStates.hpp>
+#include <domain/data/RiskEvent.hpp>
+#include <domain/data/MergedRiskEvent.hpp>
 
 class QString;
 class QLabel;
@@ -9,6 +11,7 @@ class QPushButton;
 class QMessageBox;
 class QDateTime;
 class QMouseEvent;
+class QToolButton;
 
 Q_PROPERTY(RiskState riskState READ riskState WRITE setRiskState)
 
@@ -17,28 +20,38 @@ class AlertButton : public QWidget
     Q_OBJECT
 
 signals:
-    void alertAcknowledged(int sectorId);
+    void alertAcknowledged(const MergedRiskEvent &mergedEvent);
 
 private slots:
     void acknowledgeAlert();
+    void toggleHistory();
 
 public:
-    AlertButton(int sectorId, const QString &label, const QDateTime &timestamp, QWidget *parent = nullptr);
+    AlertButton(const RiskEvent &event, QWidget *parent = nullptr);
+    AlertButton(const MergedRiskEvent &mergedEvent, QWidget *parent = nullptr);
 
-    AlertButton(int sectorId, const QString &label, QWidget *parent = nullptr);
-
-    void setRiskState(const RiskState &riskState);
+    void setRiskEvent(const RiskEvent &event);
+    void setMergedRiskEvent(const MergedRiskEvent &mergedEvent);
 
 private:
     QWidget *createLabel();
+    QPushButton *createAckButton();
+    void buildHistoryWidget();
 
-    QPushButton *createPushButton();
+    void setRiskState(const RiskState &riskState);
 
-    QPushButton *_buttonWidget;
-    QWidget *_labelWidget;
+    std::vector<RiskEvent> getSortedEvents(const std::vector<RiskEvent> &events);
 
-    int _sectorId;
-    QString _label;
-    QDateTime _timestamp;
+    QPushButton *_ackButton = nullptr;
+    QWidget *_labelWidget = nullptr;
+    QWidget *_historyWidget = nullptr;
+    QPushButton *_expandButton = nullptr;
+
     RiskState _riskState;
+    QLabel *_mainLabel = nullptr;
+    QLabel *_timestampLabel = nullptr;
+
+    std::vector<RiskEvent> _sortedEvents;
+
+    MergedRiskEvent _mergedRiskEvent;
 };

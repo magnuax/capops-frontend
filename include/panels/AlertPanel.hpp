@@ -2,29 +2,39 @@
 #include <QFrame>
 
 #include "domain/data/RiskEvent.hpp"
+#include "domain/data/RiskEventData.hpp"
 
 class QWidget;
 class QTabWidget;
 class QButtonGroup;
 class AlertButton;
 
+class IFlightDataService;
+
 class AlertPanel : public QFrame
 {
     Q_OBJECT
 
 signals:
-    void alertAcknowledged(const int &sectorId);
+    void alertAcknowledged(const MergedRiskEvent &mergedEvent);
 
 public:
-    explicit AlertPanel(QWidget *parent = nullptr);
+    explicit AlertPanel(IFlightDataService *_dataService, QWidget *parent = nullptr);
 
-    QWidget *addAlert(const RiskEvent &riskEvent);
+    void clearAlerts();
+    void addAlert(const RiskEvent &riskEvent);
+    void addMergedAlert(const MergedRiskEvent &mergedEvent);
+
+    void setRiskEventData(const RiskEventData &riskEventData);
 
 private:
     QTabWidget *buildAlertPanel();
     QWidget *buildAlertsTab();
-    AlertButton *createAlertButton(int sectorId, const QString &label, const QDateTime &timestamp);
+
+    void wireAcknowledgeButton(AlertButton *button);
 
     QVector<AlertButton *> _activeAlerts;
     QWidget *_alertsTab = nullptr;
+
+    IFlightDataService *_dataService = nullptr;
 };
