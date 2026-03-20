@@ -12,6 +12,9 @@ class AlertPanel : public QFrame
 {
     Q_OBJECT
 
+signals:
+    void alertAcknowledged(const int &sectorId);
+
 public:
     explicit AlertPanel(QWidget *parent = nullptr);
 
@@ -24,7 +27,4 @@ private:
 
     QVector<AlertButton *> _activeAlerts;
     QWidget *_alertsTab = nullptr;
-
-signals:
-    void alertAcknowledged(const int &sectorId);
 };

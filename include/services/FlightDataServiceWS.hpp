@@ -16,8 +16,6 @@ class QPoint;
 class QSize;
 class QString;
 
-class WebSocketClient;
-
 class FlightDataServiceWS : public IFlightDataEvents, public IFlightDataService
 {
     Q_OBJECT

@@ -4,7 +4,6 @@
 
 class QWidget;
 class QStackedWidget;
-class WebSocketClient;
 class FlightDataServiceJSON;
 class ITileMapService;
 
@@ -27,6 +26,5 @@ private:
 
     FlightDataServiceJSON *_dataService;
     FlightDataServiceJSON *_dataEvents;
-    WebSocketClient *_webSocket;
     ITileMapService *_mapFetcher;
 };

@@ -4,6 +4,7 @@
 
 #include "panels/AlertPanel.hpp"
 #include "widgets/AlertButton.hpp"
+#include "services/interfaces/IFlightDataService.hpp"
 
 AlertPanel::AlertPanel(QWidget *parent) : QFrame(parent)
 {

@@ -5,7 +5,6 @@
 #include "AppWindow.hpp"
 #include "pages/MainPage.hpp"
 
-#include "services/WebSocketClient.hpp"
 #include "services/FlightDataServiceJSON.hpp"
 #include "services/TileMapServiceCARTO.hpp"
 
@@ -18,16 +17,6 @@ AppWindow::AppWindow(QWidget *parent) : QMainWindow(parent)
 
 void AppWindow::initializeServices()
 {
-    /* --- placeholder example for WS implementation ---
-
-    _webSocket = new WebSocketClient(this);
-    _webSocket->connectToServer(...);
-
-    _dataService = new FlightDataServiceWS(this);
-    _dataService->bindTo(_webSocket);
-
-    */
-   
     _dataService = new FlightDataServiceJSON("./resources/test_data.json");
     _dataEvents = _dataService;
     _mapFetcher = new TileMapServiceCARTO(this);
