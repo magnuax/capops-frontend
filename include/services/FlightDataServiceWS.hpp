@@ -7,16 +7,16 @@
 #include <QSize>
 #include <QString>
 #include <QAbstractSocket>
+#include <QNetworkAccessManager>
 #include <QWebSocket>
 
 #include "services/interfaces/IFlightDataService.hpp"
-#include "services/interfaces/IFlightDataEvents.hpp"
 
 class QPoint;
 class QSize;
 class QString;
 
-class FlightDataServiceWS : public IFlightDataEvents, public IFlightDataService
+class FlightDataServiceWS : public IFlightDataService
 {
     Q_OBJECT
 
@@ -32,6 +32,8 @@ private slots:
 public:
     explicit FlightDataServiceWS(const QString &url, QObject *parent = nullptr);
 
+    void acknowledgeRiskEvents(const MergedRiskEvent &mergedEvent) override;
+
     SectorSummaryData getSectorSummaryData() const override;
     RiskEventData getRiskEventData() const override;
     TrackData getTrackData() const override;
@@ -43,13 +45,11 @@ private:
     void scheduleReconnect();
     void parseMessage(const QByteArray &message);
 
-    SectorSummaryData parseSectorSummaryData(const QJsonObject &root) const;
-    RiskEventData parseRiskEventData(const QJsonObject &root) const;
-    TrackData parseTrackData(const QJsonObject &root) const;
-
-    QString _url;
-    QWebSocket _socket;
+    QString _socketUrl;
+    QString _serverUrl;
     QTimer _reconnectTimer;
+    QWebSocket _socket;
+    QNetworkAccessManager _networkManager;
 
     int _retries = 0;
     bool _closedByUser = false;

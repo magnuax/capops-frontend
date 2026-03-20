@@ -8,14 +8,13 @@
 #include <QString>
 
 #include "services/interfaces/IFlightDataService.hpp"
-#include "services/interfaces/IFlightDataEvents.hpp"
 
 class QPoint;
 class QSize;
 class QString;
 class QFileSystemWatcher;
 
-class FlightDataServiceJSON : public IFlightDataEvents, public IFlightDataService
+class FlightDataServiceJSON : public IFlightDataService
 {
     Q_OBJECT
 
@@ -31,6 +30,8 @@ public:
     SectorSummaryData getSectorSummaryData() const override;
     RiskEventData getRiskEventData() const override;
     TrackData getTrackData() const override;
+
+    void acknowledgeRiskEvents(const MergedRiskEvent &mergedEvent) override;
 
 private:
     QString _jsonPath;
