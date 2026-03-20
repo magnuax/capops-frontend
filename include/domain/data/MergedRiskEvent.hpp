@@ -10,6 +10,8 @@ class RiskEvent;
 class MergedRiskEvent
 {
 public:
+    MergedRiskEvent();
+
     MergedRiskEvent(
         const int sectorId,
         const std::vector<RiskEvent> &riskEvents);
@@ -17,7 +19,10 @@ public:
     int getSectorId() const;
     std::vector<RiskEvent> getRiskEvents() const;
     QString getSummaryMessage() const;
+    
     QString getLastMessage() const;
+    const RiskEvent &getLastEvent() const;
+    RiskState getLastRiskState() const;
 
     void setRiskEvents(const std::vector<RiskEvent> &riskEvents);
     void addRiskEvents(const std::vector<RiskEvent> &riskEvents);
