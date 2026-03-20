@@ -13,7 +13,7 @@
 #include "widgets/GridTrackOverlay.hpp"
 #include "services/interfaces/IFlightDataService.hpp"
 
-StateGridPanel::StateGridPanel(IFlightDataService &dataService, QWidget *parent)
+StateGridPanel::StateGridPanel(IFlightDataService *dataService, QWidget *parent)
     : QFrame(parent),
       _dataService(dataService)
 {
@@ -32,7 +32,7 @@ void StateGridPanel::wireConnections()
 
 void StateGridPanel::buildPanel()
 {
-    const SectorSummaryData data = _dataService.getSectorSummaryData();
+    const SectorSummaryData data = _dataService->getSectorSummaryData();
     _numRows = data.getRowCount();
     _numCols = data.getColCount();
 
@@ -139,7 +139,7 @@ GridCanvas *StateGridPanel::buildGridWidget(const SectorSummaryData &data)
 
 void StateGridPanel::refresh()
 {
-    const SectorSummaryData data = _dataService.getSectorSummaryData();
+    const SectorSummaryData data = _dataService->getSectorSummaryData();
 
     for (GridSector *cell : _cells)
     {
@@ -152,7 +152,7 @@ void StateGridPanel::refresh()
 
     if (_trackOverlay)
     {
-        _trackOverlay->setTracks(_dataService.getTrackData().getTracks());
+        _trackOverlay->setTracks(_dataService->getTrackData().getTracks());
     }
 }
 
@@ -218,7 +218,7 @@ void StateGridPanel::handleSectorSelection(GridSector *cell)
     _selectedCell->setSelected(true);
 
     int sectorId = _dataService
-                       .getSectorSummaryData()
+                       ->getSectorSummaryData()
                        .getSectorSummary(row, col)
                        .getSectorId();
 

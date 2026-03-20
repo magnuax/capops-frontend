@@ -21,7 +21,7 @@ public slots:
     void refresh();
 
 public:
-    explicit SectorDetailsPanel(IFlightDataService &dataService, QWidget *parent = nullptr);
+    explicit SectorDetailsPanel(IFlightDataService *dataService, QWidget *parent = nullptr);
 
 private:
     QWidget *buildSectorStatusWidget();
@@ -63,5 +63,5 @@ private:
     QLabel *_selectedAircraftHeader;
     QLabel *_selectedAircraftInfo;
 
-    IFlightDataService &_dataService;
+    IFlightDataService *_dataService = nullptr;
 };

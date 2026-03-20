@@ -31,7 +31,7 @@ public slots:
     void updateCoordinateLabel(double lat, double lon);
 
 public:
-    explicit StateGridPanel(IFlightDataService &dataService, QWidget *parent = nullptr);
+    explicit StateGridPanel(IFlightDataService *dataService, QWidget *parent = nullptr);
 
     void setDisplayMode(DisplayMode mode);
 
@@ -66,7 +66,7 @@ private:
     GridSector *_selectedCell = nullptr;
     std::vector<GridSector *> _cells;
 
-    IFlightDataService &_dataService;
+    IFlightDataService *_dataService = nullptr;
 
     static constexpr int TAB_IDX_RISK = 0;
     static constexpr int TAB_IDX_WEATHER = 1;
