@@ -1,6 +1,7 @@
 #include <QWidget>
 #include <QTabWidget>
 #include <QVBoxLayout>
+#include <algorithm>
 
 #include "panels/AlertPanel.hpp"
 #include "widgets/AlertButton.hpp"
@@ -18,16 +19,18 @@ AlertPanel::AlertPanel(IFlightDataService *_dataService, QWidget *parent) : QFra
 
     MergedRiskEvent mergedEvent(1, {testEvent1, testEvent2, testEvent3});
     addMergedAlert(mergedEvent);
+    _placeholderAlerts.push_back(_activeAlerts.last());
 
     RiskEvent testEvent4(2, 2, false, RiskState::AT_RISK, QDateTime::currentDateTime(), QDateTime(), "Escalated to AT_RISK");
     addMergedAlert(MergedRiskEvent(2, {testEvent4}));
+    _placeholderAlerts.push_back(_activeAlerts.last());
 
     setLayout(layout);
 }
 
 void AlertPanel::setRiskEventData(const RiskEventData &data)
 {
-    clearAlerts();
+    clearPlaceholderAlerts();
 
     for (const MergedRiskEvent &mergedEvent : data.getMergedRiskEvents())
         addMergedAlert(mergedEvent);
@@ -39,6 +42,14 @@ void AlertPanel::clearAlerts()
         button->deleteLater();
 
     _activeAlerts.clear();
+}
+
+void AlertPanel::clearPlaceholderAlerts()
+{
+    for (AlertButton *button : _placeholderAlerts) {
+        button->deleteLater();
+    }
+    _placeholderAlerts.clear();
 }
 
 void AlertPanel::wireAcknowledgeButton(AlertButton *button)

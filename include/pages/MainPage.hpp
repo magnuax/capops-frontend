@@ -16,8 +16,10 @@ class MainPage : public QWidget
     Q_OBJECT
 
 public slots:
-    void requestMap();
+    void refreshRiskEvents();
     void refresh();
+    void requestMap();
+    
 
 private slots:
     void onMapFetchFailed(const QString &error);

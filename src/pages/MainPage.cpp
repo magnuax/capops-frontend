@@ -48,6 +48,7 @@ void MainPage::wireConnections()
     connect(_dataService, &IFlightDataService::dataReloaded,
             this, [this]()
             {
+                refreshRiskEvents();
                 refresh();
                 requestMap();
             });
@@ -57,6 +58,11 @@ void MainPage::refresh()
 {
     _gridPanel->refresh();
     _sectorDetailsPanel->refresh();
+}
+
+void MainPage::refreshRiskEvents()
+{
+    _alertPanel->setRiskEventData(_dataService->getRiskEventData());
 }
 
 void MainPage::buildPage()

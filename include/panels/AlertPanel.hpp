@@ -22,6 +22,7 @@ public:
     explicit AlertPanel(IFlightDataService *_dataService, QWidget *parent = nullptr);
 
     void clearAlerts();
+    void clearPlaceholderAlerts();
     void addAlert(const RiskEvent &riskEvent);
     void addMergedAlert(const MergedRiskEvent &mergedEvent);
 
@@ -34,6 +35,7 @@ private:
     void wireAcknowledgeButton(AlertButton *button);
 
     QVector<AlertButton *> _activeAlerts;
+    QVector<AlertButton *> _placeholderAlerts;
     QWidget *_alertsTab = nullptr;
 
     IFlightDataService *_dataService = nullptr;
