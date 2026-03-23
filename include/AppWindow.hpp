@@ -28,7 +28,7 @@ private:
     QStackedWidget *_pageStack;
     QWidget *_mainPage;
 
-    // FlightDataServiceJSON *_dataService;
+    //FlightDataServiceJSON *_dataService;
     FlightDataServiceWS *_dataService;
     ITileMapService *_mapFetcher;
 };

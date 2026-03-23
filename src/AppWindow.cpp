@@ -27,17 +27,16 @@ void AppWindow::initializeServices()
 {
 
     /**
-     *
-     * _dataService = new FlightDataServiceJSON("./resources/test_data.json");
+     _dataService = new FlightDataServiceJSON("./resources/test_data.json");
      */
-
+    
     _dataService = new FlightDataServiceWS(
         "ws://jacobgomezhansen.net:8081",
         "http://jacobgomezhansen.net:8080",
         this);
-
-    _dataService->connectToServer();
     
+    _dataService->connectToServer();
+
     _mapFetcher = new TileMapServiceCARTO(this);
 
     _mapFetcher->enableDiskCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/maptiles");
