@@ -2,6 +2,17 @@
 
 #include "domain/data/SectorSummary.hpp"
 
+SectorSummary::SectorSummary()
+    : _sectorId(-1),
+      _row(-1),
+      _column(-1),
+      _localAircraftCount(0),
+      _trafficState(TrafficState::LIGHT),
+      _weatherState(WeatherState::OK),
+      _riskState(RiskState::NORMAL)
+{
+}
+
 SectorSummary::SectorSummary(
     const int sectorId,
     const int row,

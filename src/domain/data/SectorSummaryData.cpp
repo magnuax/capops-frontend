@@ -3,6 +3,18 @@
 #include "domain/data/SectorSummaryData.hpp"
 #include "domain/data/SectorSummary.hpp"
 
+SectorSummaryData::SectorSummaryData()
+    : _rowsCount(0),
+      _columnsCount(0),
+      _minLongitude(0.0),
+      _maxLongitude(0.0),
+      _minLatitude(0.0),
+      _maxLatitude(0.0),
+      _sectorIds({}),
+      _sectorSummaries({})
+{
+}
+
 SectorSummaryData::SectorSummaryData
 (
     const int rowsCount,

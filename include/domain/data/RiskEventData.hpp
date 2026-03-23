@@ -8,6 +8,8 @@
 class RiskEventData
 {
 public:
+    RiskEventData();
+
     RiskEventData(
         const int riskEventCount,
         const std::vector<RiskEvent> &riskEvents,

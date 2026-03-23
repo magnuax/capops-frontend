@@ -9,6 +9,8 @@
 class TrackData
 {
 public:
+    TrackData();
+
     TrackData(
         const int totalAircraftCount,
         const QString &coordinateSystem,

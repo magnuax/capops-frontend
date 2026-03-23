@@ -12,6 +12,8 @@ class SectorSummaryData
 {
 
 public:
+    SectorSummaryData();
+
     SectorSummaryData(
         const int rowsCount,
         const int columnsCount,

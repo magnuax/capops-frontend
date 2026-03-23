@@ -5,6 +5,13 @@
 #include "domain/data/TrackData.hpp"
 #include "domain/data/Track.hpp"
 
+TrackData::TrackData()
+    : _totalAircraftCount(0),
+      _coordinateSystem(""),
+      _tracks({})
+{
+}
+
 TrackData::TrackData
 (
     const int totalAircraftCount,

@@ -5,6 +5,13 @@
 #include "domain/data/RiskEvent.hpp"
 #include "domain/data/MergedRiskEvent.hpp"
 
+RiskEventData::RiskEventData()
+    : _riskEventCount(0),
+      _riskEvents({}),
+      _mergedRiskEvents({})
+{
+}
+
 RiskEventData::RiskEventData(
     const int riskEventCount,
     const std::vector<RiskEvent> &riskEvents,

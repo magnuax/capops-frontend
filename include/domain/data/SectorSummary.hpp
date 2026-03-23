@@ -7,7 +7,7 @@
 class SectorSummary
 {
 public:
-    SectorSummary() = default;
+    SectorSummary();
 
     explicit SectorSummary(
         const int sectorId,
