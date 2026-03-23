@@ -76,10 +76,10 @@ namespace Deserializers
         return SectorSummaryData(
             data.value("rowsCount").toInt(),
             data.value("columnsCount").toInt(),
-            data.value("minLongitude").toDouble(),
-            data.value("maxLongitude").toDouble(),
             data.value("minLatitude").toDouble(),
             data.value("maxLatitude").toDouble(),
+            data.value("minLongitude").toDouble(),
+            data.value("maxLongitude").toDouble(),
             summaries);
     }
 

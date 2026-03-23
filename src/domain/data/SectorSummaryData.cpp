@@ -28,10 +28,10 @@ SectorSummaryData::SectorSummaryData
     :
     _rowsCount(rowsCount),
     _columnsCount(columnsCount),
-    _minLongitude(minLongitude),
-    _maxLongitude(maxLongitude),
     _minLatitude(minLatitude),
-    _maxLatitude(maxLatitude)
+    _maxLatitude(maxLatitude),
+    _minLongitude(minLongitude),
+    _maxLongitude(maxLongitude)
 {
 
     for (const SectorSummary& summary : sectorSummaries)

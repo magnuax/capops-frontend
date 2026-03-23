@@ -19,8 +19,8 @@ public:
         const int columnsCount,
         const double minLatitude,
         const double maxLatitude,
-        const double maxLongitude,
         const double minLongitude,
+        const double maxLongitude,
         const std::vector<SectorSummary> &sectorSummaries);
 
     int getRowCount() const;
