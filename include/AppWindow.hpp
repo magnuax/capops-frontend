@@ -5,6 +5,7 @@
 class QWidget;
 class QStackedWidget;
 class FlightDataServiceJSON;
+class FlightDataServiceWS;
 class ITileMapService;
 
 class AppWindow : public QMainWindow
@@ -27,6 +28,7 @@ private:
     QStackedWidget *_pageStack;
     QWidget *_mainPage;
 
-    FlightDataServiceJSON *_dataService;
+    // FlightDataServiceJSON *_dataService;
+    FlightDataServiceWS *_dataService;
     ITileMapService *_mapFetcher;
 };

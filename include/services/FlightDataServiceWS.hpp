@@ -30,7 +30,10 @@ private slots:
     void onError(QAbstractSocket::SocketError error);
 
 public:
-    explicit FlightDataServiceWS(const QString &url, QObject *parent = nullptr);
+    explicit FlightDataServiceWS(
+        const QString &socketUrl, 
+        const QString &serverUrl, 
+        QObject *parent = nullptr);
 
     void acknowledgeRiskEvents(const MergedRiskEvent &mergedEvent) override;
 

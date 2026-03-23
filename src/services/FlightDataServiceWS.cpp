@@ -17,11 +17,17 @@
 #include "domain/serialization/Deserializers.hpp"
 #include "domain/serialization/Serializers.hpp"
 
-FlightDataServiceWS::FlightDataServiceWS(const QString &url, QObject *parent)
-    : IFlightDataService(parent), _socketUrl(url)
+FlightDataServiceWS::FlightDataServiceWS(
+    const QString &socketUrl,
+    const QString &serverUrl,
+    QObject *parent)
+    : IFlightDataService(parent),
+      _socketUrl(socketUrl),
+      _serverUrl(serverUrl)
 {
-    _socketUrl = url;
-    _serverUrl = url;
+    _sectorSummaryData = std::make_unique<SectorSummaryData>();
+    _trackData = std::make_unique<TrackData>();
+    _riskEventData = std::make_unique<RiskEventData>();
 
     connect(&_socket, &QWebSocket::connected,
             this, &FlightDataServiceWS::onConnected);
@@ -31,6 +37,10 @@ FlightDataServiceWS::FlightDataServiceWS(const QString &url, QObject *parent)
 
     connect(&_socket, &QWebSocket::binaryMessageReceived,
             this, &FlightDataServiceWS::onMessageReceived);
+
+    connect(&_socket, &QWebSocket::textMessageReceived,
+            this, [this](const QString &message)
+            { parseMessage(message.toUtf8()); });
 
     connect(&_socket, &QWebSocket::errorOccurred,
             this, &FlightDataServiceWS::onError);
@@ -46,6 +56,8 @@ void FlightDataServiceWS::connectToServer()
     if (_socket.state() == QAbstractSocket::ConnectedState ||
         _socket.state() == QAbstractSocket::ConnectingState)
         return;
+
+    qDebug() << "Connecting to" << _socketUrl;
 
     _closedByUser = false;
     _socket.open(QUrl(_socketUrl));
@@ -78,6 +90,8 @@ void FlightDataServiceWS::onError(QAbstractSocket::SocketError error)
 
 void FlightDataServiceWS::onMessageReceived(const QByteArray &message)
 {
+    qDebug() << "Received message:" << message.left(200); // first 200 chars
+
     parseMessage(message);
 }
 
@@ -127,6 +141,12 @@ void FlightDataServiceWS::acknowledgeRiskEvents(const MergedRiskEvent &mergedEve
 {
     QNetworkRequest request(QUrl(_serverUrl + "/acknowledge/PLACEHOLDER-FIX-THIS"));
 
+    qDebug() << "Acknowledging risk events for sector" << mergedEvent.getSectorId();
+
+    qDebug() << "Server URL:" << request.url();
+
+    qDebug() << "test 1";
+
     request.setHeader(
         QNetworkRequest::ContentTypeHeader,
         "application/json");
@@ -137,10 +157,15 @@ void FlightDataServiceWS::acknowledgeRiskEvents(const MergedRiskEvent &mergedEve
         request,
         QJsonDocument(body).toJson());
 
+    qDebug() << "test 2";
+
     connect(reply, &QNetworkReply::finished, this, [this, reply]()
             {
         const int status =
             reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+        qDebug() << "status:" << status;
+        qDebug() << "body:" << reply->readAll();
 
         if (status == 204 || status == 200)
             emit acknowledgeSucceeded();
@@ -148,6 +173,8 @@ void FlightDataServiceWS::acknowledgeRiskEvents(const MergedRiskEvent &mergedEve
             emit acknowledgeFailed();
 
         reply->deleteLater(); });
+    
+    qDebug() << "test 3";
 }
 
 SectorSummaryData FlightDataServiceWS::getSectorSummaryData() const

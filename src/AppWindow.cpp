@@ -13,6 +13,7 @@
 #include "pages/MainPage.hpp"
 
 #include "services/FlightDataServiceJSON.hpp"
+#include "services/FlightDataServiceWS.hpp"
 #include "services/TileMapServiceCARTO.hpp"
 
 AppWindow::AppWindow(QWidget *parent) : QMainWindow(parent)
@@ -24,13 +25,19 @@ AppWindow::AppWindow(QWidget *parent) : QMainWindow(parent)
 
 void AppWindow::initializeServices()
 {
+
     /**
-     * _dataService = new FlightDataServiceWS("...")
-     * dataServiceWS->connectToServer();
      *
+     * _dataService = new FlightDataServiceJSON("./resources/test_data.json");
      */
 
-    _dataService = new FlightDataServiceJSON("./resources/test_data.json");
+    _dataService = new FlightDataServiceWS(
+        "ws://jacobgomezhansen.net:8081",
+        "http://jacobgomezhansen.net:8080",
+        this);
+
+    _dataService->connectToServer();
+    
     _mapFetcher = new TileMapServiceCARTO(this);
 
     _mapFetcher->enableDiskCache(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/maptiles");
@@ -61,6 +68,6 @@ void AppWindow::keyPressEvent(QKeyEvent *event)
         isFullScreen() ? showNormal() : showFullScreen();
         return;
     }
-    
+
     QMainWindow::keyPressEvent(event);
 }
