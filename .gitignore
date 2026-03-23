@@ -47,3 +47,6 @@ build/
 
 # gimp files etc
 resources/dev
+
+# temporary backup files
+*.bak
