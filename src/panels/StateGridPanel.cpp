@@ -141,6 +141,11 @@ void StateGridPanel::refresh()
 {
     const SectorSummaryData data = _dataService->getSectorSummaryData();
 
+    if (_numRows == 0 && _numCols == 0 && data.getRowCount() > 0 && data.getColCount() > 0)
+    {
+        rebuildGrid(data);
+    }
+
     for (GridSector *cell : _cells)
     {
         const SectorSummary summary = data.getSectorSummary(cell->getRow(), cell->getCol());
@@ -154,6 +159,47 @@ void StateGridPanel::refresh()
     {
         _trackOverlay->setTracks(_dataService->getTrackData().getTracks());
     }
+}
+
+void StateGridPanel::rebuildGrid(const SectorSummaryData &data)
+{
+    _numRows = data.getRowCount();
+    _numCols = data.getColCount();
+
+    for (GridSector *cell : _cells)
+    {
+        _gridLayout->removeWidget(cell);
+        delete cell;
+    }
+    _cells.clear();
+    _selectedCell = nullptr;
+
+    _cells.reserve(_numRows * _numCols);
+
+    for (int row = 0; row < _numRows; ++row)
+    {
+        for (int col = 0; col < _numCols; ++col)
+        {
+            SectorSummary summary = data.getSectorSummary(row, col);
+
+            auto *cell = new GridSector(row, col, summary.getSectorId(), _gridWidget);
+
+            connect(cell, &GridSector::selected,
+                    this, &StateGridPanel::handleSectorSelection);
+
+            cell->setRiskState(summary.getRiskState());
+            cell->setWeatherState(summary.getWeatherState());
+            cell->setTrafficState(summary.getTrafficState());
+            cell->setDisplayMode(static_cast<DisplayMode>(_tabBar->tabData(_tabBar->currentIndex()).toInt()));
+            cell->setMouseTracking(true);
+
+            _gridLayout->addWidget(cell, row, col);
+            _cells.push_back(cell);
+        }
+    }
+
+    if (_trackOverlay)
+        _trackOverlay->raise();
 }
 
 void StateGridPanel::setDisplayMode(DisplayMode mode)

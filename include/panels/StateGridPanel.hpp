@@ -49,6 +49,7 @@ private:
     QLabel *buildCoordinateLabel();
 
     void wireConnections();
+    void rebuildGrid(const SectorSummaryData &data);
 
     void handleSectorSelection(GridSector *cell);
     void handleTabChange(int tabIndex);
