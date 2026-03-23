@@ -1,5 +1,7 @@
 #pragma once
 
+#include <limits>
+
 #include <QWidget>
 
 class StateGridPanel;
@@ -40,6 +42,11 @@ private:
 
     IFlightDataService *_dataService = nullptr;
     ITileMapService *_mapFetcher = nullptr;
+
+    double _lastRequestedMinLat = std::numeric_limits<double>::quiet_NaN();
+    double _lastRequestedMaxLat = std::numeric_limits<double>::quiet_NaN();
+    double _lastRequestedMinLon = std::numeric_limits<double>::quiet_NaN();
+    double _lastRequestedMaxLon = std::numeric_limits<double>::quiet_NaN();
 
     static constexpr int DETAILS_PANEL_STRETCH = 1;
     static constexpr int GRID_PANEL_STRETCH = 3;

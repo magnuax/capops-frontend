@@ -44,9 +44,13 @@ void MainPage::wireConnections()
     connect(_mapFetcher, &ITileMapService::failed,
             this, &MainPage::onMapFetchFailed);
 
-    // --- Refresh UI on data reload ---
+    // --- Refresh UI and projection when websocket data updates ---
     connect(_dataService, &IFlightDataService::dataReloaded,
-            this, &MainPage::refresh);
+            this, [this]()
+            {
+                refresh();
+                requestMap();
+            });
 }
 
 void MainPage::refresh()
@@ -102,11 +106,32 @@ void MainPage::requestMap()
 {
     SectorSummaryData data = _dataService->getSectorSummaryData();
 
+    const double minLat = data.getMinLat();
+    const double maxLat = data.getMaxLat();
+    const double minLon = data.getMinLon();
+    const double maxLon = data.getMaxLon();
+
+    // Skip map requests until bounds are populated from real data.
+    if (minLat >= maxLat || minLon >= maxLon)
+        return;
+
+    // Avoid unnecessary tile fetches when bounds did not change.
+    if (minLat == _lastRequestedMinLat &&
+        maxLat == _lastRequestedMaxLat &&
+        minLon == _lastRequestedMinLon &&
+        maxLon == _lastRequestedMaxLon)
+        return;
+
+    _lastRequestedMinLat = minLat;
+    _lastRequestedMaxLat = maxLat;
+    _lastRequestedMinLon = minLon;
+    _lastRequestedMaxLon = maxLon;
+
     ITileMapService::Request request;
-    request.minLat = data.getMinLat();
-    request.maxLat = data.getMaxLat();
-    request.minLon = data.getMinLon();
-    request.maxLon = data.getMaxLon();
+    request.minLat = minLat;
+    request.maxLat = maxLat;
+    request.minLon = minLon;
+    request.maxLon = maxLon;
 
     _mapFetcher->fetch(request);
 }
