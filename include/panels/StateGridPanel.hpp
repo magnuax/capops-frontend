@@ -2,6 +2,7 @@
 
 #include <QFrame>
 #include <QMargins>
+#include <QPixmap>
 
 #include "domain/DisplayMode.hpp"
 #include "domain/SectorStates.hpp"
@@ -25,6 +26,7 @@ class StateGridPanel : public QFrame
 
 signals:
     void sectorSelected(int sectorId);
+    void trackSelected(const QString &icao24);
 
 public slots:
     void refresh();
@@ -66,6 +68,7 @@ private:
 
     GridSector *_selectedCell = nullptr;
     std::vector<GridSector *> _cells;
+    QPixmap _mapSource;
 
     IFlightDataService *_dataService = nullptr;
 

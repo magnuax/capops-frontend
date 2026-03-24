@@ -4,6 +4,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
+#include <QResizeEvent>
 #include <QTabBar>
 #include <QLabel>
 
@@ -28,6 +29,9 @@ void StateGridPanel::wireConnections()
 
     connect(_gridWidget, &GridCanvas::cursorLatLon,
             this, &StateGridPanel::updateCoordinateLabel);
+
+    connect(_trackOverlay, &GridTrackOverlay::trackSelected,
+            this, &StateGridPanel::trackSelected);
 }
 
 void StateGridPanel::buildPanel()
@@ -200,6 +204,10 @@ void StateGridPanel::rebuildGrid(const SectorSummaryData &data)
 
     if (_trackOverlay)
         _trackOverlay->raise();
+
+    // Force layout recalculation so resizeEvent updates geometry
+    QResizeEvent re(size(), size());
+    resizeEvent(&re);
 }
 
 void StateGridPanel::setDisplayMode(DisplayMode mode)
@@ -215,9 +223,13 @@ void StateGridPanel::setMapSource(const QPixmap &mapSource, const MapProjection 
     if (!_gridWidget || !_trackOverlay)
         return;
 
+    _mapSource = mapSource;
     _gridWidget->setMapSource(mapSource);
     _trackOverlay->setProjection(projection);
     _gridWidget->setProjection(projection);
+
+    QResizeEvent re(size(), size());
+    resizeEvent(&re);
 }
 
 void StateGridPanel::resizeEvent(QResizeEvent *event)
@@ -242,6 +254,7 @@ void StateGridPanel::resizeEvent(QResizeEvent *event)
     _gridWidget->resize(
         cellSize * _numCols,
         cellSize * _numRows);
+
 
     _gridWidget->move(
         area.x() + (availWidth - _gridWidget->width()) / 2,
