@@ -269,6 +269,9 @@ void SectorDetailsPanel::updateSelectedAircraftWidget()
     _aircraftGroundSpeed->setText(QString("%1 kts")
                                       .arg(track.getVelocity()[0], 0, 'f', 1));
 
+    _aircraftVertRate->setText(QString("%1 ft/min")
+                                   .arg(track.getVelocity()[1], 0, 'f', 1));
+
     _aircraftHeading->setText(QString("%1°")
                                   .arg(track.getHeading(), 0, 'f', 1));
 
@@ -303,6 +306,24 @@ void SectorDetailsPanel::selectAircraft(QListWidgetItem *item)
 
     QString ICAO = item->data(Qt::UserRole).toString();
     _selectedAircraftId = ICAO;
+
+    updateSelectedAircraftWidget();
+}
+
+void SectorDetailsPanel::selectAircraftById(const QString &icao24)
+{
+    _selectedAircraftId = icao24;
+
+    // Sync the list widget selection
+    for (int i = 0; i < _aircraftEntries->count(); ++i)
+    {
+        QListWidgetItem *item = _aircraftEntries->item(i);
+        if (item->data(Qt::UserRole).toString() == icao24)
+        {
+            _aircraftEntries->setCurrentItem(item);
+            break;
+        }
+    }
 
     updateSelectedAircraftWidget();
 }

@@ -37,6 +37,10 @@ void MainPage::wireConnections()
     connect(_gridPanel, &StateGridPanel::sectorSelected,
             _sectorDetailsPanel, &SectorDetailsPanel::setSector);
 
+    // --- Track selection: grid overlay -> details panel ---
+    connect(_gridPanel, &StateGridPanel::trackSelected,
+            _sectorDetailsPanel, &SectorDetailsPanel::selectAircraftById);
+
     // --- Map fetcher signals ---
     connect(_mapFetcher, &ITileMapService::finished,
             _gridPanel, &StateGridPanel::setMapSource);
@@ -58,6 +62,16 @@ void MainPage::refresh()
 {
     _gridPanel->refresh();
     _sectorDetailsPanel->refresh();
+
+    if (!_mapLoaded)
+    {
+        SectorSummaryData data = _dataService->getSectorSummaryData();
+        if (data.getRowCount() > 0 && data.getColCount() > 0)
+        {
+            _mapLoaded = true;
+            requestMap();
+        }
+    }
 }
 
 void MainPage::refreshRiskEvents()
@@ -117,21 +131,8 @@ void MainPage::requestMap()
     const double minLon = data.getMinLon();
     const double maxLon = data.getMaxLon();
 
-    // Skip map requests until bounds are populated from real data.
-    if (minLat >= maxLat || minLon >= maxLon)
+    if (data.getRowCount() == 0 || data.getColCount() == 0)
         return;
-
-    // Avoid unnecessary tile fetches when bounds did not change.
-    if (minLat == _lastRequestedMinLat &&
-        maxLat == _lastRequestedMaxLat &&
-        minLon == _lastRequestedMinLon &&
-        maxLon == _lastRequestedMaxLon)
-        return;
-
-    _lastRequestedMinLat = minLat;
-    _lastRequestedMaxLat = maxLat;
-    _lastRequestedMinLon = minLon;
-    _lastRequestedMaxLon = maxLon;
 
     ITileMapService::Request request;
     request.minLat = minLat;

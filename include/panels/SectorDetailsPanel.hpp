@@ -18,6 +18,7 @@ class SectorDetailsPanel : public QWidget
 public slots:
     void setSector(int sectorId);
     void selectAircraft(QListWidgetItem *item);
+    void selectAircraftById(const QString &icao24);
     void refresh();
 
 public:
