@@ -9,6 +9,8 @@
 
 AlertPanel::AlertPanel(IFlightDataService *_dataService, QWidget *parent) : QFrame(parent), _dataService(_dataService)
 {
+    setMinimumWidth(400);
+
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(buildAlertPanel());
 

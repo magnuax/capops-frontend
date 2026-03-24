@@ -64,6 +64,7 @@ QWidget *AlertButton::createLabel()
 
     _mainLabel = new QLabel("", container);
     _mainLabel->setObjectName("alertLabel");
+    _mainLabel->setWordWrap(true);
 
     _timestampLabel = new QLabel("", container);
     _timestampLabel->setObjectName("alertTimestamp");
