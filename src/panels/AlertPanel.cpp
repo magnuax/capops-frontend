@@ -30,10 +30,15 @@ AlertPanel::AlertPanel(IFlightDataService *_dataService, QWidget *parent) : QFra
 
 void AlertPanel::setRiskEventData(const RiskEventData &data)
 {
-    clearPlaceholderAlerts();
+    clearAlerts();
 
     for (const MergedRiskEvent &mergedEvent : data.getMergedRiskEvents())
+    {
+        if (mergedEvent.getLastRiskState() == RiskState::NORMAL)
+            continue;
+            
         addMergedAlert(mergedEvent);
+    }
 }
 
 void AlertPanel::clearAlerts()
@@ -46,7 +51,8 @@ void AlertPanel::clearAlerts()
 
 void AlertPanel::clearPlaceholderAlerts()
 {
-    for (AlertButton *button : _placeholderAlerts) {
+    for (AlertButton *button : _placeholderAlerts)
+    {
         button->deleteLater();
     }
     _placeholderAlerts.clear();
