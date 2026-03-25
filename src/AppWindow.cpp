@@ -7,7 +7,6 @@
 #include <QFont>
 
 #include <QFile>
-#include <QRegularExpression>
 
 #include "AppWindow.hpp"
 #include "pages/MainPage.hpp"

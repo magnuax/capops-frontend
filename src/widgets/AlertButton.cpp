@@ -20,7 +20,7 @@ AlertButton::AlertButton(const MergedRiskEvent &mergedEvent, QWidget *parent)
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     _labelWidget = createLabel();
-    _ackButton = createAckButton();
+    createAckButton();
 
     _expandButton = new QPushButton("﹀", this);
     _expandButton->setCheckable(true);
@@ -53,6 +53,9 @@ AlertButton::AlertButton(const MergedRiskEvent &mergedEvent, QWidget *parent)
     connect(_ackButton, &QPushButton::clicked, this, &AlertButton::acknowledgeAlert);
 
     setMergedRiskEvent(mergedEvent);
+
+    connect(_expandButton, &QPushButton::toggled, this, [](bool checked)
+            { qDebug() << "expand toggled ->" << checked; });
 }
 
 QWidget *AlertButton::createLabel()
@@ -75,7 +78,7 @@ QWidget *AlertButton::createLabel()
     return container;
 }
 
-QPushButton *AlertButton::createAckButton()
+void *AlertButton::createAckButton()
 {
     _ackButton = new QPushButton("Acknowledge", this);
     _ackButton->setCursor(Qt::PointingHandCursor);
@@ -100,22 +103,47 @@ std::vector<RiskEvent> AlertButton::getSortedEvents(const std::vector<RiskEvent>
 void AlertButton::buildHistoryWidget()
 {
     std::vector<RiskEvent> history = getSortedEvents(_mergedRiskEvent.getRiskEvents());
-    history.erase(history.begin());
+    if (!history.empty())
+        history.erase(history.begin());
 
     if (history.empty())
     {
         _expandButton->setVisible(false);
+        if (_historyWidget)
+            _historyWidget->setVisible(false);
         return;
     }
 
     _expandButton->setVisible(true);
 
-    delete _historyWidget;
-    _historyWidget = new QWidget(this);
-    _historyWidget->setObjectName("historyWidget");
+    if (!_historyWidget)
+    {
+        _historyWidget = new QWidget(this);
+        _historyWidget->setObjectName("historyWidget");
+        _historyWidget->setVisible(false);
+        static_cast<QVBoxLayout *>(this->layout())->addWidget(_historyWidget);
+    }
 
-    QVBoxLayout *layout = new QVBoxLayout(_historyWidget);
-    layout->setContentsMargins(8, 4, 8, 4);
+    const bool wasExpanded = _historyWidget->isVisible();
+
+    // Block signals while rebuilding to prevent layout changes
+    // from spuriously unchecking _expandButton
+    QSignalBlocker blocker(_expandButton);
+
+    QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(_historyWidget->layout());
+    if (!layout)
+    {
+        layout = new QVBoxLayout(_historyWidget);
+        layout->setContentsMargins(8, 4, 8, 4);
+    }
+    else
+    {
+        while (QLayoutItem *item = layout->takeAt(0))
+        {
+            delete item->widget();
+            delete item;
+        }
+    }
 
     for (const RiskEvent &event : history)
     {
@@ -125,8 +153,10 @@ void AlertButton::buildHistoryWidget()
         layout->addWidget(entry);
     }
 
-    _historyWidget->setVisible(false);
-    static_cast<QVBoxLayout *>(this->layout())->addWidget(_historyWidget);
+    // Restore state explicitly after rebuild
+    _historyWidget->setVisible(wasExpanded);
+    _expandButton->setChecked(wasExpanded);
+    _expandButton->setText(wasExpanded ? "︿" : "﹀");
 }
 
 void AlertButton::setRiskState(const RiskState &riskState)
@@ -144,12 +174,12 @@ void AlertButton::setRiskState(const RiskState &riskState)
     repolish(_ackButton, toString(riskState));
 }
 
-void AlertButton::toggleHistory()
+void AlertButton::toggleHistory(bool expanded)
 {
     if (_historyWidget)
     {
-        _historyWidget->setVisible(!_historyWidget->isVisible());
-        _expandButton->setText(_historyWidget->isVisible() ? "︿" : "﹀");
+        _historyWidget->setVisible(expanded);
+        _expandButton->setText(expanded ? "︿" : "﹀");
     }
 }
 
@@ -157,6 +187,7 @@ void AlertButton::setRiskEvent(const RiskEvent &event)
 {
     setMergedRiskEvent(MergedRiskEvent(event.getSectorId(), {event}));
 }
+
 void AlertButton::setMergedRiskEvent(const MergedRiskEvent &mergedEvent)
 {
     _mergedRiskEvent = mergedEvent;
@@ -166,10 +197,34 @@ void AlertButton::setMergedRiskEvent(const MergedRiskEvent &mergedEvent)
     _timestampLabel->setText(latest.getCreatedTimestamp().toString("yyyy-MM-dd hh:mm:ss"));
 
     setRiskState(mergedEvent.getLastRiskState());
-    buildHistoryWidget();
+
+    if (mergedEvent.getRiskEvents().size() != _lastKnownEventCount)
+    {
+        _lastKnownEventCount = mergedEvent.getRiskEvents().size();
+        buildHistoryWidget();
+    }
+}
+
+MergedRiskEvent AlertButton::getMergedRiskEvent() const
+{
+    return _mergedRiskEvent;
+}
+
+bool AlertButton::isHistoryExpanded() const
+{
+    return _historyWidget && _historyWidget->isVisible();
+}
+
+void AlertButton::setHistoryExpanded(bool expanded)
+{
+    if (!_expandButton || !_expandButton->isVisible())
+        return;
+
+    _expandButton->setChecked(expanded);
 }
 
 void AlertButton::acknowledgeAlert()
 {
+    qDebug() << "[AlertButton]" << (void *)this << "Acknowledge clicked for sector" << _mergedRiskEvent.getSectorId();
     emit alertAcknowledged(_mergedRiskEvent);
 }

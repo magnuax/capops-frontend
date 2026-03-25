@@ -10,9 +10,12 @@
 #include "widgets/AlertButton.hpp"
 #include "services/interfaces/IFlightDataService.hpp"
 
-AlertPanel::AlertPanel(IFlightDataService *_dataService, QWidget *parent) : QFrame(parent), _dataService(_dataService)
+AlertPanel::AlertPanel(IFlightDataService *dataService, QWidget *parent) : QFrame(parent), _dataService(dataService)
 {
     setMinimumWidth(400);
+
+    connect(_dataService, &IFlightDataService::acknowledgeSucceeded,
+            this, &AlertPanel::onAcknowledgeSucceeded);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(buildAlertPanel());
@@ -22,32 +25,49 @@ AlertPanel::AlertPanel(IFlightDataService *_dataService, QWidget *parent) : QFra
 
 void AlertPanel::setRiskEventData(const RiskEventData &data)
 {
-    clearAlerts();
+    QSet<int> incomingSectorIds;
 
     for (const MergedRiskEvent &mergedEvent : data.getMergedRiskEvents())
     {
         if (mergedEvent.getLastRiskState() == RiskState::NORMAL)
             continue;
 
-        addMergedAlert(mergedEvent);
+        incomingSectorIds.insert(mergedEvent.getSectorId());
+
+        AlertButton *existing = findButtonForSector(mergedEvent.getSectorId());
+        if (existing)
+            existing->setMergedRiskEvent(mergedEvent); // update in place
+        else
+            addMergedAlert(mergedEvent); // new alert
     }
+
+    // Remove buttons whose sector is no longer in the incoming data
+    for (AlertButton *button : _activeAlerts)
+    {
+        if (button && !incomingSectorIds.contains(button->getMergedRiskEvent().getSectorId()))
+        {
+            _activeAlerts.removeOne(button);
+            button->deleteLater();
+        }
+    }
+}
+
+AlertButton *AlertPanel::findButtonForSector(int sectorId)
+{
+    for (AlertButton *button : _activeAlerts)
+        if (button && button->getMergedRiskEvent().getSectorId() == sectorId)
+            return button;
+            
+    return nullptr;
 }
 
 void AlertPanel::clearAlerts()
 {
     for (AlertButton *button : _activeAlerts)
-        button->deleteLater();
+        if (button)
+            button->deleteLater();
 
     _activeAlerts.clear();
-}
-
-void AlertPanel::clearPlaceholderAlerts()
-{
-    for (AlertButton *button : _placeholderAlerts)
-    {
-        button->deleteLater();
-    }
-    _placeholderAlerts.clear();
 }
 
 void AlertPanel::wireAcknowledgeButton(AlertButton *button)
@@ -55,11 +75,28 @@ void AlertPanel::wireAcknowledgeButton(AlertButton *button)
     connect(button, &AlertButton::alertAcknowledged,
             _dataService, &IFlightDataService::acknowledgeRiskEvents);
 
-    QPointer<AlertButton> safeButton(button);
+}
 
-    connect(_dataService, &IFlightDataService::acknowledgeSucceeded,
-            button, [this, button]()
-            { handleAlertAcknowledged(button); });
+void AlertPanel::onAcknowledgeSucceeded(const MergedRiskEvent &mergedEvent)
+{
+    AlertButton *match = nullptr;
+
+    for (AlertButton *button : _activeAlerts)
+    {
+        if (!button)
+            continue;
+
+        const MergedRiskEvent &buttonEvent = button->getMergedRiskEvent();
+        if (buttonEvent.getSectorId() == mergedEvent.getSectorId() &&
+            buttonEvent.getRiskEvents().size() == mergedEvent.getRiskEvents().size())
+        {
+            match = button;
+            break;
+        }
+    }
+
+    if (match)
+        handleAlertAcknowledged(match);
 }
 
 void AlertPanel::handleAlertAcknowledged(AlertButton *button)
@@ -67,10 +104,10 @@ void AlertPanel::handleAlertAcknowledged(AlertButton *button)
     if (!button)
         return;
 
-    _activeAlerts.erase(
-        std::remove(_activeAlerts.begin(), _activeAlerts.end(), button),
-        _activeAlerts.end());
+    _activeAlerts.removeOne(button);
 
+    button->hide();
+    button->setParent(nullptr);
     button->deleteLater();
 }
 
@@ -79,8 +116,9 @@ void AlertPanel::addMergedAlert(const MergedRiskEvent &mergedEvent)
     if (mergedEvent.getRiskEvents().empty())
         return;
 
-    AlertButton *button = new AlertButton(mergedEvent, this);
+    Q_ASSERT(_alertsContainer && _alertsContainer->layout());
 
+    AlertButton *button = new AlertButton(mergedEvent, this);
     wireAcknowledgeButton(button);
     _alertsContainer->layout()->addWidget(button);
     _activeAlerts.push_back(button);

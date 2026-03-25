@@ -5,15 +5,8 @@
 #include <domain/data/RiskEvent.hpp>
 #include <domain/data/MergedRiskEvent.hpp>
 
-class QString;
 class QLabel;
 class QPushButton;
-class QMessageBox;
-class QDateTime;
-class QMouseEvent;
-class QToolButton;
-
-Q_PROPERTY(RiskState riskState READ riskState WRITE setRiskState)
 
 class AlertButton : public QWidget
 {
@@ -24,7 +17,7 @@ signals:
 
 private slots:
     void acknowledgeAlert();
-    void toggleHistory();
+    void toggleHistory(bool expanded);
 
 public:
     AlertButton(const RiskEvent &event, QWidget *parent = nullptr);
@@ -32,15 +25,18 @@ public:
 
     void setRiskEvent(const RiskEvent &event);
     void setMergedRiskEvent(const MergedRiskEvent &mergedEvent);
+    MergedRiskEvent getMergedRiskEvent() const;
+    bool isHistoryExpanded() const;
+    void setHistoryExpanded(bool expanded);
 
 private:
     QWidget *createLabel();
-    QPushButton *createAckButton();
+    void *createAckButton();
     void buildHistoryWidget();
 
     void setRiskState(const RiskState &riskState);
 
-    std::vector<RiskEvent> getSortedEvents(const std::vector<RiskEvent> &events);
+    static std::vector<RiskEvent> getSortedEvents(const std::vector<RiskEvent> &events);
 
     QPushButton *_ackButton = nullptr;
     QWidget *_labelWidget = nullptr;
@@ -54,4 +50,6 @@ private:
     std::vector<RiskEvent> _sortedEvents;
 
     MergedRiskEvent _mergedRiskEvent;
+
+    size_t _lastKnownEventCount = 0;
 };

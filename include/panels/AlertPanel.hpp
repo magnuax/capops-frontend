@@ -19,14 +19,12 @@ signals:
     void alertAcknowledged(const MergedRiskEvent &mergedEvent);
 
 private slots:
-    void handleAlertAcknowledged(AlertButton *button);
+    void onAcknowledgeSucceeded(const MergedRiskEvent &mergedEvent);
 
 public:
-    explicit AlertPanel(IFlightDataService *_dataService, QWidget *parent = nullptr);
+    explicit AlertPanel(IFlightDataService *dataService, QWidget *parent = nullptr);
 
     void clearAlerts();
-    void clearPlaceholderAlerts();
-    void addAlert(const RiskEvent &riskEvent);
     void addMergedAlert(const MergedRiskEvent &mergedEvent);
 
     void setRiskEventData(const RiskEventData &riskEventData);
@@ -35,10 +33,12 @@ private:
     QTabWidget *buildAlertPanel();
     QWidget *buildAlertsTab();
 
+    AlertButton *findButtonForSector(int sectorId);
+
     void wireAcknowledgeButton(AlertButton *button);
+    void handleAlertAcknowledged(AlertButton *button);
 
     QVector<AlertButton *> _activeAlerts;
-    QVector<AlertButton *> _placeholderAlerts;
     QWidget *_alertsContainer = nullptr;
 
     IFlightDataService *_dataService = nullptr;

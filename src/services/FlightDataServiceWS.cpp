@@ -90,8 +90,6 @@ void FlightDataServiceWS::onError(QAbstractSocket::SocketError error)
 
 void FlightDataServiceWS::onMessageReceived(const QByteArray &message)
 {
-    qDebug() << "Received message:" << message.left(200); // first 200 chars
-
     parseMessage(message);
 }
 
@@ -139,13 +137,10 @@ void FlightDataServiceWS::parseMessage(const QByteArray &message)
 
 void FlightDataServiceWS::acknowledgeRiskEvents(const MergedRiskEvent &mergedEvent)
 {
-    QNetworkRequest request(QUrl(_serverUrl + "/acknowledge/PLACEHOLDER-FIX-THIS"));
+    QNetworkRequest request(QUrl(_serverUrl + "/risk-event/acknowledge"));
 
-    qDebug() << "Acknowledging risk events for sector" << mergedEvent.getSectorId();
 
     qDebug() << "Server URL:" << request.url();
-
-    qDebug() << "test 1";
 
     request.setHeader(
         QNetworkRequest::ContentTypeHeader,
@@ -153,28 +148,39 @@ void FlightDataServiceWS::acknowledgeRiskEvents(const MergedRiskEvent &mergedEve
 
     const QJsonObject body = Serializers::toJson(mergedEvent);
 
+        qDebug() << "body:" << body;
+
     QNetworkReply *reply = _networkManager.put(
         request,
         QJsonDocument(body).toJson());
 
-    qDebug() << "test 2";
-
-    connect(reply, &QNetworkReply::finished, this, [this, reply]()
+    connect(reply, &QNetworkReply::finished, this, [this, reply, mergedEvent]()
             {
+        if (reply->error() != QNetworkReply::NoError)
+        {
+            qWarning() << "Acknowledge request failed:" << reply->errorString();
+            emit acknowledgeFailed(mergedEvent);
+            reply->deleteLater();
+            return;
+        }
+
         const int status =
             reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
         qDebug() << "status:" << status;
-        qDebug() << "body:" << reply->readAll();
 
         if (status == 204 || status == 200)
-            emit acknowledgeSucceeded();
+        {
+            qDebug() << "[Service] Emitting success for sector" << mergedEvent.getSectorId();
+            emit acknowledgeSucceeded(mergedEvent);
+        }
         else
-            emit acknowledgeFailed();
+        {
+            qDebug() << "[Service] Emitting failure for sector" << mergedEvent.getSectorId();
+            emit acknowledgeFailed(mergedEvent);
+        }
 
         reply->deleteLater(); });
-    
-    qDebug() << "test 3";
 }
 
 SectorSummaryData FlightDataServiceWS::getSectorSummaryData() const

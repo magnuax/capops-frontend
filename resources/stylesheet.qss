@@ -129,8 +129,6 @@ AlertButton
     background-color: rgb(255, 128, 128);
     border-radius: 4px;
     padding: 8px;
-    min-width: 340px;
-    max-width: 340px;
 }
 
 #alertLabel

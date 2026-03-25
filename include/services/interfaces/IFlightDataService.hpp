@@ -12,8 +12,8 @@ class IFlightDataService : public QObject
 
 signals:
     void dataReloaded();
-    void acknowledgeSucceeded();
-    void acknowledgeFailed();
+    void acknowledgeSucceeded(const MergedRiskEvent &mergedEvent);
+    void acknowledgeFailed(const MergedRiskEvent &mergedEvent);
 
 public:
     using QObject::QObject;
