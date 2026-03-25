@@ -147,7 +147,7 @@ AlertButton
     background-color: rgb(255, 35, 35);
     color: white;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 10px;
     border-radius: 4px;
     padding: 6px 12px;
 }
@@ -206,6 +206,44 @@ AlertButton[riskState="At Risk"]
 #acknowledgeButton:pressed[riskState="At Risk"]
 {
     background-color: rgb(230, 100, 0);
+}
+
+/** --- Alert scroll area --- */
+QScrollArea
+{
+    background: transparent;
+    border: none;
+}
+
+QScrollArea > QWidget > QWidget
+{
+    background: transparent;
+}
+
+QScrollBar:vertical
+{
+    background: rgb(215, 210, 200);
+    width: 6px;
+    border-radius: 3px;
+    margin: 0px;
+}
+
+QScrollBar::handle:vertical
+{
+    background: rgb(170, 165, 155);
+    border-radius: 3px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover
+{
+    background: rgb(140, 135, 125);
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical
+{
+    height: 0px;
 }
 
 /** Alert history */

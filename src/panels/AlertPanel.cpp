@@ -2,6 +2,8 @@
 #include <QPointer>
 #include <QTabWidget>
 #include <QVBoxLayout>
+#include <QScrollArea>
+
 #include <algorithm>
 
 #include "panels/AlertPanel.hpp"
@@ -80,26 +82,40 @@ void AlertPanel::addMergedAlert(const MergedRiskEvent &mergedEvent)
     AlertButton *button = new AlertButton(mergedEvent, this);
 
     wireAcknowledgeButton(button);
-    _alertsTab->layout()->addWidget(button);
+    _alertsContainer->layout()->addWidget(button);
     _activeAlerts.push_back(button);
 }
 
 QTabWidget *AlertPanel::buildAlertPanel()
 {
-    _alertsTab = buildAlertsTab();
+    QWidget *tab = buildAlertsTab();
 
     QTabWidget *tabWidget = new QTabWidget(this);
-    tabWidget->addTab(_alertsTab, "Alerts");
+    tabWidget->addTab(tab, "Alerts");
 
     return tabWidget;
 }
 
 QWidget *AlertPanel::buildAlertsTab()
 {
-    QWidget *alertsTab = new QWidget(this);
-    auto *layout = new QVBoxLayout(alertsTab);
-    layout->setAlignment(Qt::AlignTop);
-    alertsTab->setLayout(layout);
+    QWidget *inner = new QWidget();
+    auto *innerLayout = new QVBoxLayout(inner);
+    innerLayout->setAlignment(Qt::AlignTop);
+    inner->setLayout(innerLayout);
 
-    return alertsTab;
+    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea->setWidget(inner);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
+    QWidget *tab = new QWidget(this);
+    auto *tabLayout = new QVBoxLayout(tab);
+    tabLayout->setContentsMargins(0, 0, 0, 0);
+    tabLayout->addWidget(scrollArea);
+    tab->setLayout(tabLayout);
+
+    _alertsContainer = inner;
+
+    return tab;
 }

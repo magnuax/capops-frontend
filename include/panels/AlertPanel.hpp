@@ -39,7 +39,7 @@ private:
 
     QVector<AlertButton *> _activeAlerts;
     QVector<AlertButton *> _placeholderAlerts;
-    QWidget *_alertsTab = nullptr;
+    QWidget *_alertsContainer = nullptr;
 
     IFlightDataService *_dataService = nullptr;
 };
