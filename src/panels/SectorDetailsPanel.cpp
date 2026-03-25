@@ -216,13 +216,31 @@ void SectorDetailsPanel::updateAircraftListWidget()
                                        .getSectorSummary(_selectedSectorId)
                                        .getAircraftIds();
 
-    _aircraftEntries->clear();
     _aircraftListHeader->setText(QString("Aircrafts in sector ID-%1").arg(_selectedSectorId));
+
+    QSet<QString> incoming(flights.begin(), flights.end());
+
+    for (int i = _aircraftEntries->count() - 1; i >= 0; --i)
+    {
+        QString id = _aircraftEntries->item(i)->data(Qt::UserRole).toString();
+
+        if (!incoming.contains(id))
+            delete _aircraftEntries->takeItem(i);
+    }
+
+    QSet<QString> existing;
+    for (int i = 0; i < _aircraftEntries->count(); ++i)
+    {
+        existing.insert(_aircraftEntries->item(i)->data(Qt::UserRole).toString());
+    }
 
     for (const QString &icao24 : flights)
     {
-        auto *item = new QListWidgetItem(icao24, _aircraftEntries);
-        item->setData(Qt::UserRole, icao24);
+        if (!existing.contains(icao24))
+        {
+            auto *item = new QListWidgetItem(icao24, _aircraftEntries);
+            item->setData(Qt::UserRole, icao24);
+        }
     }
 }
 
@@ -238,14 +256,10 @@ void SectorDetailsPanel::updateSelectedAircraftWidget()
     _aircraftHeading->setText("n/a");
     _aircraftGroundTrack->setText("n/a");
 
-    if (!_selectedAircraftId.isEmpty())
-    {
-        headerText = QString("Selected aircraft: %1").arg(_selectedAircraftId);
-    }
-
-    _selectedAircraftHeader->setText(headerText);
-
-    _selectedAircraftHeader->setText(QString("Selected aircraft: %1").arg(_selectedAircraftId));
+    _selectedAircraftHeader->setText(
+        _selectedAircraftId.isEmpty()
+            ? "No aircraft selected"
+            : QString("Selected aircraft: %1").arg(_selectedAircraftId));
 
     const std::vector<Track> &tracks = _dataService->getTrackData().getTracks();
 
@@ -308,6 +322,7 @@ void SectorDetailsPanel::selectAircraft(QListWidgetItem *item)
     _selectedAircraftId = ICAO;
 
     updateSelectedAircraftWidget();
+    emit aircraftSelected(ICAO);
 }
 
 void SectorDetailsPanel::selectAircraftById(const QString &icao24)
@@ -326,4 +341,5 @@ void SectorDetailsPanel::selectAircraftById(const QString &icao24)
     }
 
     updateSelectedAircraftWidget();
+    emit aircraftSelected(icao24);
 }
