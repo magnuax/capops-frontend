@@ -6,7 +6,6 @@
 #include <QSslSocket>
 #include <QToolButton>
 #include <QButtonGroup>
-#include <QDebug>
 
 #include "pages/MainPage.hpp"
 #include "panels/StateGridPanel.hpp"
@@ -37,9 +36,12 @@ void MainPage::wireConnections()
     connect(_gridPanel, &StateGridPanel::sectorSelected,
             _sectorDetailsPanel, &SectorDetailsPanel::setSector);
 
-    // --- Track selection: grid overlay -> details panel ---
+    // --- Track selection: grid overlay <-> details panel ---
     connect(_gridPanel, &StateGridPanel::trackSelected,
             _sectorDetailsPanel, &SectorDetailsPanel::selectAircraftById);
+
+    connect(_sectorDetailsPanel, &SectorDetailsPanel::aircraftSelected,
+            _gridPanel, &StateGridPanel::selectTrack);
 
     // --- Map fetcher signals ---
     connect(_mapFetcher, &ITileMapService::finished,
