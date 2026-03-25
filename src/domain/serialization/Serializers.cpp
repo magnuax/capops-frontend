@@ -21,23 +21,31 @@ namespace Serializers
     {
         QJsonObject obj;
         obj["sectorId"] = mergedEvent.getSectorId();
+        obj["summaryMessage"] = mergedEvent.getSummaryMessage();
+        obj["lastMessage"] = mergedEvent.getLastMessage();
+        obj["checksum"] = "PLACEHOLDER"; // toString(mergedEvent.getLastRiskState());
 
         QJsonArray events;
         for (const RiskEvent &event : mergedEvent.getRiskEvents())
-            events.append(toJson(event));
+            events.append(event.getRiskEventId());
 
-        obj["riskEvents"] = events;
+        obj["riskEventIds"] = events;
         return obj;
     }
 
     QJsonObject toJson(const SectorSummary &sector)
     {
+        QStringList icao24List;
+        for (const QString &icao24 : sector.getAircraftIds())
+            icao24List.append(icao24);
+
         QJsonObject obj;
         obj["sectorId"] = sector.getSectorId();
         obj["row"] = sector.getRow();
         obj["column"] = sector.getCol();
         obj["riskSeverity"] = toString(sector.getRiskState());
         obj["weatherSeverity"] = toString(sector.getWeatherState());
+        obj["icao24List"] = QJsonArray::fromStringList(icao24List);
         return obj;
     }
 

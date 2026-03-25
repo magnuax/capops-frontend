@@ -53,14 +53,21 @@ namespace Deserializers
 
     SectorSummary toSectorSummary(const QJsonObject &obj)
     {
+
+        std::vector<QString> icao24List;
+
+        for (const QJsonValue &value : obj.value("icao24List").toArray())
+            icao24List.push_back(value.toString());
+
         return SectorSummary(
             obj.value("sectorId").toInt(),
             obj.value("row").toInt(),
             obj.value("column").toInt(),
-            {},
+            icao24List,
             computeTrafficState(
                 obj.value("localAircraftCount").toInt(),
                 obj.value("localAircraftBaseCapacity").toInt()),
+
             weatherStateFromString(obj.value("weatherSeverity").toString()),
             riskStateFromString(obj.value("riskSeverity").toString()));
     }
