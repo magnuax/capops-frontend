@@ -1,4 +1,5 @@
 #include <QWidget>
+#include <QPointer>
 #include <QTabWidget>
 #include <QVBoxLayout>
 #include <algorithm>
@@ -14,19 +15,6 @@ AlertPanel::AlertPanel(IFlightDataService *_dataService, QWidget *parent) : QFra
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(buildAlertPanel());
 
-    // PLACEHOLDER:
-    RiskEvent testEvent3(1, 1, false, RiskState::CONGESTED, QDateTime::currentDateTime(), QDateTime(), "Escalated to CONGESTED");
-    RiskEvent testEvent2(1, 1, false, RiskState::CONGESTED, QDateTime::currentDateTime().addSecs(-60), QDateTime(), "De-escalated to AT_RISK");
-    RiskEvent testEvent1(1, 1, false, RiskState::CONGESTED, QDateTime::currentDateTime().addSecs(-120), QDateTime(), "Escalated to CONGESTED");
-
-    MergedRiskEvent mergedEvent(1, {testEvent1, testEvent2, testEvent3});
-    addMergedAlert(mergedEvent);
-    _placeholderAlerts.push_back(_activeAlerts.last());
-
-    RiskEvent testEvent4(2, 2, false, RiskState::AT_RISK, QDateTime::currentDateTime(), QDateTime(), "Escalated to AT_RISK");
-    addMergedAlert(MergedRiskEvent(2, {testEvent4}));
-    _placeholderAlerts.push_back(_activeAlerts.last());
-
     setLayout(layout);
 }
 
@@ -38,7 +26,7 @@ void AlertPanel::setRiskEventData(const RiskEventData &data)
     {
         if (mergedEvent.getLastRiskState() == RiskState::NORMAL)
             continue;
-            
+
         addMergedAlert(mergedEvent);
     }
 }
@@ -65,13 +53,23 @@ void AlertPanel::wireAcknowledgeButton(AlertButton *button)
     connect(button, &AlertButton::alertAcknowledged,
             _dataService, &IFlightDataService::acknowledgeRiskEvents);
 
+    QPointer<AlertButton> safeButton(button);
+
     connect(_dataService, &IFlightDataService::acknowledgeSucceeded,
-            this, [this, button]()
-            {
-            _activeAlerts.erase(
-                std::remove(_activeAlerts.begin(), _activeAlerts.end(), button),
-                _activeAlerts.end());
-            button->deleteLater(); });
+            button, [this, button]()
+            { handleAlertAcknowledged(button); });
+}
+
+void AlertPanel::handleAlertAcknowledged(AlertButton *button)
+{
+    if (!button)
+        return;
+
+    _activeAlerts.erase(
+        std::remove(_activeAlerts.begin(), _activeAlerts.end(), button),
+        _activeAlerts.end());
+
+    button->deleteLater();
 }
 
 void AlertPanel::addMergedAlert(const MergedRiskEvent &mergedEvent)

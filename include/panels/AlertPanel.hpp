@@ -18,6 +18,9 @@ class AlertPanel : public QFrame
 signals:
     void alertAcknowledged(const MergedRiskEvent &mergedEvent);
 
+private slots:
+    void handleAlertAcknowledged(AlertButton *button);
+
 public:
     explicit AlertPanel(IFlightDataService *_dataService, QWidget *parent = nullptr);
 
