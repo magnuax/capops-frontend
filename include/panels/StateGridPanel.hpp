@@ -31,6 +31,7 @@ signals:
 public slots:
     void refresh();
     void updateCoordinateLabel(double lat, double lon);
+    void selectTrack(const QString &icao24);
 
 public:
     explicit StateGridPanel(IFlightDataService *dataService, QWidget *parent = nullptr);

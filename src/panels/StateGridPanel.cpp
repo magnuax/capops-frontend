@@ -131,7 +131,7 @@ GridCanvas *StateGridPanel::buildGridWidget(const SectorSummaryData &data)
 
             cell->setMouseTracking(true);
 
-            _gridLayout->addWidget(cell, row, col);
+            _gridLayout->addWidget(cell, (_numRows - 1 - row), col);
             _cells.push_back(cell);
         }
     }
@@ -197,7 +197,7 @@ void StateGridPanel::rebuildGrid(const SectorSummaryData &data)
             cell->setDisplayMode(static_cast<DisplayMode>(_tabBar->tabData(_tabBar->currentIndex()).toInt()));
             cell->setMouseTracking(true);
 
-            _gridLayout->addWidget(cell, row, col);
+            _gridLayout->addWidget(cell, (_numRows - 1 - row), col);
             _cells.push_back(cell);
         }
     }
@@ -305,4 +305,10 @@ void StateGridPanel::updateCoordinateLabel(double lat, double lon)
     _coordLabel->setText(QString("Lat: %1\nLon: %2")
                              .arg(lat, 0, 'f', 4)
                              .arg(lon, 0, 'f', 4));
+}
+
+void StateGridPanel::selectTrack(const QString &icao24)
+{
+    if (_trackOverlay)
+        _trackOverlay->setSelectedTrack(icao24);
 }
