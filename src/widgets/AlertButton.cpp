@@ -124,6 +124,18 @@ void AlertButton::buildHistoryWidget()
         static_cast<QVBoxLayout *>(this->layout())->addWidget(_historyWidget);
     }
 
+    if (!history.empty())
+    {
+        const QDateTime cutoff = _mergedRiskEvent.getLastEvent().getCreatedTimestamp().addSecs(-3600);
+        history.erase(
+            std::remove_if(history.begin(), history.end(),
+                           [&cutoff](const RiskEvent &event)
+                           {
+                               return event.getCreatedTimestamp() < cutoff;
+                           }),
+            history.end());
+    }
+
     const bool wasExpanded = _historyWidget->isVisible();
 
     // Block signals while rebuilding to prevent layout changes
