@@ -3,6 +3,8 @@
 #include <QTimer>
 #include <QStandardPaths>
 
+#include <algorithm>
+
 #include <QSslSocket>
 #include <QToolButton>
 #include <QButtonGroup>
@@ -38,7 +40,25 @@ void MainPage::wireConnections()
 
     // --- Track selection: grid overlay <-> details panel ---
     connect(_gridPanel, &StateGridPanel::trackSelected,
-            _sectorDetailsPanel, &SectorDetailsPanel::selectAircraftById);
+            this, [this](const QString &icao24)
+            {
+                const auto sectors = _dataService->getSectorSummaryData().getSectorSummaries();
+
+                for (const auto &sector : sectors)
+                {
+                    const auto &aircraftIds = sector.getAircraftIds();
+                    const auto it = std::find(aircraftIds.begin(), aircraftIds.end(), icao24);
+
+                    if (it != aircraftIds.end())
+                    {
+                        _gridPanel->selectSector(sector.getSectorId());
+                        _sectorDetailsPanel->setSector(sector.getSectorId());
+                        break;
+                    }
+                }
+
+                _sectorDetailsPanel->selectAircraftById(icao24);
+            });
 
     connect(_sectorDetailsPanel, &SectorDetailsPanel::aircraftSelected,
             _gridPanel, &StateGridPanel::selectTrack);

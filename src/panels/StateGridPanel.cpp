@@ -312,3 +312,29 @@ void StateGridPanel::selectTrack(const QString &icao24)
     if (_trackOverlay)
         _trackOverlay->setSelectedTrack(icao24);
 }
+
+void StateGridPanel::selectSector(int sectorId)
+{
+    const SectorSummary summary = _dataService
+                                      ->getSectorSummaryData()
+                                      .getSectorSummary(sectorId);
+
+    GridSector *target = nullptr;
+    for (GridSector *cell : _cells)
+    {
+        if (cell->getRow() == summary.getRow() && cell->getCol() == summary.getCol())
+        {
+            target = cell;
+            break;
+        }
+    }
+
+    if (!target)
+        return;
+
+    if (_selectedCell && _selectedCell != target)
+        _selectedCell->setSelected(false);
+
+    _selectedCell = target;
+    _selectedCell->setSelected(true);
+}

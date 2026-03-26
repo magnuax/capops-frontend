@@ -242,6 +242,15 @@ void SectorDetailsPanel::updateAircraftListWidget()
             item->setData(Qt::UserRole, icao24);
         }
     }
+
+    // If the selected aircraft is no longer part of this sector, clear selection
+    // so the track overlay can remove its selected marker as well.
+    if (!_selectedAircraftId.isEmpty() && !incoming.contains(_selectedAircraftId))
+    {
+        _selectedAircraftId.clear();
+        _aircraftEntries->setCurrentItem(nullptr);
+        emit aircraftSelected(QString());
+    }
 }
 
 void SectorDetailsPanel::updateSelectedAircraftWidget()
@@ -301,7 +310,9 @@ void SectorDetailsPanel::setSector(int sectorId)
 
     _selectedSectorId = sectorId;
     _selectedSectorIdx = QPoint(sector.getRow(), sector.getCol());
-    _selectedAircraftId = "";
+    _selectedAircraftId.clear();
+    _aircraftEntries->setCurrentItem(nullptr);
+    emit aircraftSelected(QString());
 
     refresh();
 }
@@ -327,6 +338,15 @@ void SectorDetailsPanel::selectAircraft(QListWidgetItem *item)
 
 void SectorDetailsPanel::selectAircraftById(const QString &icao24)
 {
+    if (icao24.isEmpty())
+    {
+        _selectedAircraftId.clear();
+        _aircraftEntries->setCurrentItem(nullptr);
+        updateSelectedAircraftWidget();
+        emit aircraftSelected(QString());
+        return;
+    }
+
     _selectedAircraftId = icao24;
 
     // Sync the list widget selection
